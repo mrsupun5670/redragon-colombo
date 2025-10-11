@@ -1,0 +1,183 @@
+# ╔══════════════════════════════════════════════════════════════════╗
+# ║  .GITIGNORE - Files to exclude from Git repository              ║
+# ║  IMPORTANT: Keep sensitive data and dependencies out of GitHub  ║
+# ╚══════════════════════════════════════════════════════════════════╝
+
+# ============================================================================
+# ENVIRONMENT VARIABLES (CRITICAL - NEVER COMMIT!)
+# ============================================================================
+.env
+.env.local
+.env.development
+.env.production
+.env.test
+*.env
+
+# ============================================================================
+# NODE MODULES (Large dependencies - reinstall with npm install)
+# ============================================================================
+node_modules/
+**/node_modules/
+backend/node_modules/
+frontend/node_modules/
+
+# ============================================================================
+# BUILD OUTPUTS
+# ============================================================================
+# Frontend build
+frontend/build/
+frontend/dist/
+frontend/.next/
+
+# Backend build (if using TypeScript)
+backend/dist/
+backend/build/
+
+# ============================================================================
+# LOGS
+# ============================================================================
+*.log
+logs/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+.npm
+.eslintcache
+
+# ============================================================================
+# OPERATING SYSTEM FILES
+# ============================================================================
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Windows
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+*.stackdump
+[Dd]esktop.ini
+$RECYCLE.BIN/
+
+# Linux
+*~
+.directory
+.Trash-*
+
+# ============================================================================
+# IDE & EDITOR FILES
+# ============================================================================
+# VS Code
+.vscode/
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+*.code-workspace
+
+# JetBrains IDEs (WebStorm, IntelliJ, etc.)
+.idea/
+*.iml
+*.iws
+*.ipr
+
+# Sublime Text
+*.sublime-project
+*.sublime-workspace
+
+# Vim
+*.swp
+*.swo
+*~
+
+# ============================================================================
+# DEPENDENCY LOCK FILES (Optional - decide based on team preference)
+# ============================================================================
+# Uncomment if you want to ignore lock files (not recommended for production)
+# package-lock.json
+# yarn.lock
+# pnpm-lock.yaml
+
+# ============================================================================
+# TESTING
+# ============================================================================
+coverage/
+.nyc_output/
+*.lcov
+.cache/
+
+# ============================================================================
+# TEMPORARY FILES
+# ============================================================================
+tmp/
+temp/
+*.tmp
+*.temp
+.cache
+
+# ============================================================================
+# DATABASE FILES (SQLite, local DB dumps)
+# ============================================================================
+*.sqlite
+*.sqlite3
+*.db
+database/backups/
+*.sql.backup
+
+# ============================================================================
+# SENSITIVE FILES (Certificates, Keys, etc.)
+# ============================================================================
+*.pem
+*.key
+*.cert
+*.crt
+ssl/
+certificates/
+
+# ============================================================================
+# UPLOADS & USER GENERATED CONTENT (if stored locally)
+# ============================================================================
+# Uncomment if you store uploads locally (but you're using Cloudinary)
+# uploads/
+# public/uploads/
+
+# ============================================================================
+# DOCUMENTATION BUILDS
+# ============================================================================
+docs/_build/
+site/
+
+# ============================================================================
+# MISC
+# ============================================================================
+.sass-cache/
+*.css.map
+*.sass.map
+*.scss.map
+
+# React specific
+frontend/.pnp
+frontend/.pnp.js
+
+# ============================================================================
+# IMPORTANT FILES TO KEEP (DO NOT IGNORE)
+# ============================================================================
+# Make sure these are NOT ignored:
+# - README.md
+# - package.json
+# - Project structure documentation
+# - Source code files
+
+# ============================================================================
+# PROJECT SPECIFIC
+# ============================================================================
+# SQL schema file (delete after running)
+frontend/public/redragon_database_schema.sql
+frontend/public/*.sql
+
+# Test images (if any)
+frontend/public/images/test/
