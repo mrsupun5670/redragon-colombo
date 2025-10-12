@@ -11,12 +11,12 @@ import {
   Shield,
   Clock,
   Phone,
-  MapPin,
   TrendingUp,
+  Zap,
 } from "lucide-react";
 import Navbar from "../components/Navbar";
 import FullScreenCarousel from "../components/FullScreenCarousel";
-import ParticleEffect from "../components/ParticleEffect";
+import GamingParticles from "../components/GamingParticles";
 import FuturisticProductCard from "../components/FuturisticProductCard";
 import Footer from "../components/Footer";
 import WhatsAppButton from "../components/WhatsAppButton";
@@ -26,7 +26,6 @@ import { featuredProducts, bestSellers } from "../data/products";
 const Home = () => {
   const [hoveredCategory, setHoveredCategory] = useState(null);
 
-  // Specialized Gaming Categories with Real Images
   const categories = [
     {
       id: 1,
@@ -36,6 +35,7 @@ const Home = () => {
       description: "Mechanical & Membrane",
       image:
         "https://images.unsplash.com/photo-1587829741301-dc798b83add3?w=400&h=400&fit=crop",
+      color: "#ff0040",
     },
     {
       id: 2,
@@ -45,6 +45,7 @@ const Home = () => {
       description: "Wireless & Wired",
       image:
         "https://images.unsplash.com/photo-1615663245857-ac93bb7c39e7?w=400&h=400&fit=crop",
+      color: "#00f0ff",
     },
     {
       id: 3,
@@ -54,6 +55,7 @@ const Home = () => {
       description: "7.1 Surround Sound",
       image:
         "https://images.unsplash.com/photo-1545127398-14699f92334b?w=400&h=400&fit=crop",
+      color: "#8b00ff",
     },
     {
       id: 4,
@@ -63,6 +65,7 @@ const Home = () => {
       description: "144Hz & 240Hz",
       image:
         "https://images.unsplash.com/photo-1527443224154-c4a3942d3acf?w=400&h=400&fit=crop",
+      color: "#00ff41",
     },
     {
       id: 5,
@@ -72,6 +75,7 @@ const Home = () => {
       description: "CPU, GPU, RAM",
       image:
         "https://images.unsplash.com/photo-1591799264318-7e6ef8ddb7ea?w=400&h=400&fit=crop",
+      color: "#ff006e",
     },
     {
       id: 6,
@@ -81,6 +85,7 @@ const Home = () => {
       description: "SSD & HDD",
       image:
         "https://images.unsplash.com/photo-1597872200969-2b65d56bd16b?w=400&h=400&fit=crop",
+      color: "#0080ff",
     },
   ];
 
@@ -92,7 +97,6 @@ const Home = () => {
     const scrollContainer = document.getElementById("featured-scroll");
     if (!scrollContainer) return;
 
-    // Scroll for 3 seconds, then pause for 2 seconds
     const pausePlayInterval = setInterval(() => {
       setIsScrolling(prev => !prev);
     }, isScrolling ? 3000 : 2000);
@@ -127,12 +131,15 @@ const Home = () => {
   }, [scrollPosition]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-50 via-white to-gray-100">
-      {/* Development Watermark */}
-      {/* <DevelopmentWatermark /> */}
+    <div className="min-h-screen bg-dark-900 relative">
+      {/* Gaming Particles Background */}
+      <GamingParticles />
 
-      {/* Particle Effect */}
-      <ParticleEffect />
+      {/* Cyber Grid Pattern */}
+      <div className="cyber-grid fixed inset-0 opacity-30" />
+
+      {/* Development Watermark */}
+      <DevelopmentWatermark />
 
       {/* Navbar */}
       <Navbar />
@@ -141,31 +148,48 @@ const Home = () => {
       <FullScreenCarousel />
 
       {/* Main Content */}
-      <div className="bg-gradient-to-b from-white via-gray-50 to-white">
-        {/* Why Choose Us */}
-        <div className="bg-gradient-to-r from-red-500 to-red-600 border-y-2 border-red-700 py-8 shadow-xl">
-          <div className="container mx-auto px-4">
+      <div className="relative z-10">
+        {/* Why Choose Us - Gaming Style */}
+        <div className="relative bg-gradient-to-r from-dark-800 via-dark-700 to-dark-800 border-y-2 neon-border py-8 shadow-2xl overflow-hidden">
+          {/* Animated Background Lines */}
+          <div className="absolute inset-0 opacity-10">
+            {[...Array(5)].map((_, i) => (
+              <motion.div
+                key={i}
+                className="absolute h-px bg-gradient-to-r from-transparent via-neon-cyan to-transparent"
+                style={{ top: `${20 * i}%`, left: 0, right: 0 }}
+                animate={{ x: ['-100%', '100%'] }}
+                transition={{ duration: 3 + i, repeat: Infinity, ease: "linear" }}
+              />
+            ))}
+          </div>
+
+          <div className="container mx-auto px-4 relative z-10">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
               {[
                 {
                   icon: Shield,
                   title: "1 Year Warranty",
                   desc: "On all products",
+                  color: "#00f0ff",
                 },
                 {
                   icon: TrendingUp,
                   title: "Genuine Products",
                   desc: "100% Authentic",
+                  color: "#ff006e",
                 },
                 {
                   icon: Clock,
                   title: "Fast Delivery",
                   desc: "Islandwide shipping",
+                  color: "#8b00ff",
                 },
                 {
                   icon: Phone,
                   title: "24/7 Support",
                   desc: "Expert assistance",
+                  color: "#00ff41",
                 },
               ].map((item, i) => (
                 <motion.div
@@ -179,31 +203,38 @@ const Home = () => {
                   <motion.div
                     whileHover={{ scale: 1.2, rotate: 360 }}
                     transition={{ duration: 0.5 }}
+                    className="inline-flex w-16 h-16 rounded-xl items-center justify-center mb-3 relative"
+                    style={{
+                      background: `linear-gradient(135deg, ${item.color}20, ${item.color}40)`,
+                      boxShadow: `0 0 30px ${item.color}40`,
+                    }}
                   >
-                    <item.icon className="w-10 h-10 mx-auto mb-3 text-white" />
+                    <item.icon className="w-8 h-8" style={{ color: item.color }} />
                   </motion.div>
-                  <h3 className="font-black text-sm mb-1 text-white uppercase tracking-wider">
+                  <h3 className="font-black text-sm mb-1 text-white uppercase tracking-wider neon-pulse">
                     {item.title}
                   </h3>
-                  <p className="text-xs text-white/90">{item.desc}</p>
+                  <p className="text-xs text-gray-400">{item.desc}</p>
                 </motion.div>
               ))}
             </div>
           </div>
         </div>
 
-        {/* Product Categories */}
-        <div className="container mx-auto px-4 py-20">
+        {/* Product Categories - Gaming Style */}
+        <div className="container mx-auto px-4 py-20 relative">
           <div className="text-center mb-12">
-            <motion.h2
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.5 }}
+              whileInView={{ opacity: 1, scale: 1 }}
               viewport={{ once: true }}
-              className="text-4xl md:text-6xl font-black text-gray-900 mb-4 uppercase tracking-tighter"
+              className="inline-block mb-4"
             >
-              <span className="text-red-600">●</span> SHOP BY CATEGORY
-            </motion.h2>
-            <p className="text-gray-600 text-sm font-semibold">
+              <span className="rgb-text text-4xl md:text-6xl font-black uppercase tracking-tighter">
+                ● SHOP BY CATEGORY
+              </span>
+            </motion.div>
+            <p className="text-gray-400 text-sm font-semibold">
               Professional gaming peripherals and computer components
             </p>
           </div>
@@ -220,35 +251,40 @@ const Home = () => {
                 whileHover={{ y: -10, scale: 1.05 }}
                 onHoverStart={() => setHoveredCategory(category.id)}
                 onHoverEnd={() => setHoveredCategory(null)}
-                className="bg-white border-2 border-gray-200 hover:border-red-500 rounded-2xl overflow-hidden group transition-all duration-300 relative shadow-lg hover:shadow-2xl"
+                className="bg-dark-800 border-2 rounded-2xl overflow-hidden group transition-all duration-300 relative"
+                style={{
+                  borderColor: hoveredCategory === category.id ? category.color : '#252525',
+                  boxShadow: hoveredCategory === category.id ? `0 0 30px ${category.color}40` : 'none',
+                }}
               >
-                <div className="aspect-square bg-gradient-to-br from-gray-50 to-white relative overflow-hidden">
+                <div className="aspect-square bg-gradient-to-br from-dark-700 to-dark-900 relative overflow-hidden">
                   {hoveredCategory === category.id ? (
                     <motion.img
                       src={category.image}
                       alt={category.name}
-                      className="w-full h-full object-cover"
+                      className="w-full h-full object-cover opacity-60"
                       initial={{ scale: 1.2, opacity: 0 }}
-                      animate={{ scale: 1, opacity: 1 }}
+                      animate={{ scale: 1, opacity: 0.6 }}
                       transition={{ duration: 0.3 }}
                     />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center">
-                      <category.icon className="w-16 h-16 text-gray-400 group-hover:text-red-500 transition-colors" />
+                      <category.icon className="w-16 h-16 text-gray-600 group-hover:neon-pulse transition-all" style={{ color: category.color }} />
                     </div>
                   )}
-                  {/* Gradient overlay on hover */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-red-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                  {/* Animated corner accents */}
+                  <div className="absolute top-0 left-0 w-8 h-8 border-t-2 border-l-2 opacity-0 group-hover:opacity-100 transition-opacity" style={{ borderColor: category.color }} />
+                  <div className="absolute bottom-0 right-0 w-8 h-8 border-b-2 border-r-2 opacity-0 group-hover:opacity-100 transition-opacity" style={{ borderColor: category.color }} />
                 </div>
 
-                <div className="p-4 text-center bg-white">
-                  <h3 className="font-black text-gray-900 mb-1 group-hover:text-red-500 transition-colors uppercase text-sm">
+                <div className="p-4 text-center bg-dark-800">
+                  <h3 className="font-black text-white mb-1 uppercase text-sm" style={{ color: hoveredCategory === category.id ? category.color : '#ffffff' }}>
                     {category.name}
                   </h3>
-                  <p className="text-xs text-gray-600 mb-1">
+                  <p className="text-xs text-gray-500 mb-1">
                     {category.description}
                   </p>
-                  <p className="text-xs text-gray-500 font-semibold">
+                  <p className="text-xs text-gray-600 font-semibold">
                     {category.count} Products
                   </p>
                 </div>
@@ -257,12 +293,22 @@ const Home = () => {
           </div>
         </div>
 
-        {/* Featured Products - Auto Scrolling with Enhanced Design */}
-        <div className="relative bg-gradient-to-br from-red-50 via-white to-orange-50 py-20 overflow-hidden">
-          {/* Decorative Background Elements */}
-          <div className="absolute inset-0 opacity-5">
-            <div className="absolute top-0 left-0 w-96 h-96 bg-red-500 rounded-full blur-3xl" />
-            <div className="absolute bottom-0 right-0 w-96 h-96 bg-orange-500 rounded-full blur-3xl" />
+        {/* Featured Products - RGB Gaming Style */}
+        <div className="relative bg-gradient-to-br from-dark-900 via-dark-800 to-dark-900 py-20 overflow-hidden border-y-2 neon-border">
+          {/* Animated background circles */}
+          <div className="absolute inset-0 opacity-10">
+            <motion.div
+              animate={{ scale: [1, 1.2, 1], rotate: 360 }}
+              transition={{ duration: 20, repeat: Infinity }}
+              className="absolute top-0 left-0 w-96 h-96 rounded-full"
+              style={{ background: 'radial-gradient(circle, #ff004080, transparent)' }}
+            />
+            <motion.div
+              animate={{ scale: [1.2, 1, 1.2], rotate: -360 }}
+              transition={{ duration: 25, repeat: Infinity }}
+              className="absolute bottom-0 right-0 w-96 h-96 rounded-full"
+              style={{ background: 'radial-gradient(circle, #00f0ff80, transparent)' }}
+            />
           </div>
 
           <div className="container mx-auto px-4 mb-12 relative z-10">
@@ -274,7 +320,7 @@ const Home = () => {
                   viewport={{ once: true }}
                   className="inline-block mb-4"
                 >
-                  <span className="bg-gradient-to-r from-red-500 to-orange-500 text-white px-4 py-1.5 rounded-full text-xs font-black uppercase tracking-wider">
+                  <span className="bg-gradient-to-r from-neon-red to-neon-pink text-white px-4 py-1.5 rounded-full text-xs font-black uppercase tracking-wider neon-pulse">
                     ⚡ Trending Now
                   </span>
                 </motion.div>
@@ -282,46 +328,32 @@ const Home = () => {
                   initial={{ opacity: 0, y: 20 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
-                  className="text-4xl md:text-6xl font-black text-gray-900 mb-2 uppercase tracking-tighter"
+                  className="text-4xl md:text-6xl font-black mb-2 uppercase tracking-tighter rgb-text"
                 >
-                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-red-600 to-orange-600">
-                    FEATURED PRODUCTS
-                  </span>
+                  FEATURED PRODUCTS
                 </motion.h2>
-                <p className="text-gray-600 text-sm font-semibold">
+                <p className="text-gray-400 text-sm font-semibold">
                   Latest arrivals from Redragon - Limited stock available
                 </p>
               </div>
               <motion.a
                 href="/products"
                 whileHover={{ scale: 1.05, x: 5 }}
-                className="hidden md:flex items-center gap-2 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white px-6 py-3 rounded-xl font-black uppercase text-sm tracking-wider shadow-lg hover:shadow-xl transition-all"
+                className="hidden md:flex items-center gap-2 bg-gradient-to-r from-neon-red to-neon-pink hover:from-neon-pink hover:to-neon-purple text-white px-6 py-3 rounded-xl font-black uppercase text-sm tracking-wider shadow-lg neon-pulse"
               >
                 VIEW ALL
-                <svg
-                  className="w-5 h-5"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={3}
-                    d="M13 7l5 5m0 0l-5 5m5-5H6"
-                  />
-                </svg>
+                <Zap className="w-5 h-5" />
               </motion.a>
             </div>
           </div>
 
-          {/* Enhanced Auto-scrolling container with gradient edges */}
+          {/* Enhanced Auto-scrolling container */}
           <div className="relative">
             {/* Left gradient fade */}
-            <div className="absolute left-0 top-0 bottom-0 w-32 bg-gradient-to-r from-red-50 to-transparent z-10 pointer-events-none" />
+            <div className="absolute left-0 top-0 bottom-0 w-32 bg-gradient-to-r from-dark-900 to-transparent z-10 pointer-events-none" />
 
             {/* Right gradient fade */}
-            <div className="absolute right-0 top-0 bottom-0 w-32 bg-gradient-to-l from-orange-50 to-transparent z-10 pointer-events-none" />
+            <div className="absolute right-0 top-0 bottom-0 w-32 bg-gradient-to-l from-dark-900 to-transparent z-10 pointer-events-none" />
 
             {/* Scrolling container */}
             <div
@@ -349,32 +381,16 @@ const Home = () => {
             <motion.div
               animate={{ x: [0, 10, 0] }}
               transition={{ duration: 1.5, repeat: Infinity }}
-              className="flex items-center gap-2 text-gray-500 text-sm"
+              className="flex items-center gap-2 text-neon-cyan text-sm neon-pulse"
             >
               <span className="font-semibold">Auto-scrolling</span>
-              <svg
-                className="w-4 h-4"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M14 5l7 7m0 0l-7 7m7-7H3"
-                />
-              </svg>
+              <Zap className="w-4 h-4" />
             </motion.div>
           </div>
         </div>
 
-        {/* Best Sellers - Redesigned */}
-        <div className="relative bg-gradient-to-br from-white via-gray-50 to-red-50 py-20 overflow-hidden">
-          {/* Decorative circles */}
-          <div className="absolute top-10 right-10 w-64 h-64 bg-red-500/5 rounded-full blur-3xl" />
-          <div className="absolute bottom-10 left-10 w-96 h-96 bg-orange-500/5 rounded-full blur-3xl" />
-
+        {/* Best Sellers - Gaming Style */}
+        <div className="relative bg-dark-900 py-20 overflow-hidden">
           <div className="container mx-auto px-4 relative z-10">
             {/* Section Header */}
             <div className="text-center mb-12">
@@ -382,7 +398,8 @@ const Home = () => {
                 initial={{ opacity: 0, scale: 0 }}
                 whileInView={{ opacity: 1, scale: 1 }}
                 viewport={{ once: true }}
-                className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-red-500 to-orange-500 rounded-full mb-6 shadow-xl"
+                className="inline-flex items-center justify-center w-20 h-20 rounded-full mb-6 rgb-glow"
+                style={{ background: 'linear-gradient(135deg, #ff0040, #8b00ff)' }}
               >
                 <Award className="w-10 h-10 text-white" />
               </motion.div>
@@ -391,11 +408,9 @@ const Home = () => {
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                className="text-4xl md:text-6xl font-black mb-3 uppercase tracking-tighter"
+                className="text-4xl md:text-6xl font-black mb-3 uppercase tracking-tighter rgb-text"
               >
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-red-600 via-orange-600 to-red-600">
-                  BEST SELLERS
-                </span>
+                BEST SELLERS
               </motion.h2>
 
               <motion.p
@@ -403,34 +418,23 @@ const Home = () => {
                 whileInView={{ opacity: 1 }}
                 viewport={{ once: true }}
                 transition={{ delay: 0.2 }}
-                className="text-gray-600 font-semibold max-w-2xl mx-auto"
+                className="text-gray-400 font-semibold max-w-2xl mx-auto"
               >
                 Top-rated products loved by thousands of gamers across Sri Lanka
               </motion.p>
-
-              {/* Decorative line */}
-              <motion.div
-                initial={{ scaleX: 0 }}
-                whileInView={{ scaleX: 1 }}
-                viewport={{ once: true }}
-                transition={{ delay: 0.3, duration: 0.6 }}
-                className="h-1 w-32 mx-auto mt-6 bg-gradient-to-r from-red-500 to-orange-500 rounded-full"
-              />
             </div>
 
-            {/* Products Grid with staggered animation */}
+            {/* Products Grid */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8">
               {bestSellers.map((product, i) => (
                 <motion.div
                   key={product.id}
-                  initial={{ opacity: 0, y: 50, rotateX: -15 }}
-                  whileInView={{ opacity: 1, y: 0, rotateX: 0 }}
+                  initial={{ opacity: 0, y: 50 }}
+                  whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
                   transition={{
                     delay: i * 0.15,
                     duration: 0.5,
-                    type: "spring",
-                    stiffness: 100
                   }}
                   className="h-full"
                 >
@@ -451,48 +455,44 @@ const Home = () => {
                 href="/products"
                 whileHover={{ scale: 1.05, y: -3 }}
                 whileTap={{ scale: 0.95 }}
-                className="group relative px-8 py-4 bg-gradient-to-r from-red-500 to-orange-500 hover:from-red-600 hover:to-orange-600 text-white rounded-full font-black uppercase tracking-wider shadow-xl hover:shadow-2xl transition-all overflow-hidden"
+                className="group relative px-8 py-4 bg-gradient-to-r from-neon-red via-neon-pink to-neon-purple text-white rounded-full font-black uppercase tracking-wider shadow-xl rgb-glow overflow-hidden"
               >
                 <span className="relative z-10 flex items-center gap-3">
                   View All Products
-                  <motion.svg
-                    animate={{ x: [0, 5, 0] }}
-                    transition={{ duration: 1.5, repeat: Infinity }}
-                    className="w-5 h-5"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                  </motion.svg>
+                  <Zap className="w-5 h-5" />
                 </span>
-                {/* Shine effect */}
-                <motion.div
-                  animate={{ x: ['-100%', '200%'] }}
-                  transition={{ duration: 2, repeat: Infinity, repeatDelay: 1 }}
-                  className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent"
-                />
               </motion.a>
             </motion.div>
           </div>
         </div>
 
-        {/* Trust Indicators */}
-        <div className="bg-gradient-to-r from-red-600 to-red-700 py-20 border-y-4 border-red-500">
-          <div className="container mx-auto px-4 text-center">
+        {/* Trust Indicators - Gaming Style */}
+        <div className="relative bg-gradient-to-r from-dark-800 via-dark-700 to-dark-800 py-20 border-y-2 neon-border overflow-hidden">
+          {/* Animated Scanlines */}
+          <div className="absolute inset-0 opacity-5">
+            {[...Array(20)].map((_, i) => (
+              <div
+                key={i}
+                className="absolute w-full h-px bg-neon-cyan"
+                style={{ top: `${5 * i}%` }}
+              />
+            ))}
+          </div>
+
+          <div className="container mx-auto px-4 text-center relative z-10">
             <motion.h2
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              className="text-3xl md:text-5xl font-black mb-12 text-white uppercase tracking-tight"
+              className="text-3xl md:text-5xl font-black mb-12 rgb-text uppercase tracking-tight"
             >
               NO.1 GAMING PERIPHERALS STORE IN SRI LANKA
             </motion.h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-12 max-w-5xl mx-auto">
               {[
-                { number: "50,000+", label: "Products Sold" },
-                { number: "5,000+", label: "Happy Customers" },
-                { number: "100%", label: "Genuine Products" },
+                { number: "50,000+", label: "Products Sold", color: "#ff0040" },
+                { number: "5,000+", label: "Happy Customers", color: "#00f0ff" },
+                { number: "100%", label: "Genuine Products", color: "#8b00ff" },
               ].map((stat, i) => (
                 <motion.div
                   key={i}
@@ -502,14 +502,11 @@ const Home = () => {
                   transition={{ delay: i * 0.1 }}
                   className="relative"
                 >
-                  <div className="absolute inset-0 bg-white/10 blur-xl" />
-                  <div className="relative">
-                    <div className="text-6xl md:text-7xl font-black mb-3 text-white font-mono">
-                      {stat.number}
-                    </div>
-                    <div className="text-sm font-black uppercase tracking-widest text-red-100">
-                      {stat.label}
-                    </div>
+                  <div className="text-6xl md:text-7xl font-black mb-3 font-mono neon-pulse" style={{ color: stat.color, textShadow: `0 0 30px ${stat.color}` }}>
+                    {stat.number}
+                  </div>
+                  <div className="text-sm font-black uppercase tracking-widest text-gray-400">
+                    {stat.label}
                   </div>
                 </motion.div>
               ))}
