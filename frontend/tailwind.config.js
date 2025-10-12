@@ -21,10 +21,20 @@ module.exports = {
           950: '#170103',
         },
         dark: {
-          900: '#0F0F0F',
-          800: '#1A1A1A',
-          700: '#2D2D2D',
-          600: '#404040',
+          900: '#0a0a0a',
+          800: '#121212',
+          700: '#1a1a1a',
+          600: '#252525',
+          500: '#2d2d2d',
+        },
+        neon: {
+          cyan: '#00f0ff',
+          pink: '#ff006e',
+          purple: '#8b00ff',
+          green: '#00ff41',
+          yellow: '#ffee00',
+          red: '#ff0040',
+          blue: '#0080ff',
         }
       },
       fontFamily: {
