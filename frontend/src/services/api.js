@@ -1,29 +1,24 @@
-export const API_URL = process.env.REACT_APP_API_URL;
+import axios from 'axios';
 
-export const fetchProducts = async () => {
-  try {
-    const response = await fetch(`${API_URL}/products`);
-    if (!response.ok) {
-      throw new Error('Failed to fetch products');
-    }
-    const data = await response.json();
-    return data;
-  } catch (error) {
-    console.error('Error fetching products:', error);
-    throw error;
-  }
-};
+const api = axios.create({
+  baseURL: `${process.env.REACT_APP_API_URL}/api`,
+  withCredentials: true, // Enable sending cookies with requests
+  headers: {
+    'Content-Type': 'application/json',
+  },
+});
 
-export const testConnection = async () => {
-  try {
-    const response = await fetch(`${API_URL}/`);
-    if (!response.ok) {
-      throw new Error('Failed to connect to API');
+// Response interceptor for handling errors
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    // Handle unauthorized errors (401)
+    if (error.response?.status === 401) {
+      // Token expired or invalid - could redirect to login
+      console.error('Authentication error:', error.response.data.msg);
     }
-    const data = await response.json();
-    return data;
-  } catch (error) {
-    console.error('Error connecting to API:', error);
-    throw error;
+    return Promise.reject(error);
   }
-};
+);
+
+export default api;

@@ -4,32 +4,53 @@ import api from '../services/api';
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-  const [token, setToken] = useState(localStorage.getItem('token'));
-  const [isAuthenticated, setIsAuthenticated] = useState(!!token);
+  const [user, setUser] = useState(null);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [loading, setLoading] = useState(true);
 
+  // Check if user is logged in on component mount
   useEffect(() => {
-    if (token) {
-      api.defaults.headers.common['x-auth-token'] = token;
-      localStorage.setItem('token', token);
-      setIsAuthenticated(true);
-    } else {
-      delete api.defaults.headers.common['x-auth-token'];
-      localStorage.removeItem('token');
-      setIsAuthenticated(false);
-    }
-  }, [token]);
+    const checkLoggedIn = async () => {
+      try {
+        const res = await api.get('/auth/me');
+        if (res.data.success) {
+          setUser(res.data.user);
+          setIsAuthenticated(true);
+        }
+      } catch (err) {
+        console.error('Auth check failed:', err);
+        setUser(null);
+        setIsAuthenticated(false);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  const login = async (username, password) => {
-    const { data } = await api.post('/auth', { username, password });
-    setToken(data.token);
+    checkLoggedIn();
+  }, []);
+
+  // Login function - sets user data
+  const login = (userData) => {
+    setUser(userData);
+    setIsAuthenticated(true);
   };
 
-  const logout = () => {
-    setToken(null);
+  // Logout function - clears user data and calls logout endpoint
+  const logout = async () => {
+    try {
+      await api.post('/auth/logout');
+      setUser(null);
+      setIsAuthenticated(false);
+    } catch (err) {
+      console.error('Logout error:', err);
+      // Clear user data even if API call fails
+      setUser(null);
+      setIsAuthenticated(false);
+    }
   };
 
   return (
-    <AuthContext.Provider value={{ isAuthenticated, login, logout }}>
+    <AuthContext.Provider value={{ user, isAuthenticated, loading, login, logout }}>
       {children}
     </AuthContext.Provider>
   );

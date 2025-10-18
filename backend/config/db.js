@@ -1,25 +1,13 @@
-const mysql = require('mysql2');
+const mysql = require('mysql2/promise');
 
-const db = mysql.createConnection({
+const pool = mysql.createPool({
   host: process.env.DB_HOST,
   user: process.env.DB_USER,
   password: process.env.DB_PASS,
-  database: process.env.DB_NAME
+  database: process.env.DB_NAME,
+  waitForConnections: true,
+  connectionLimit: 10,
+  queueLimit: 0
 });
 
-// Don't crash the app if DB connection fails - just log the error
-db.connect((err) => {
-  if (err) {
-    console.error('Database connection failed:', err.message);
-    console.warn('WARNING: Server will continue without database connection. Please update .env with correct DB credentials.');
-  } else {
-    console.log('Connected to MySQL database successfully');
-  }
-});
-
-// Handle connection errors gracefully
-db.on('error', (err) => {
-  console.error('Database error:', err.message);
-});
-
-module.exports = db;
+module.exports = pool;

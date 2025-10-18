@@ -1,33 +1,4 @@
-/**
- * NAVBAR COMPONENT - Top Navigation Bar
- *
- * PURPOSE:
- *   - Display Redragon logo
- *   - Main navigation links (Home, Products, Categories, etc.)
- *   - Shopping cart icon with item count
- *   - Admin login link
- *
- * WHAT TO INCLUDE:
- *   - Redragon logo (links to home)
- *   - Navigation menu (responsive hamburger on mobile)
- *   - Search bar (future feature)
- *   - Cart icon with badge showing item count
- *   - Admin login button
- *   - Sticky header on scroll
- *
- * STYLING:
- *   - Background: Dark (bg-dark-900)
- *   - Logo height: 50-60px
- *   - Hover effects: Red highlight (text-redragon-600)
- *   - Mobile: Hamburger menu, slide-in sidebar
- *
- * RELATED FILES:
- *   - Logo: /public/images/logo/dragon_logo.png
- *   - Cart Context: src/context/CartContext.js
- *   - Auth Context: src/context/AuthContext.js
- */
-
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   ShoppingCart,
@@ -38,11 +9,12 @@ import {
   Heart,
   Package,
 } from "lucide-react";
+import AuthContext from "../../context/AuthContext";
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
-  const [searchOpen, setSearchOpen] = useState(false);
+  const { user, isAuthenticated, loading } = useContext(AuthContext);
 
   // TODO: Get cart count from CartContext
   const cartItemCount = 3;
@@ -66,7 +38,7 @@ const Navbar = () => {
       className="fixed top-0 left-0 right-0 z-50 bg-white shadow-lg border-b-2 border-red-500/20 transition-all duration-500"
     >
       <div className="container mx-auto px-4">
-        <div className="flex items-center justify-between h-20">
+        <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <motion.div
             className="flex-shrink-0"
@@ -77,16 +49,13 @@ const Navbar = () => {
               <img
                 src="/images/logo/dragon_logo.png"
                 alt="Redragon"
-                className="h-16 w-auto object-contain transition-transform group-hover:scale-110"
+                className="h-10 w-auto object-contain transition-transform group-hover:scale-110"
               />
-              <div className="ml-3 hidden lg:block">
-                <div className="text-xl font-black text-gray-900 group-hover:text-red-500 transition-colors">
-                  REDRAGON
-                </div>
-                <div className="text-xs font-medium text-gray-600">
-                  Gaming Gear
-                </div>
-              </div>
+              <img 
+                src="/images/logo/redragon_logo_text.png" 
+                alt="Redragon Text Logo"
+                className="h-8 ml-2"
+              />
             </a>
           </motion.div>
 
@@ -120,15 +89,7 @@ const Navbar = () => {
 
           {/* Right Side: Search, Cart & Auth */}
           <div className="flex items-center space-x-4">
-            {/* Search Button */}
-            <motion.button
-              whileHover={{ scale: 1.1 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={() => setSearchOpen(!searchOpen)}
-              className="hidden md:flex items-center justify-center w-10 h-10 rounded-xl transition-all bg-gray-100 hover:bg-red-50 text-gray-700 hover:text-red-500 border border-gray-200"
-            >
-              <Search className="w-5 h-5" />
-            </motion.button>
+
 
             {/* Wishlist */}
             <motion.a
@@ -159,26 +120,55 @@ const Navbar = () => {
               )}
             </motion.a>
 
-            {/* User Profile */}
-            <motion.a
-              href="/login"
-              whileHover={{ scale: 1.1 }}
-              whileTap={{ scale: 0.95 }}
-              className="hidden md:flex items-center justify-center w-10 h-10 rounded-xl transition-all bg-gray-100 hover:bg-red-50 text-gray-700 hover:text-red-500 border border-gray-200"
-            >
-              <User className="w-5 h-5" />
-            </motion.a>
-
-            {/* Register Button */}
-            <motion.a
-              href="/register"
-              whileHover={{ scale: 1.05, y: -2 }}
-              whileTap={{ scale: 0.95 }}
-              className="hidden lg:inline-flex items-center gap-2 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white px-6 py-2.5 rounded-xl font-bold transition-all shadow-lg hover:shadow-xl border-2 border-white/20"
-            >
-              <Package className="w-4 h-4" />
-              Sign Up
-            </motion.a>
+            {!loading && (
+              <AnimatePresence mode="wait">
+                {isAuthenticated && user ? (
+                  <motion.div
+                    key="user-greeting"
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -20 }}
+                    className="hidden lg:flex items-center gap-2"
+                  >
+                    <span className="font-semibold text-sm">Hello, {user.firstName || user.first_name}</span>
+                    <motion.a
+                      href="/account"
+                      whileHover={{ scale: 1.05, y: -2 }}
+                      whileTap={{ scale: 0.95 }}
+                      className="bg-gray-100 text-gray-700 px-4 py-2 rounded-xl font-bold text-sm transition-all border-2 border-transparent hover:border-red-500/20"
+                    >
+                      My Account
+                    </motion.a>
+                  </motion.div>
+                ) : (
+                  <motion.div
+                    key="auth-buttons"
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -20 }}
+                    className="hidden lg:flex items-center gap-2"
+                  >
+                    <motion.a
+                      href="/login"
+                      whileHover={{ scale: 1.1 }}
+                      whileTap={{ scale: 0.95 }}
+                      className="flex items-center justify-center w-10 h-10 rounded-xl transition-all bg-gray-100 hover:bg-red-50 text-gray-700 hover:text-red-500 border border-gray-200"
+                    >
+                      <User className="w-5 h-5" />
+                    </motion.a>
+                    <motion.a
+                      href="/register"
+                      whileHover={{ scale: 1.05, y: -2 }}
+                      whileTap={{ scale: 0.95 }}
+                      className="inline-flex items-center gap-2 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white px-6 py-2.5 rounded-xl font-bold transition-all shadow-lg hover:shadow-xl border-2 border-white/20"
+                    >
+                      <Package className="w-4 h-4" />
+                      Sign Up
+                    </motion.a>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            )}
 
             {/* Mobile Menu Button */}
             <motion.button
@@ -195,26 +185,7 @@ const Navbar = () => {
           </div>
         </div>
 
-        {/* Search Bar */}
-        <AnimatePresence>
-          {searchOpen && (
-            <motion.div
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: "auto" }}
-              exit={{ opacity: 0, height: 0 }}
-              className="pb-4 overflow-hidden"
-            >
-              <div className="relative">
-                <input
-                  type="text"
-                  placeholder="Search for gaming gear..."
-                  className="w-full px-6 py-3 pl-12 bg-white/10 border-gray-400 backdrop-blur-md border-2 border-white/40 hover:border-gray/60 focus:border-red-500 rounded-2xl focus:outline-none focus:ring-4 focus:ring-red-500/20 transition-all text-black placeholder-white/60"
-                />
-                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-white/60" />
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
+
       </div>
 
       {/* Mobile Menu */}
@@ -226,43 +197,83 @@ const Navbar = () => {
             exit={{ opacity: 0, height: 0 }}
             className="lg:hidden bg-white/95 backdrop-blur-xl border-t-2 border-red-500/20 overflow-hidden shadow-xl"
           >
-            <div className="px-4 pt-4 pb-6 space-y-2">
-              {[
-                { name: "Home", href: "/" },
-                { name: "Products", href: "/products" },
-                { name: "Categories", href: "/categories" },
-                { name: "Deals", href: "/deals" },
-                { name: "About", href: "/about" },
-              ].map((link, index) => (
-                <motion.a
-                  key={link.name}
-                  href={link.href}
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: index * 0.1 }}
-                  className="block px-4 py-3 text-gray-700 hover:text-red-500 hover:bg-red-50 rounded-xl font-bold transition-all border-2 border-transparent hover:border-red-500/20"
-                >
-                  {link.name}
-                </motion.a>
-              ))}
-              <motion.a
-                href="/login"
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.5 }}
-                className="block px-4 py-3 text-gray-700 hover:text-red-500 hover:bg-red-50 rounded-xl font-bold transition-all border-2 border-transparent hover:border-red-500/20"
-              >
-                Login
-              </motion.a>
-              <motion.a
-                href="/register"
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.6 }}
-                className="block px-4 py-3 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white rounded-xl font-bold text-center shadow-lg border-2 border-white/20"
-              >
-                Sign Up Free
-              </motion.a>
+            <div className="px-4 pt-4 pb-6 space-y-4">
+              {/* Search Bar */}
+              <div className="relative">
+                <input
+                  type="text"
+                  placeholder="Search for gaming gear..."
+                  className="w-full px-6 py-3 pl-12 bg-gray-100 border-gray-200 border-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500 transition-all text-gray-900 placeholder-gray-500"
+                />
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
+              </div>
+
+              {/* Auth Section */}
+              {!loading && (
+                <AnimatePresence mode="wait">
+                  {isAuthenticated && user ? (
+                    <motion.div
+                      key="user-greeting-mobile"
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      exit={{ opacity: 0, x: 20 }}
+                      className="flex items-center gap-4 p-4 bg-red-50 rounded-xl border-2 border-red-500/20"
+                    >
+                      <img src={user.avatar || '/images/logo/dragon_logo.png'} alt={user.firstName || user.first_name} className="w-12 h-12 rounded-full" />
+                      <div>
+                        <div className="font-bold text-gray-900">Welcome, {user.firstName || user.first_name}</div>
+                        <a href="/account" className="text-sm text-red-500 hover:underline">View Account</a>
+                      </div>
+                    </motion.div>
+                  ) : (
+                    <motion.div
+                      key="auth-buttons-mobile"
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      exit={{ opacity: 0, x: 20 }}
+                      className="grid grid-cols-2 gap-4"
+                    >
+                      <motion.a
+                        href="/login"
+                        className="block px-4 py-3 text-center text-gray-700 hover:text-red-500 hover:bg-red-50 rounded-xl font-bold transition-all border-2 border-transparent hover:border-red-500/20"
+                      >
+                        Login
+                      </motion.a>
+                      <motion.a
+                        href="/register"
+                        className="block px-4 py-3 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white rounded-xl font-bold text-center shadow-lg border-2 border-white/20"
+                      >
+                        Sign Up
+                      </motion.a>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              )}
+
+              {/* Divider */}
+              <hr className="border-gray-200" />
+
+              {/* Navigation Links */}
+              <div className="space-y-2">
+                {[
+                  { name: "Home", href: "/" },
+                  { name: "Products", href: "/products" },
+                  { name: "Categories", href: "/categories" },
+                  { name: "Deals", href: "/deals" },
+                  { name: "About", href: "/about" },
+                ].map((link, index) => (
+                  <motion.a
+                    key={link.name}
+                    href={link.href}
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: index * 0.1 }}
+                    className="block px-4 py-3 text-gray-700 hover:text-red-500 hover:bg-red-50 rounded-xl font-bold transition-all border-2 border-transparent hover:border-red-500/20"
+                  >
+                    {link.name}
+                  </motion.a>
+                ))}
+              </div>
             </div>
           </motion.div>
         )}
