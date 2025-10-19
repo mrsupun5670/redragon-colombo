@@ -1,14 +1,13 @@
-import React, { useState, useContext } from "react";
+import { useState } from "react";
 import { motion } from "framer-motion";
-import { UserPlus, Mail, Lock, ArrowRight, User, Phone } from "lucide-react";
+import { UserPlus, Mail, Lock, ArrowRight, User, Phone, Eye, EyeOff } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "../components/layout/Navbar";
 import Footer from "../components/layout/Footer";
 import ParticleEffect from "../components/common/ParticleEffect";
 import ErrorPopup from "../components/common/ErrorPopup";
 import SuccessPopup from "../components/common/SuccessPopup";
-import api from "../services/api";
-import AuthContext from "../context/AuthContext";
+import { useAuth } from "../context/AuthContext";
 
 const RegisterPage = () => {
   const [formData, setFormData] = useState({
@@ -23,8 +22,10 @@ const RegisterPage = () => {
   const [validationErrors, setValidationErrors] = useState({});
   const [success, setSuccess] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const navigate = useNavigate();
-  const { login } = useContext(AuthContext);
+  const { register } = useAuth();
 
   const { firstName, lastName, email, phone, password, confirmPassword } = formData;
 
@@ -63,8 +64,8 @@ const RegisterPage = () => {
     // Password validation
     if (!password || password.length < 8) {
       errors.password = "Password must be at least 8 characters";
-    } else if (!/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])/.test(password)) {
-      errors.password = "Password must contain uppercase, lowercase, number, and special character (@$!%*?&)";
+    } else if (!/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[#@$!%*?&])/.test(password)) {
+      errors.password = "Password must contain uppercase, lowercase, number, and special character (#@$!%*?&)";
     }
 
     // Confirm password validation
@@ -91,25 +92,20 @@ const RegisterPage = () => {
     setLoading(true);
 
     try {
-      const res = await api.post("/auth/register", { firstName, lastName, email, phone, password });
-      setSuccess("Registration successful! Redirecting to home...");
-      login(res.data.user);
-      setTimeout(() => {
-        navigate("/");
-      }, 1500);
+      const result = await register({ firstName, lastName, email, phone, password });
+      
+      if (result.success) {
+        setSuccess("Registration successful! Redirecting to home...");
+        setTimeout(() => {
+          navigate("/");
+        }, 1500);
+      } else {
+        setLoading(false);
+        setError(result.message || "Registration failed");
+      }
     } catch (err) {
       setLoading(false);
-      if (err.response?.data?.errors) {
-        // Handle validation errors from backend
-        const backendErrors = {};
-        err.response.data.errors.forEach(error => {
-          backendErrors[error.field] = error.message;
-        });
-        setValidationErrors(backendErrors);
-        setError("Please fix the errors in the form");
-      } else {
-        setError(err.response?.data?.msg || "Something went wrong. Please try again.");
-      }
+      setError("Something went wrong. Please try again.");
     }
   };
 
@@ -194,10 +190,29 @@ const RegisterPage = () => {
                   <label className="block text-sm font-bold text-gray-700 mb-2 uppercase">Password</label>
                   <div className="relative">
                     <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-                    <input type="password" name="password" value={password} onChange={onChange} placeholder="••••••••" className={`w-full pl-12 pr-4 py-3 bg-white/80 border-2 ${validationErrors.password ? 'border-red-500' : 'border-gray-300'} rounded-xl focus:border-red-500 focus:outline-none focus:ring-2 focus:ring-red-500/20 transition-all`} required />
+                    <input 
+                      type={showPassword ? "text" : "password"} 
+                      name="password" 
+                      value={password} 
+                      onChange={onChange} 
+                      placeholder="••••••••" 
+                      className={`w-full pl-12 pr-12 py-3 bg-white/80 border-2 ${validationErrors.password ? 'border-red-500' : 'border-gray-300'} rounded-xl focus:border-red-500 focus:outline-none focus:ring-2 focus:ring-red-500/20 transition-all`} 
+                      required 
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+                    >
+                      {showPassword ? (
+                        <EyeOff className="w-5 h-5" />
+                      ) : (
+                        <Eye className="w-5 h-5" />
+                      )}
+                    </button>
                   </div>
                   {validationErrors.password && <p className="text-red-500 text-xs mt-1">{validationErrors.password}</p>}
-                  <p className="text-xs text-gray-500 mt-1">Must contain 8+ characters, uppercase, lowercase, number & special character</p>
+                  <p className="text-xs text-gray-500 mt-1">Must contain 8+ characters, uppercase, lowercase, number & special character (#@$!%*?&)</p>
                 </motion.div>
 
                 {/* Confirm Password Input */}
@@ -205,7 +220,26 @@ const RegisterPage = () => {
                   <label className="block text-sm font-bold text-gray-700 mb-2 uppercase">Confirm Password</label>
                   <div className="relative">
                     <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-                    <input type="password" name="confirmPassword" value={confirmPassword} onChange={onChange} placeholder="••••••••" className={`w-full pl-12 pr-4 py-3 bg-white/80 border-2 ${validationErrors.confirmPassword ? 'border-red-500' : 'border-gray-300'} rounded-xl focus:border-red-500 focus:outline-none focus:ring-2 focus:ring-red-500/20 transition-all`} required />
+                    <input 
+                      type={showConfirmPassword ? "text" : "password"} 
+                      name="confirmPassword" 
+                      value={confirmPassword} 
+                      onChange={onChange} 
+                      placeholder="••••••••" 
+                      className={`w-full pl-12 pr-12 py-3 bg-white/80 border-2 ${validationErrors.confirmPassword ? 'border-red-500' : 'border-gray-300'} rounded-xl focus:border-red-500 focus:outline-none focus:ring-2 focus:ring-red-500/20 transition-all`} 
+                      required 
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                      className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+                    >
+                      {showConfirmPassword ? (
+                        <EyeOff className="w-5 h-5" />
+                      ) : (
+                        <Eye className="w-5 h-5" />
+                      )}
+                    </button>
                   </div>
                   {validationErrors.confirmPassword && <p className="text-red-500 text-xs mt-1">{validationErrors.confirmPassword}</p>}
                 </motion.div>

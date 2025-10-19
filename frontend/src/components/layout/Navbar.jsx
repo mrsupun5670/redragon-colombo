@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from "react";
+import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   ShoppingCart,
@@ -8,13 +8,15 @@ import {
   User,
   Heart,
   Package,
+  LogOut,
 } from "lucide-react";
-import AuthContext from "../../context/AuthContext";
+import { useAuth } from "../../context/AuthContext";
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
-  const { user, isAuthenticated, loading } = useContext(AuthContext);
+  const [showUserMenu, setShowUserMenu] = useState(false);
+  const { user, isAuthenticated, loading, logout } = useAuth();
 
   // TODO: Get cart count from CartContext
   const cartItemCount = 3;
@@ -29,6 +31,11 @@ const Navbar = () => {
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
+  };
+
+  const handleLogout = async () => {
+    await logout();
+    setShowUserMenu(false);
   };
 
   return (
@@ -128,17 +135,64 @@ const Navbar = () => {
                     initial={{ opacity: 0, x: 20 }}
                     animate={{ opacity: 1, x: 0 }}
                     exit={{ opacity: 0, x: -20 }}
-                    className="hidden lg:flex items-center gap-2"
+                    className="hidden lg:flex items-center gap-2 relative"
                   >
-                    <span className="font-semibold text-sm">Hello, {user.firstName || user.first_name}</span>
-                    <motion.a
-                      href="/account"
-                      whileHover={{ scale: 1.05, y: -2 }}
-                      whileTap={{ scale: 0.95 }}
-                      className="bg-gray-100 text-gray-700 px-4 py-2 rounded-xl font-bold text-sm transition-all border-2 border-transparent hover:border-red-500/20"
-                    >
-                      My Account
-                    </motion.a>
+                    <span className="font-semibold text-sm">
+                      Hello, {user.firstName || user.username}
+                    </span>
+                    <div className="relative">
+                      <motion.button
+                        onClick={() => setShowUserMenu(!showUserMenu)}
+                        whileHover={{ scale: 1.05, y: -2 }}
+                        whileTap={{ scale: 0.95 }}
+                        className="bg-gray-100 text-gray-700 px-4 py-2 rounded-xl font-bold text-sm transition-all border-2 border-transparent hover:border-red-500/20 flex items-center gap-2"
+                      >
+                        <User className="w-4 h-4" />
+                        {user.type === 'admin' ? 'Admin' : 'Account'}
+                      </motion.button>
+                      
+                      <AnimatePresence>
+                        {showUserMenu && (
+                          <motion.div
+                            initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                            animate={{ opacity: 1, y: 0, scale: 1 }}
+                            exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                            className="absolute right-0 top-full mt-2 w-48 bg-white rounded-xl shadow-xl border-2 border-gray-100 overflow-hidden z-50"
+                          >
+                            {user.type === 'admin' ? (
+                              <a
+                                href="/admin/dashboard"
+                                className="block px-4 py-3 text-gray-700 hover:bg-red-50 hover:text-red-500 transition-all border-b border-gray-100"
+                              >
+                                Admin Dashboard
+                              </a>
+                            ) : (
+                              <>
+                                <a
+                                  href="/account"
+                                  className="block px-4 py-3 text-gray-700 hover:bg-red-50 hover:text-red-500 transition-all border-b border-gray-100"
+                                >
+                                  My Account
+                                </a>
+                                <a
+                                  href="/orders"
+                                  className="block px-4 py-3 text-gray-700 hover:bg-red-50 hover:text-red-500 transition-all border-b border-gray-100"
+                                >
+                                  My Orders
+                                </a>
+                              </>
+                            )}
+                            <button
+                              onClick={handleLogout}
+                              className="w-full text-left px-4 py-3 text-red-600 hover:bg-red-50 transition-all flex items-center gap-2"
+                            >
+                              <LogOut className="w-4 h-4" />
+                              Logout
+                            </button>
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
+                    </div>
                   </motion.div>
                 ) : (
                   <motion.div
@@ -217,12 +271,52 @@ const Navbar = () => {
                       initial={{ opacity: 0, x: -20 }}
                       animate={{ opacity: 1, x: 0 }}
                       exit={{ opacity: 0, x: 20 }}
-                      className="flex items-center gap-4 p-4 bg-red-50 rounded-xl border-2 border-red-500/20"
+                      className="p-4 bg-red-50 rounded-xl border-2 border-red-500/20 space-y-4"
                     >
-                      <img src={user.avatar || '/images/logo/dragon_logo.png'} alt={user.firstName || user.first_name} className="w-12 h-12 rounded-full" />
-                      <div>
-                        <div className="font-bold text-gray-900">Welcome, {user.firstName || user.first_name}</div>
-                        <a href="/account" className="text-sm text-red-500 hover:underline">View Account</a>
+                      <div className="flex items-center gap-4">
+                        <div className="w-12 h-12 rounded-full bg-red-500 flex items-center justify-center">
+                          <User className="w-6 h-6 text-white" />
+                        </div>
+                        <div>
+                          <div className="font-bold text-gray-900">
+                            Welcome, {user.firstName || user.username}
+                          </div>
+                          <div className="text-xs text-gray-500">
+                            {user.type === 'admin' ? 'Administrator' : 'Customer'}
+                          </div>
+                        </div>
+                      </div>
+                      <div className="grid grid-cols-2 gap-2">
+                        {user.type === 'admin' ? (
+                          <a 
+                            href="/admin/dashboard" 
+                            className="block px-3 py-2 text-center text-sm text-gray-700 hover:text-red-500 hover:bg-red-100 rounded-lg font-bold transition-all"
+                          >
+                            Dashboard
+                          </a>
+                        ) : (
+                          <>
+                            <a 
+                              href="/account" 
+                              className="block px-3 py-2 text-center text-sm text-gray-700 hover:text-red-500 hover:bg-red-100 rounded-lg font-bold transition-all"
+                            >
+                              Account
+                            </a>
+                            <a 
+                              href="/orders" 
+                              className="block px-3 py-2 text-center text-sm text-gray-700 hover:text-red-500 hover:bg-red-100 rounded-lg font-bold transition-all"
+                            >
+                              Orders
+                            </a>
+                          </>
+                        )}
+                        <button
+                          onClick={handleLogout}
+                          className="px-3 py-2 text-center text-sm text-red-600 hover:bg-red-100 rounded-lg font-bold transition-all flex items-center justify-center gap-1"
+                        >
+                          <LogOut className="w-3 h-3" />
+                          Logout
+                        </button>
                       </div>
                     </motion.div>
                   ) : (

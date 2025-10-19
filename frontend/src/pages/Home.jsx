@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import Navbar from '../components/layout/Navbar';
 import Footer from '../components/layout/Footer';
 import WhatsAppButton from '../components/common/WhatsAppButton';
@@ -9,7 +9,7 @@ import AutoScrollBrands from '../components/features/home/AutoScrollBrands';
 import AutoScrollProducts from '../components/features/home/AutoScrollProducts';
 import YouTubeEmbed from '../components/common/YouTubeEmbed';
 import GoogleReviewsWidget from '../components/common/GoogleReviewsWidget';
-import { featuredProducts } from '../data/products';
+import { productAPI } from '../services/api';
 import { motion } from 'framer-motion';
 
 const categories = [
@@ -78,10 +78,68 @@ const brands = [
   },
 ];
 
-const redragonProducts = featuredProducts.filter(p => p.brand === 'Redragon');
-
 const HomePage = () => {
+  const [featuredProducts, setFeaturedProducts] = useState([]);
+  const [newArrivals, setNewArrivals] = useState([]);
+  const [redragonProducts, setRedragonProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        setLoading(true);
+        
+        // Fetch all product categories concurrently
+        const [featuredRes, newArrivalsRes, redragonRes] = await Promise.all([
+          productAPI.getFeatured(),
+          productAPI.getNewArrivals(),
+          productAPI.getRedragonProducts()
+        ]);
+
+        setFeaturedProducts(featuredRes.data.data || []);
+        setNewArrivals(newArrivalsRes.data.data || []);
+        setRedragonProducts(redragonRes.data.data || []);
+      } catch (err) {
+        console.error('Error fetching products:', err);
+        setError('Failed to load products. Please try again later.');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProducts();
+  }, []);
+
   console.log('Navbar:', Navbar);
+  
+  if (loading) {
+    return (
+      <div className="bg-gray-900 text-white min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-red-500 mx-auto"></div>
+          <p className="mt-4 text-xl">Loading products...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="bg-gray-900 text-white min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-red-500 text-xl">{error}</p>
+          <button 
+            onClick={() => window.location.reload()} 
+            className="mt-4 bg-red-500 hover:bg-red-600 px-6 py-2 rounded"
+          >
+            Try Again
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="bg-gray-900 text-white">
       <Navbar />
@@ -114,7 +172,11 @@ const HomePage = () => {
       <div className="py-16 bg-gray-900">
         <div className="container mx-auto px-4">
           <h2 className="text-3xl font-bold text-white text-center mb-8 uppercase">New Arrivals</h2>
-          <AutoScrollProducts products={featuredProducts} bg_color="from-gray-900" />
+          {newArrivals.length > 0 ? (
+            <AutoScrollProducts products={newArrivals} bg_color="from-gray-900" />
+          ) : (
+            <p className="text-center text-gray-400">No new arrivals available at the moment.</p>
+          )}
         </div>
       </div>
 
@@ -140,7 +202,11 @@ const HomePage = () => {
           >
             Exclusive Redragon
           </motion.h2>
-          <AutoScrollProducts products={redragonProducts} bg_color="from-gray-800" />
+          {redragonProducts.length > 0 ? (
+            <AutoScrollProducts products={redragonProducts} bg_color="from-gray-800" />
+          ) : (
+            <p className="text-center text-gray-400">No Redragon products available at the moment.</p>
+          )}
         </div>
       </div>
 
@@ -148,7 +214,11 @@ const HomePage = () => {
       <div className="py-16 bg-gray-900">
         <div className="container mx-auto px-4">
           <h2 className="text-3xl font-bold text-white text-center mb-8 uppercase">Featured Products</h2>
-          <AutoScrollProducts products={featuredProducts.slice(4, 14)} bg_color="from-gray-900" />
+          {featuredProducts.length > 0 ? (
+            <AutoScrollProducts products={featuredProducts} bg_color="from-gray-900" />
+          ) : (
+            <p className="text-center text-gray-400">No featured products available at the moment.</p>
+          )}
         </div>
       </div>
 
