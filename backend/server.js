@@ -65,12 +65,17 @@ app.use((req, res, next) => {
   next();
 });
 
+// Static file serving for uploaded images
+app.use('/uploads', express.static('uploads'));
+
 // Routes
 const authRoutes = require('./routes/auth');
 const productRoutes = require('./routes/products');
+const imageRoutes = require('./routes/images');
 
 app.use('/api/auth', authRoutes);
 app.use('/api/products', productRoutes);
+app.use('/api/images', imageRoutes);
 
 app.get('/', (req, res) => {
   res.json({ message: 'Welcome to Redragon Shop API' });

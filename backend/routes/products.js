@@ -13,6 +13,7 @@ const {
 const { auth, adminAuth } = require('../middleware/auth');
 
 
+
 // Public routes for displaying products on homepage
 router.get('/featured', getFeaturedProducts);
 router.get('/new-arrivals', getNewArrivals);

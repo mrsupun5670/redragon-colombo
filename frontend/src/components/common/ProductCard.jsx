@@ -4,7 +4,22 @@ import { ShoppingCart, Heart, Star } from "lucide-react";
 
 const ProductCard = ({ product }) => {
   // Handle different data sources (database vs static data)
-  const productImage = product.image || product.primary_image || 'https://images.unsplash.com/photo-1518717758536-85ae29035b6d?w=400&q=80';
+  const getProductImage = () => {
+    if (product.primary_image) {
+      // If primary_image starts with /uploads, prepend the API URL
+      if (product.primary_image.startsWith('/uploads')) {
+        return `${process.env.REACT_APP_API_URL?.replace('/api', '') || 'http://localhost:5001'}${product.primary_image}`;
+      }
+      return product.primary_image;
+    }
+    if (product.image) {
+      return product.image;
+    }
+    // Default fallback image
+    return 'https://images.unsplash.com/photo-1518717758536-85ae29035b6d?w=400&q=80';
+  };
+  
+  const productImage = getProductImage();
   const productPrice = product.sale_price || product.price;
   const originalPrice = product.price;
   const hasDiscount = product.sale_price && parseFloat(product.sale_price) < parseFloat(product.price);

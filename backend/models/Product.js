@@ -5,11 +5,13 @@ class Product {
   static async getFeatured() {
     try {
       const query = `
-        SELECT p.*, b.name as brand_name, mc.name as main_category_name, sc.name as sub_category_name
+        SELECT p.*, b.name as brand_name, mc.name as main_category_name, sc.name as sub_category_name,
+               pi.image_path as primary_image
         FROM products p
         LEFT JOIN brands b ON p.brand_id = b.id
         LEFT JOIN main_categories mc ON p.main_category_id = mc.id
         LEFT JOIN sub_categories sc ON p.sub_category_id = sc.id
+        LEFT JOIN product_image_uploads pi ON p.id = pi.product_id AND pi.is_primary = 1
         WHERE p.is_featured = 1 AND p.is_active = 1
         ORDER BY p.created_at DESC
       `;
@@ -24,11 +26,13 @@ class Product {
   static async getNewArrivals() {
     try {
       const query = `
-        SELECT p.*, b.name as brand_name, mc.name as main_category_name, sc.name as sub_category_name
+        SELECT p.*, b.name as brand_name, mc.name as main_category_name, sc.name as sub_category_name,
+               pi.image_path as primary_image
         FROM products p
         LEFT JOIN brands b ON p.brand_id = b.id
         LEFT JOIN main_categories mc ON p.main_category_id = mc.id
         LEFT JOIN sub_categories sc ON p.sub_category_id = sc.id
+        LEFT JOIN product_image_uploads pi ON p.id = pi.product_id AND pi.is_primary = 1
         WHERE p.is_new_arrival = 1 AND p.is_active = 1
         ORDER BY p.created_at DESC
       `;
@@ -43,11 +47,13 @@ class Product {
   static async getByBrand(brandName) {
     try {
       const query = `
-        SELECT p.*, b.name as brand_name, mc.name as main_category_name, sc.name as sub_category_name
+        SELECT p.*, b.name as brand_name, mc.name as main_category_name, sc.name as sub_category_name,
+               pi.image_path as primary_image
         FROM products p
         LEFT JOIN brands b ON p.brand_id = b.id
         LEFT JOIN main_categories mc ON p.main_category_id = mc.id
         LEFT JOIN sub_categories sc ON p.sub_category_id = sc.id
+        LEFT JOIN product_image_uploads pi ON p.id = pi.product_id AND pi.is_primary = 1
         WHERE LOWER(b.name) = LOWER(?) AND p.is_active = 1
         ORDER BY p.created_at DESC
       `;
@@ -62,11 +68,13 @@ class Product {
   static async getAll(limit = 20, offset = 0) {
     try {
       const query = `
-        SELECT p.*, b.name as brand_name, mc.name as main_category_name, sc.name as sub_category_name
+        SELECT p.*, b.name as brand_name, mc.name as main_category_name, sc.name as sub_category_name,
+               pi.image_path as primary_image
         FROM products p
         LEFT JOIN brands b ON p.brand_id = b.id
         LEFT JOIN main_categories mc ON p.main_category_id = mc.id
         LEFT JOIN sub_categories sc ON p.sub_category_id = sc.id
+        LEFT JOIN product_image_uploads pi ON p.id = pi.product_id AND pi.is_primary = 1
         WHERE p.is_active = 1
         ORDER BY p.created_at DESC
         LIMIT ? OFFSET ?
@@ -78,7 +86,7 @@ class Product {
     }
   }
 
-  // Get product by ID
+  // Get product by ID with all images
   static async getById(productId) {
     try {
       const query = `
@@ -90,7 +98,23 @@ class Product {
         WHERE p.id = ? AND p.is_active = 1
       `;
       const [rows] = await db.execute(query, [productId]);
-      return rows[0] || null;
+      
+      if (rows.length === 0) {
+        return null;
+      }
+
+      const product = rows[0];
+      
+      // Get all images for this product
+      const imageQuery = `
+        SELECT * FROM product_image_uploads 
+        WHERE product_id = ? 
+        ORDER BY is_primary DESC, created_at ASC
+      `;
+      const [images] = await db.execute(imageQuery, [productId]);
+      product.images = images;
+      
+      return product;
     } catch (error) {
       throw error;
     }
