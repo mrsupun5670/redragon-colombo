@@ -1,9 +1,15 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Star, Shield, ShoppingCart, Eye } from 'lucide-react';
 
 const FuturisticProductCard = ({ product, showCategory = false }) => {
+  const navigate = useNavigate();
   const [isHovered, setIsHovered] = useState(false);
+
+  const handleProductClick = () => {
+    navigate(`/product/${product.id}`);
+  };
 
   return (
     <motion.div
@@ -45,7 +51,8 @@ const FuturisticProductCard = ({ product, showCategory = false }) => {
           <motion.div
             animate={isHovered ? { scale: 1.15, z: 50 } : { scale: 1, z: 0 }}
             transition={{ duration: 0.4 }}
-            className="relative w-full h-full p-6 sm:p-8 flex items-center justify-center"
+            onClick={handleProductClick}
+            className="relative w-full h-full p-6 sm:p-8 flex items-center justify-center cursor-pointer"
             style={{ transformStyle: 'preserve-3d' }}
           >
             <img
@@ -86,7 +93,8 @@ const FuturisticProductCard = ({ product, showCategory = false }) => {
             initial={{ x: 100, opacity: 0 }}
             animate={isHovered ? { x: 0, opacity: 1 } : { x: 100, opacity: 0 }}
             transition={{ duration: 0.3, delay: 0.1 }}
-            className="absolute top-3 right-3 w-10 h-10 bg-white rounded-full shadow-lg flex items-center justify-center text-red-500 hover:bg-red-500 hover:text-white transition-colors"
+            onClick={handleProductClick}
+            className="absolute top-3 right-3 w-10 h-10 bg-white rounded-full shadow-lg flex items-center justify-center text-red-500 hover:bg-red-500 hover:text-white transition-colors z-20"
           >
             <Eye className="w-5 h-5" />
           </motion.button>
@@ -97,7 +105,8 @@ const FuturisticProductCard = ({ product, showCategory = false }) => {
           {/* Product Name - Slide up */}
           <motion.h3
             animate={isHovered ? { y: -5 } : { y: 0 }}
-            className="font-bold text-gray-900 mb-2 line-clamp-2 text-sm sm:text-base min-h-[40px] sm:min-h-[48px] group-hover:text-red-600 transition-colors"
+            onClick={handleProductClick}
+            className="font-bold text-gray-900 mb-2 line-clamp-2 text-sm sm:text-base min-h-[40px] sm:min-h-[48px] group-hover:text-red-600 transition-colors cursor-pointer"
           >
             {product.name}
           </motion.h3>

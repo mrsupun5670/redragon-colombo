@@ -2,7 +2,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { DollarSign, ShoppingCart, Users, Package, ArrowUp, ArrowDown, TrendingUp, Eye } from 'lucide-react';
 
-const Dashboard = () => {
+const Dashboard = ({ setActiveTab }) => {
   const stats = [
     {
       name: 'Total Revenue',
@@ -47,19 +47,19 @@ const Dashboard = () => {
   ];
 
   const topCustomers = [
-    { id: 1, name: 'John Doe', orders: 24, spent: 'Rs. 125,000', status: 'VIP' },
-    { id: 2, name: 'Jane Smith', orders: 18, spent: 'Rs. 98,500', status: 'VIP' },
-    { id: 3, name: 'Bob Johnson', orders: 15, spent: 'Rs. 76,200', status: 'Regular' },
-    { id: 4, name: 'Alice Williams', orders: 12, spent: 'Rs. 65,400', status: 'Regular' },
-    { id: 5, name: 'Charlie Brown', orders: 10, spent: 'Rs. 54,800', status: 'Regular' },
+    { id: 1, name: 'Nimal Perera', orders: 24, spent: 'Rs. 125,000', status: 'VIP' },
+    { id: 2, name: 'Saman Fernando', orders: 18, spent: 'Rs. 98,500', status: 'VIP' },
+    { id: 3, name: 'Kamal Silva', orders: 15, spent: 'Rs. 76,200', status: 'Regular' },
+    { id: 4, name: 'Sanduni Rajapaksha', orders: 12, spent: 'Rs. 65,400', status: 'Regular' },
+    { id: 5, name: 'Chaminda Jayawardena', orders: 10, spent: 'Rs. 54,800', status: 'Regular' },
   ];
 
   const recentOrders = [
-    { id: '#1248', customer: 'John Doe', amount: 'Rs. 15,000', status: 'Delivered', date: '2024-10-15' },
-    { id: '#1247', customer: 'Jane Smith', amount: 'Rs. 7,550', status: 'Processing', date: '2024-10-15' },
-    { id: '#1246', customer: 'Bob Johnson', amount: 'Rs. 30,000', status: 'Shipped', date: '2024-10-14' },
-    { id: '#1245', customer: 'Alice Williams', amount: 'Rs. 5,000', status: 'Pending', date: '2024-10-14' },
-    { id: '#1244', customer: 'Charlie Brown', amount: 'Rs. 12,300', status: 'Delivered', date: '2024-10-13' },
+    { id: '#1248', customer: 'Nimal Perera', amount: 'Rs. 15,000', status: 'Delivered', date: '2024-10-15' },
+    { id: '#1247', customer: 'Saman Fernando', amount: 'Rs. 7,550', status: 'Processing', date: '2024-10-15' },
+    { id: '#1246', customer: 'Kamal Silva', amount: 'Rs. 30,000', status: 'Shipped', date: '2024-10-14' },
+    { id: '#1245', customer: 'Sanduni Rajapaksha', amount: 'Rs. 5,000', status: 'Pending', date: '2024-10-14' },
+    { id: '#1244', customer: 'Chaminda Jayawardena', amount: 'Rs. 12,300', status: 'Delivered', date: '2024-10-13' },
   ];
 
   // Mock data for orders chart (last 30 days)
@@ -169,7 +169,15 @@ const Dashboard = () => {
           transition={{ delay: 0.5 }}
           className="bg-white rounded-xl md:rounded-2xl shadow-lg p-4 md:p-6"
         >
-          <h3 className="text-lg md:text-xl font-bold text-gray-900 mb-3 md:mb-4">Recent Orders</h3>
+          <div className="flex justify-between items-center mb-3 md:mb-4">
+            <h3 className="text-lg md:text-xl font-bold text-gray-900">Recent Orders</h3>
+            <button
+              onClick={() => setActiveTab('orders')}
+              className="text-xs md:text-sm text-blue-600 hover:text-blue-700 font-medium flex items-center transition-colors"
+            >
+              View All <Eye className="w-3 h-3 md:w-4 md:h-4 ml-1" />
+            </button>
+          </div>
           <div className="space-y-2 md:space-y-3">
             {recentOrders.map((order, index) => (
               <div key={index} className="flex items-center justify-between p-2 md:p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
@@ -205,7 +213,10 @@ const Dashboard = () => {
         >
           <div className="flex justify-between items-center mb-3 md:mb-4">
             <h3 className="text-lg md:text-xl font-bold text-gray-900">Top Products</h3>
-            <button className="text-xs md:text-sm text-blue-600 hover:text-blue-700 font-medium flex items-center">
+            <button
+              onClick={() => setActiveTab('products')}
+              className="text-xs md:text-sm text-blue-600 hover:text-blue-700 font-medium flex items-center transition-colors"
+            >
               View All <Eye className="w-3 h-3 md:w-4 md:h-4 ml-1" />
             </button>
           </div>
@@ -252,7 +263,10 @@ const Dashboard = () => {
         >
           <div className="flex justify-between items-center mb-3 md:mb-4">
             <h3 className="text-lg md:text-xl font-bold text-gray-900">Top Customers</h3>
-            <button className="text-xs md:text-sm text-blue-600 hover:text-blue-700 font-medium flex items-center">
+            <button
+              onClick={() => setActiveTab('customers')}
+              className="text-xs md:text-sm text-blue-600 hover:text-blue-700 font-medium flex items-center transition-colors"
+            >
               View All <Eye className="w-3 h-3 md:w-4 md:h-4 ml-1" />
             </button>
           </div>

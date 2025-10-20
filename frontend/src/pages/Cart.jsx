@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   ShoppingCart,
@@ -18,6 +19,7 @@ import DevelopmentWatermark from "../components/common/DevelopmentWatermark";
 import { cartSampleProducts } from "../data/products";
 
 const Cart = () => {
+  const navigate = useNavigate();
   const [cartItems, setCartItems] = useState(cartSampleProducts);
   const [promoCode, setPromoCode] = useState("");
   const [discount, setDiscount] = useState(0);
@@ -140,7 +142,10 @@ const Cart = () => {
                     <div className="p-4 sm:p-6 flex flex-col sm:flex-row gap-4">
                       {/* Product Image */}
                       <div className="flex-shrink-0">
-                        <div className="w-full sm:w-32 h-32 bg-gradient-to-br from-gray-50 to-white rounded-xl overflow-hidden border-2 border-gray-200">
+                        <div
+                          onClick={() => navigate(`/product/${item.id}`)}
+                          className="w-full sm:w-32 h-32 bg-gradient-to-br from-gray-50 to-white rounded-xl overflow-hidden border-2 border-gray-200 cursor-pointer hover:border-red-500 transition-colors"
+                        >
                           <img
                             src={item.image}
                             alt={item.name}
@@ -152,7 +157,10 @@ const Cart = () => {
                       {/* Product Info */}
                       <div className="flex-1 flex flex-col">
                         <div className="flex-1">
-                          <h3 className="font-bold text-gray-900 mb-2 text-sm sm:text-base line-clamp-2">
+                          <h3
+                            onClick={() => navigate(`/product/${item.id}`)}
+                            className="font-bold text-gray-900 mb-2 text-sm sm:text-base line-clamp-2 cursor-pointer hover:text-red-600 transition-colors"
+                          >
                             {item.name}
                           </h3>
                           <div className="flex items-center gap-2 mb-3">

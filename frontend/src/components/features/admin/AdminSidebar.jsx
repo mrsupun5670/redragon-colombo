@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { LayoutDashboard, ShoppingCart, Users, BarChart2, Package, Settings as SettingsIcon, X } from 'lucide-react';
+import { LayoutDashboard, ShoppingCart, Users, BarChart2, Package, X, RefreshCw, TruckIcon } from 'lucide-react';
 
 const AdminSidebar = ({ activeTab, setActiveTab, isSidebarOpen, setIsSidebarOpen }) => {
   const navLinks = [
@@ -8,8 +8,9 @@ const AdminSidebar = ({ activeTab, setActiveTab, isSidebarOpen, setIsSidebarOpen
     { name: 'Products', id: 'products', icon: Package },
     { name: 'Orders', id: 'orders', icon: ShoppingCart },
     { name: 'Customers', id: 'customers', icon: Users },
+    { name: 'Refunds', id: 'refunds', icon: RefreshCw },
+    { name: 'Delivery', id: 'delivery', icon: TruckIcon },
     { name: 'Sales', id: 'sales', icon: BarChart2 },
-    { name: 'Settings', id: 'settings', icon: SettingsIcon },
   ];
 
   const handleTabClick = (tabId) => {

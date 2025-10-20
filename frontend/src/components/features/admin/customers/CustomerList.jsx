@@ -5,38 +5,38 @@ import { Search, X, MapPin, Phone, Mail, ShoppingBag, Calendar } from 'lucide-re
 const customersData = [
   {
     id: 1,
-    name: 'John Doe',
-    email: 'john.doe@example.com',
+    name: 'Nimal Perera',
+    email: 'nimal.perera@gmail.com',
     mobile: '0771234567',
     orders: 5,
     status: 'Active',
-    address: '123 Main Street, Colombo 03',
+    address: 'No. 45/2, Dutugemunu Street, Colombo 06',
     city: 'Colombo',
-    postalCode: '00300',
+    postalCode: '00600',
     joinedDate: '2023-05-15',
     totalSpent: 75000
   },
   {
     id: 2,
-    name: 'Jane Smith',
-    email: 'jane.smith@example.com',
+    name: 'Saman Fernando',
+    email: 'saman.fernando@yahoo.com',
     mobile: '0712345678',
     orders: 2,
     status: 'Active',
-    address: '456 Galle Road, Colombo 04',
-    city: 'Colombo',
-    postalCode: '00400',
+    address: '123/5A, Galle Road, Dehiwala',
+    city: 'Dehiwala',
+    postalCode: '10350',
     joinedDate: '2023-08-20',
     totalSpent: 25000
   },
   {
     id: 3,
-    name: 'Bob Johnson',
-    email: 'bob.johnson@example.com',
+    name: 'Kamal Silva',
+    email: 'kamal.silva@gmail.com',
     mobile: '0765432109',
     orders: 10,
     status: 'Inactive',
-    address: '789 Kandy Road, Kandy',
+    address: '78, Peradeniya Road, Kandy',
     city: 'Kandy',
     postalCode: '20000',
     joinedDate: '2023-01-10',
@@ -44,16 +44,42 @@ const customersData = [
   },
   {
     id: 4,
-    name: 'Alice Williams',
-    email: 'alice.williams@example.com',
+    name: 'Sanduni Rajapaksha',
+    email: 'sanduni.rajapaksha@gmail.com',
     mobile: '0756789012',
     orders: 1,
     status: 'Active',
-    address: '321 Negombo Road, Negombo',
-    city: 'Negombo',
-    postalCode: '11500',
+    address: '15/A, Negombo Road, Wattala',
+    city: 'Wattala',
+    postalCode: '11300',
     joinedDate: '2023-10-05',
     totalSpent: 12000
+  },
+  {
+    id: 5,
+    name: 'Chaminda Jayawardena',
+    email: 'chaminda.j@hotmail.com',
+    mobile: '+94782345678',
+    orders: 7,
+    status: 'Active',
+    address: '234/B, High Level Road, Maharagama',
+    city: 'Maharagama',
+    postalCode: '10280',
+    joinedDate: '2023-03-22',
+    totalSpent: 95000
+  },
+  {
+    id: 6,
+    name: 'Dilini Wickramasinghe',
+    email: 'dilini.w@gmail.com',
+    mobile: '0703456789',
+    orders: 3,
+    status: 'Active',
+    address: '67, Hospital Road, Matara',
+    city: 'Matara',
+    postalCode: '81000',
+    joinedDate: '2023-06-18',
+    totalSpent: 45000
   },
 ];
 
@@ -104,7 +130,7 @@ const CustomerList = () => {
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
           <input
             type="text"
-            placeholder="Search by Name or Email"
+            placeholder="Search by Name, Email or Mobile"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="w-full pl-12 pr-4 py-3 text-gray-800 bg-blue-100 border-2 border-blue-200 rounded-lg text-base"

@@ -4,10 +4,11 @@ import OrderDetailsModal from './OrderDetailsModal';
 import { Search } from 'lucide-react';
 
 const initialOrders = [
-  { id: 1, customer: 'John Doe', date: '2023-10-26', total: 15000, status: 'Pending', address: '123 Main St, Colombo', phone: '0771234567', items: [{ name: 'Redragon K552 Keyboard', qty: 1, price: 15000 }] },
-  { id: 2, customer: 'Jane Smith', date: '2023-10-25', total: 7550, status: 'Processing', trackingNumber: 'ABC123456', address: '456 Galle Rd, Colombo', phone: '0712345678', items: [{ name: 'Logitech G502 Mouse', qty: 1, price: 7550 }] },
-  { id: 3, customer: 'Bob Johnson', date: '2023-10-24', total: 30000, status: 'Shipped', trackingNumber: 'XYZ789012', address: '789 Kandy Rd, Kandy', phone: '0765432109', items: [{ name: 'SteelSeries Arctis 7 Headset', qty: 1, price: 30000 }] },
-  { id: 4, customer: 'Alice Williams', date: '2023-10-23', total: 5000, status: 'Delivered', address: '321 Negombo Rd, Negombo', phone: '0756789012', items: [{ name: 'Razer Mouse Bungee', qty: 1, price: 5000 }] },
+  { id: 1, customer: 'Nimal Perera', date: '2023-10-26', total: 15000, status: 'Pending', address: 'No. 45/2, Dutugemunu Street, Colombo 06', phone: '0771234567', items: [{ name: 'Redragon K552 Keyboard', qty: 1, price: 15000 }] },
+  { id: 2, customer: 'Saman Fernando', date: '2023-10-25', total: 7550, status: 'Processing', trackingNumber: 'ABC123456', address: '123/5A, Galle Road, Dehiwala', phone: '0712345678', items: [{ name: 'Logitech G502 Mouse', qty: 1, price: 7550 }] },
+  { id: 3, customer: 'Kamal Silva', date: '2023-10-24', total: 30000, status: 'Shipped', trackingNumber: 'XYZ789012', address: '78, Peradeniya Road, Kandy', phone: '0765432109', items: [{ name: 'SteelSeries Arctis 7 Headset', qty: 1, price: 30000 }] },
+  { id: 4, customer: 'Sanduni Rajapaksha', date: '2023-10-23', total: 5000, status: 'Delivered', address: '15/A, Negombo Road, Wattala', phone: '0756789012', items: [{ name: 'Razer Mouse Bungee', qty: 1, price: 5000 }] },
+  { id: 5, customer: 'Chaminda Jayawardena', date: '2023-10-22', total: 22500, status: 'Delivered', address: '234/B, High Level Road, Maharagama', phone: '+94782345678', items: [{ name: 'Corsair K70 RGB Keyboard', qty: 1, price: 22500 }] },
 ];
 
 const OrderList = () => {

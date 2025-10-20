@@ -1,19 +1,20 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Edit, Plus, ChevronDown, X } from 'lucide-react';
+import { Edit, Plus, ChevronDown, X, Upload } from 'lucide-react';
 import AddCategoryModal from './AddCategoryModal';
 
 const initialCategories = [
   {
     id: 1,
     name: 'Keyboards',
+    image: null,
     subcategories: [
       { id: 101, name: 'Mechanical' },
       { id: 102, name: 'Membrane' },
     ]
   },
-  { id: 2, name: 'Mice', subcategories: [] },
-  { id: 3, name: 'Headsets', subcategories: [] },
+  { id: 2, name: 'Mice', image: null, subcategories: [] },
+  { id: 3, name: 'Headsets', image: null, subcategories: [] },
 ];
 
 const CategoriesTab = () => {
@@ -23,6 +24,7 @@ const CategoriesTab = () => {
   const [editingCategory, setEditingCategory] = useState(null);
   const [editingSubcategory, setEditingSubcategory] = useState(null);
   const [editName, setEditName] = useState('');
+  const [editImage, setEditImage] = useState(null);
 
   const toggleCategory = (id) => {
     if (expandedCategory === id) {
@@ -36,6 +38,7 @@ const CategoriesTab = () => {
     e.stopPropagation();
     setEditingCategory(category);
     setEditName(category.name);
+    setEditImage(category.image);
   };
 
   const handleEditSubcategory = (categoryId, subcategory) => {
@@ -45,10 +48,11 @@ const CategoriesTab = () => {
 
   const handleSaveCategoryEdit = () => {
     setCategories(categories.map(cat =>
-      cat.id === editingCategory.id ? { ...cat, name: editName } : cat
+      cat.id === editingCategory.id ? { ...cat, name: editName, image: editImage } : cat
     ));
     setEditingCategory(null);
     setEditName('');
+    setEditImage(null);
   };
 
   const handleSaveSubcategoryEdit = () => {
@@ -72,6 +76,21 @@ const CategoriesTab = () => {
     setEditingCategory(null);
     setEditingSubcategory(null);
     setEditName('');
+    setEditImage(null);
+  };
+
+  const handleImageUpload = (file) => {
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setEditImage(reader.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const removeImage = () => {
+    setEditImage(null);
   };
 
   return (
@@ -170,15 +189,55 @@ const CategoriesTab = () => {
                   <X className="w-5 h-5 text-gray-600" />
                 </button>
               </div>
-              <div className="mb-6">
-                <label className="block text-sm font-medium text-gray-700 mb-2">Category Name</label>
-                <input
-                  type="text"
-                  value={editName}
-                  onChange={(e) => setEditName(e.target.value)}
-                  className="w-full px-4 py-3 text-gray-800 bg-gray-100 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-red-400"
-                  autoFocus
-                />
+              <div className="space-y-4 mb-6">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Category Name</label>
+                  <input
+                    type="text"
+                    value={editName}
+                    onChange={(e) => setEditName(e.target.value)}
+                    className="w-full px-4 py-3 text-gray-800 bg-gray-100 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-red-400"
+                    autoFocus
+                  />
+                </div>
+
+                {/* Category Image Upload */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Category Image</label>
+                  <div className="relative group">
+                    {editImage ? (
+                      <div className="relative">
+                        <img
+                          src={editImage}
+                          alt="Category preview"
+                          className="w-full h-48 object-cover rounded-lg border-2 border-gray-200"
+                        />
+                        <button
+                          type="button"
+                          onClick={removeImage}
+                          className="absolute top-2 right-2 p-2 bg-red-500 text-white rounded-full hover:bg-red-600 transition-colors"
+                        >
+                          <X className="w-4 h-4" />
+                        </button>
+                      </div>
+                    ) : (
+                      <label className="flex flex-col items-center justify-center w-full h-48 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-red-400 hover:bg-gray-50 transition-all">
+                        <Upload className="w-10 h-10 text-gray-400 mb-2" />
+                        <span className="text-sm text-gray-500 text-center px-2 font-semibold">
+                          Click to upload category image
+                        </span>
+                        <span className="text-xs text-gray-400 mt-1">Recommended: 800x600px (4:3 ratio)</span>
+                        <span className="text-xs text-gray-400">PNG, JPG up to 5MB</span>
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={(e) => handleImageUpload(e.target.files[0])}
+                          className="hidden"
+                        />
+                      </label>
+                    )}
+                  </div>
+                </div>
               </div>
               <div className="flex justify-end space-x-3">
                 <button

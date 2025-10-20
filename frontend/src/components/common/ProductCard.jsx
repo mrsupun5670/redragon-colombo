@@ -1,8 +1,15 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { ShoppingCart, Heart, Star } from "lucide-react";
 
 const ProductCard = ({ product }) => {
+  const navigate = useNavigate();
+
+  const handleProductClick = () => {
+    navigate(`/product/${product.id}`);
+  };
+
   return (
     <motion.div
       whileHover={{ y: -10 }}
@@ -11,10 +18,14 @@ const ProductCard = ({ product }) => {
       <img
         src={product.image}
         alt={product.name}
-        className="w-full h-60 object-cover"
+        onClick={handleProductClick}
+        className="w-full h-60 object-cover cursor-pointer"
       />
       <div className="p-3 flex flex-col flex-grow">
-        <h3 className="text-lg font-bold text-white mb-2 truncate">
+        <h3
+          onClick={handleProductClick}
+          className="text-lg font-bold text-white mb-2 truncate cursor-pointer hover:text-red-500 transition-colors"
+        >
           {product.name}
         </h3>
         <div className="flex items-center mb-2">

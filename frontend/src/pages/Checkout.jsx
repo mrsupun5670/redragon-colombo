@@ -1,19 +1,30 @@
-import React, { useState } from "react";
+import React, { useState, useContext, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import {
   CreditCard, Wallet, Building2, Check, ShoppingBag,
-  MapPin, Phone, Mail, User, Home, ArrowLeft, Lock
+  MapPin, Phone, Mail, User, Home, ArrowLeft, Lock, Package, TruckIcon
 } from "lucide-react";
 import Navbar from "../components/layout/Navbar";
 import Footer from "../components/layout/Footer";
 import WhatsAppButton from "../components/common/WhatsAppButton";
 import ParticleEffect from "../components/common/ParticleEffect";
-import { cartSampleProducts } from "../data/products";
+import CartContext from "../context/CartContext";
+import api from "../services/api";
 
 const Checkout = () => {
+  const navigate = useNavigate();
+  const { cartItems, cartSubtotal, totalWeight } = useContext(CartContext);
+
   const [step, setStep] = useState(1); // 1: Shipping, 2: Payment, 3: Review
   const [sameAsShipping, setSameAsShipping] = useState(true);
   const [paymentMethod, setPaymentMethod] = useState("card");
+  const [deliveryZones, setDeliveryZones] = useState([]);
+  const [selectedZone, setSelectedZone] = useState(null);
+  const [paymentMethods, setPaymentMethods] = useState([]);
+  const [deliveryCharge, setDeliveryCharge] = useState(0);
+  const [paymentFee, setPaymentFee] = useState(0);
+  const [loading, setLoading] = useState(false);
 
   // Form data
   const [shippingInfo, setShippingInfo] = useState({
@@ -42,14 +53,77 @@ const Checkout = () => {
     cvv: "",
   });
 
+  // Fetch delivery zones and payment methods on mount
+  useEffect(() => {
+    fetchDeliveryZones();
+    fetchPaymentMethods();
+  }, []);
+
+  // Calculate delivery charge when zone changes
+  useEffect(() => {
+    if (selectedZone && totalWeight > 0) {
+      calculateDeliveryCharge();
+    }
+  }, [selectedZone, totalWeight]);
+
+  // Calculate payment fee when payment method or subtotal changes
+  useEffect(() => {
+    if (paymentMethod && cartSubtotal > 0) {
+      calculatePaymentFee();
+    }
+  }, [paymentMethod, cartSubtotal, deliveryCharge]);
+
+  const fetchDeliveryZones = async () => {
+    try {
+      const response = await api.get('/delivery/zones');
+      setDeliveryZones(response.data);
+      if (response.data.length > 0) {
+        setSelectedZone(response.data[0].id);
+      }
+    } catch (error) {
+      console.error('Error fetching delivery zones:', error);
+    }
+  };
+
+  const fetchPaymentMethods = async () => {
+    try {
+      const response = await api.get('/delivery/payment-methods');
+      setPaymentMethods(response.data);
+    } catch (error) {
+      console.error('Error fetching payment methods:', error);
+    }
+  };
+
+  const calculateDeliveryCharge = async () => {
+    try {
+      const response = await api.post('/delivery/calculate-delivery', {
+        zone_id: selectedZone,
+        total_weight: totalWeight
+      });
+      setDeliveryCharge(response.data.delivery_charge);
+    } catch (error) {
+      console.error('Error calculating delivery charge:', error);
+      setDeliveryCharge(0);
+    }
+  };
+
+  const calculatePaymentFee = async () => {
+    try {
+      const orderSubtotal = cartSubtotal + deliveryCharge;
+      const response = await api.post('/delivery/calculate-payment-fee', {
+        method_name: paymentMethod,
+        subtotal: orderSubtotal
+      });
+      setPaymentFee(response.data.payment_fee);
+    } catch (error) {
+      console.error('Error calculating payment fee:', error);
+      setPaymentFee(0);
+    }
+  };
+
   // Calculate totals
-  const subtotal = cartSampleProducts.reduce(
-    (sum, item) => sum + item.price * item.quantity,
-    0
-  );
-  const shipping = 500; // Fixed shipping cost
-  const tax = Math.round(subtotal * 0.05); // 5% tax
-  const total = subtotal + shipping + tax;
+  const subtotal = cartSubtotal;
+  const total = subtotal + deliveryCharge + paymentFee;
 
   const handleShippingSubmit = (e) => {
     e.preventDefault();
@@ -66,11 +140,22 @@ const Checkout = () => {
     // Here you would typically send the order to your backend
   };
 
-  const paymentMethods = [
-    { id: "card", name: "Credit/Debit Card", icon: CreditCard },
-    { id: "bank", name: "Bank Transfer", icon: Building2 },
-    { id: "cash", name: "Cash on Delivery", icon: Wallet },
-  ];
+  const getPaymentMethodDisplay = (methodName) => {
+    const method = paymentMethods.find(m => m.method_name === methodName);
+    return method ? method.display_name : methodName;
+  };
+
+  const getPaymentMethodInfo = (methodName) => {
+    const method = paymentMethods.find(m => m.method_name === methodName);
+    if (!method) return null;
+
+    if (method.fee_type === 'percentage' && method.fee_value > 0) {
+      return `+${method.fee_value}% processing fee`;
+    } else if (method.fee_type === 'fixed' && method.fee_value > 0) {
+      return `+Rs. ${method.fee_value} processing fee`;
+    }
+    return 'No additional fees';
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 via-white to-gray-100">
@@ -265,6 +350,30 @@ const Checkout = () => {
                     </div>
                   </div>
 
+                  {/* Delivery Zone Selection */}
+                  <div>
+                    <label className="block text-sm font-bold text-gray-700 mb-2">
+                      Delivery Zone *
+                    </label>
+                    <select
+                      required
+                      value={selectedZone || ''}
+                      onChange={(e) => setSelectedZone(parseInt(e.target.value))}
+                      className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-red-500 focus:outline-none focus:ring-2 focus:ring-red-500/20"
+                    >
+                      <option value="">Select delivery zone</option>
+                      {deliveryZones.map((zone) => (
+                        <option key={zone.id} value={zone.id}>
+                          {zone.zone_name} - Rs. {zone.base_charge} (base) + Rs. {zone.extra_charge}/kg
+                        </option>
+                      ))}
+                    </select>
+                    <p className="text-xs text-gray-500 mt-2">
+                      <Package className="w-3 h-3 inline mr-1" />
+                      Total package weight: {totalWeight.toFixed(2)} kg
+                    </p>
+                  </div>
+
                   <button
                     type="submit"
                     className="w-full bg-gradient-to-r from-red-500 to-orange-500 hover:from-red-600 hover:to-orange-600 text-white py-4 rounded-xl font-black uppercase shadow-lg transition-all"
@@ -351,8 +460,8 @@ const Checkout = () => {
                     {paymentMethods.map((method) => (
                       <label
                         key={method.id}
-                        className={`flex items-center gap-4 p-4 border-2 rounded-xl cursor-pointer transition-all ${
-                          paymentMethod === method.id
+                        className={`flex items-start gap-4 p-4 border-2 rounded-xl cursor-pointer transition-all ${
+                          paymentMethod === method.method_name
                             ? "border-red-500 bg-red-50"
                             : "border-gray-200 hover:border-gray-300"
                         }`}
@@ -360,13 +469,23 @@ const Checkout = () => {
                         <input
                           type="radio"
                           name="paymentMethod"
-                          value={method.id}
-                          checked={paymentMethod === method.id}
+                          value={method.method_name}
+                          checked={paymentMethod === method.method_name}
                           onChange={(e) => setPaymentMethod(e.target.value)}
-                          className="w-4 h-4 text-red-500"
+                          className="w-4 h-4 text-red-500 mt-1"
                         />
-                        <method.icon className="w-6 h-6 text-gray-700" />
-                        <span className="font-bold text-gray-900">{method.name}</span>
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2">
+                            {method.method_name === 'card' && <CreditCard className="w-5 h-5 text-gray-700" />}
+                            {method.method_name === 'koko' && <Wallet className="w-5 h-5 text-gray-700" />}
+                            {method.method_name === 'cod' && <Building2 className="w-5 h-5 text-gray-700" />}
+                            <span className="font-bold text-gray-900">{method.display_name}</span>
+                          </div>
+                          <p className="text-xs text-gray-600 mt-1">{method.description}</p>
+                          <p className="text-xs font-semibold text-red-600 mt-1">
+                            {getPaymentMethodInfo(method.method_name)}
+                          </p>
+                        </div>
                       </label>
                     ))}
                   </div>
@@ -507,6 +626,10 @@ const Checkout = () => {
                     {shippingInfo.city}, {shippingInfo.postalCode}<br />
                     {shippingInfo.phone}
                   </p>
+                  <p className="text-sm font-semibold text-blue-600 mt-2">
+                    <TruckIcon className="w-4 h-4 inline mr-1" />
+                    {deliveryZones.find(z => z.id === selectedZone)?.zone_name}
+                  </p>
                 </div>
 
                 {/* Payment Method Summary */}
@@ -515,7 +638,7 @@ const Checkout = () => {
                     Payment Method:
                   </h3>
                   <p className="text-gray-700 font-semibold">
-                    {paymentMethods.find(m => m.id === paymentMethod)?.name}
+                    {getPaymentMethodDisplay(paymentMethod)}
                   </p>
                 </div>
 
@@ -551,24 +674,33 @@ const Checkout = () => {
 
               {/* Products */}
               <div className="space-y-4 mb-6 pb-6 border-b-2 border-gray-100">
-                {cartSampleProducts.map((item) => (
-                  <div key={item.id} className="flex gap-4">
-                    <img
-                      src={item.image}
-                      alt={item.name}
-                      className="w-16 h-16 object-cover rounded-lg"
-                    />
-                    <div className="flex-1">
-                      <h3 className="font-bold text-gray-900 text-sm line-clamp-2">
-                        {item.name}
-                      </h3>
-                      <p className="text-sm text-gray-600">Qty: {item.quantity}</p>
-                      <p className="font-bold text-red-500">
-                        Rs. {(item.price * item.quantity).toLocaleString()}
-                      </p>
+                {cartItems.length > 0 ? (
+                  cartItems.map((item) => (
+                    <div key={item.id} className="flex gap-4">
+                      <img
+                        src={item.image}
+                        alt={item.name}
+                        onClick={() => navigate(`/product/${item.id}`)}
+                        className="w-16 h-16 object-cover rounded-lg cursor-pointer hover:opacity-80 transition-opacity"
+                      />
+                      <div className="flex-1">
+                        <h3
+                          onClick={() => navigate(`/product/${item.id}`)}
+                          className="font-bold text-gray-900 text-sm line-clamp-2 cursor-pointer hover:text-red-600 transition-colors"
+                        >
+                          {item.name}
+                        </h3>
+                        <p className="text-sm text-gray-600">Qty: {item.quantity}</p>
+                        <p className="text-xs text-gray-500">{(item.weight * item.quantity).toFixed(2)} kg</p>
+                        <p className="font-bold text-red-500">
+                          Rs. {(item.price * item.quantity).toLocaleString()}
+                        </p>
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  ))
+                ) : (
+                  <p className="text-gray-500 text-center py-4">Your cart is empty</p>
+                )}
               </div>
 
               {/* Totals */}
@@ -578,17 +710,22 @@ const Checkout = () => {
                   <span className="font-semibold">Rs. {subtotal.toLocaleString()}</span>
                 </div>
                 <div className="flex justify-between text-gray-700">
-                  <span>Shipping:</span>
-                  <span className="font-semibold">Rs. {shipping.toLocaleString()}</span>
+                  <div className="flex items-center gap-1">
+                    <TruckIcon className="w-4 h-4" />
+                    <span>Delivery ({totalWeight.toFixed(2)} kg):</span>
+                  </div>
+                  <span className="font-semibold">Rs. {deliveryCharge.toLocaleString()}</span>
                 </div>
-                <div className="flex justify-between text-gray-700">
-                  <span>Tax (5%):</span>
-                  <span className="font-semibold">Rs. {tax.toLocaleString()}</span>
-                </div>
+                {paymentFee > 0 && (
+                  <div className="flex justify-between text-gray-700">
+                    <span>Payment Processing:</span>
+                    <span className="font-semibold">Rs. {paymentFee.toLocaleString()}</span>
+                  </div>
+                )}
                 <div className="pt-3 border-t-2 border-gray-200 flex justify-between">
                   <span className="text-xl font-black text-gray-900">Total:</span>
                   <span className="text-xl font-black text-red-500">
-                    Rs. {total.toLocaleString()}
+                    Rs. {Math.round(total).toLocaleString()}
                   </span>
                 </div>
               </div>
