@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from "react";
+import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Search,
@@ -16,6 +17,8 @@ import ParticleEffect from "../components/common/ParticleEffect";
 import { allProducts } from "../data/products";
 
 const Products = () => {
+  const navigate = useNavigate();
+
   // State management
   const [viewMode, setViewMode] = useState("grid");
   const [searchQuery, setSearchQuery] = useState("");
@@ -569,7 +572,8 @@ const Products = () => {
                       animate={{ opacity: 1, scale: 1 }}
                       exit={{ opacity: 0, scale: 0.9 }}
                       transition={{ duration: 0.3 }}
-                      className="bg-white rounded-xl shadow-md hover:shadow-xl transition-all overflow-hidden group"
+                      onClick={() => navigate(`/product/${product.id}`)}
+                      className="bg-white rounded-xl shadow-md hover:shadow-xl transition-all overflow-hidden group cursor-pointer"
                     >
                       <div className="relative aspect-square overflow-hidden">
                         <img
@@ -619,7 +623,8 @@ const Products = () => {
                       animate={{ opacity: 1, x: 0 }}
                       exit={{ opacity: 0, x: -20 }}
                       transition={{ duration: 0.3 }}
-                      className="bg-white rounded-xl shadow-md hover:shadow-lg transition-all overflow-hidden flex group"
+                      onClick={() => navigate(`/product/${product.id}`)}
+                      className="bg-white rounded-xl shadow-md hover:shadow-lg transition-all overflow-hidden flex group cursor-pointer"
                     >
                       <div className="relative w-32 h-32 flex-shrink-0 overflow-hidden">
                         <img

@@ -55,10 +55,10 @@ const RegisterPage = () => {
       errors.email = "Please enter a valid email address";
     }
 
-    // Phone validation (Sri Lankan format)
-    const phoneRegex = /^(\+94|0)?[0-9]{9,10}$/;
+    // Phone validation (Sri Lankan format - supports mobile and landline)
+    const phoneRegex = /^(\+94|0)?(7[0-9]{8}|[1-9][0-9]{8})$/;
     if (!phone || !phoneRegex.test(phone)) {
-      errors.phone = "Please enter a valid phone number (e.g., 0771234567)";
+      errors.phone = "Please enter a valid Sri Lankan phone number (e.g., 0771234567)";
     }
 
     // Password validation
@@ -149,7 +149,7 @@ const RegisterPage = () => {
                     <label className="block text-sm font-bold text-gray-700 mb-2 uppercase">First Name</label>
                     <div className="relative">
                       <User className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-                      <input type="text" name="firstName" value={firstName} onChange={onChange} placeholder="First Name" className={`w-full pl-12 pr-4 py-3 bg-white/80 border-2 ${validationErrors.firstName ? 'border-red-500' : 'border-gray-300'} rounded-xl focus:border-red-500 focus:outline-none focus:ring-2 focus:ring-red-500/20 transition-all`} required />
+                      <input type="text" name="firstName" value={firstName} onChange={onChange} placeholder="Kamal" className={`w-full pl-12 pr-4 py-3 bg-white/80 border-2 ${validationErrors.firstName ? 'border-red-500' : 'border-gray-300'} rounded-xl focus:border-red-500 focus:outline-none focus:ring-2 focus:ring-red-500/20 transition-all`} required />
                     </div>
                     {validationErrors.firstName && <p className="text-red-500 text-xs mt-1">{validationErrors.firstName}</p>}
                   </motion.div>
@@ -159,7 +159,7 @@ const RegisterPage = () => {
                     <label className="block text-sm font-bold text-gray-700 mb-2 uppercase">Last Name</label>
                     <div className="relative">
                       <User className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-                      <input type="text" name="lastName" value={lastName} onChange={onChange} placeholder="Last Name" className={`w-full pl-12 pr-4 py-3 bg-white/80 border-2 ${validationErrors.lastName ? 'border-red-500' : 'border-gray-300'} rounded-xl focus:border-red-500 focus:outline-none focus:ring-2 focus:ring-red-500/20 transition-all`} required />
+                      <input type="text" name="lastName" value={lastName} onChange={onChange} placeholder="Perera" className={`w-full pl-12 pr-4 py-3 bg-white/80 border-2 ${validationErrors.lastName ? 'border-red-500' : 'border-gray-300'} rounded-xl focus:border-red-500 focus:outline-none focus:ring-2 focus:ring-red-500/20 transition-all`} required />
                     </div>
                     {validationErrors.lastName && <p className="text-red-500 text-xs mt-1">{validationErrors.lastName}</p>}
                   </motion.div>
@@ -170,9 +170,10 @@ const RegisterPage = () => {
                   <label className="block text-sm font-bold text-gray-700 mb-2 uppercase">Mobile Number</label>
                   <div className="relative">
                     <Phone className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-                    <input type="tel" name="phone" value={phone} onChange={onChange} placeholder="0771234567" className={`w-full pl-12 pr-4 py-3 bg-white/80 border-2 ${validationErrors.phone ? 'border-red-500' : 'border-gray-300'} rounded-xl focus:border-red-500 focus:outline-none focus:ring-2 focus:ring-red-500/20 transition-all`} required />
+                    <input type="tel" name="phone" value={phone} onChange={onChange} placeholder="0771234567 or +94771234567" className={`w-full pl-12 pr-4 py-3 bg-white/80 border-2 ${validationErrors.phone ? 'border-red-500' : 'border-gray-300'} rounded-xl focus:border-red-500 focus:outline-none focus:ring-2 focus:ring-red-500/20 transition-all`} required />
                   </div>
                   {validationErrors.phone && <p className="text-red-500 text-xs mt-1">{validationErrors.phone}</p>}
+                  <p className="text-xs text-gray-500 mt-1">Enter Sri Lankan mobile number (e.g., 0771234567)</p>
                 </motion.div>
 
                 {/* Email Input */}
@@ -180,7 +181,7 @@ const RegisterPage = () => {
                   <label className="block text-sm font-bold text-gray-700 mb-2 uppercase">Email</label>
                   <div className="relative">
                     <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-                    <input type="email" name="email" value={email} onChange={onChange} placeholder="your.email@example.com" className={`w-full pl-12 pr-4 py-3 bg-white/80 border-2 ${validationErrors.email ? 'border-red-500' : 'border-gray-300'} rounded-xl focus:border-red-500 focus:outline-none focus:ring-2 focus:ring-red-500/20 transition-all`} required />
+                    <input type="email" name="email" value={email} onChange={onChange} placeholder="kamal.perera@gmail.com" className={`w-full pl-12 pr-4 py-3 bg-white/80 border-2 ${validationErrors.email ? 'border-red-500' : 'border-gray-300'} rounded-xl focus:border-red-500 focus:outline-none focus:ring-2 focus:ring-red-500/20 transition-all`} required />
                   </div>
                   {validationErrors.email && <p className="text-red-500 text-xs mt-1">{validationErrors.email}</p>}
                 </motion.div>

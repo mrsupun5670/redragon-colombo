@@ -6,6 +6,7 @@ import { CartProvider } from "./context/CartContext";
 import Home from "./pages/Home";
 import Products from "./pages/Products";
 import ProductDetail from "./pages/ProductDetail";
+import SingleProductView from "./pages/SingleProductView";
 import Cart from "./pages/Cart";
 import Checkout from "./pages/Checkout";
 import LoginPage from "./pages/Login.jsx";
@@ -16,6 +17,7 @@ import About from "./pages/About";
 import Wishlist from "./pages/Wishlist";
 import CategoriesPage from "./pages/Categories.jsx";
 import AdminLogin from "./pages/AdminLogin.jsx";
+import MyAccount from "./pages/MyAccount.jsx";
 
 function App() {
   return (
@@ -26,6 +28,7 @@ function App() {
             <Route path="/" element={<Home />} />
             <Route path="/products" element={<Products />} />
             <Route path="/products/:id" element={<ProductDetail />} />
+            <Route path="/product/:id" element={<SingleProductView />} />
             <Route path="/cart" element={<Cart />} />
             <Route path="/checkout" element={<Checkout />} />
             <Route path="/login" element={<LoginPage />} />
@@ -36,6 +39,7 @@ function App() {
             <Route path="/about" element={<About />} />
             <Route path="/wishlist" element={<Wishlist />} />
             <Route path="/categories" element={<CategoriesPage />} />
+            <Route path="/account" element={<MyAccount />} />
           </Routes>
         </Router>
       </CartProvider>

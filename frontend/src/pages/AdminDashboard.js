@@ -8,8 +8,9 @@ import CategoriesTab from '../components/features/admin/products/CategoriesTab';
 import BrandsTab from '../components/features/admin/products/BrandsTab';
 import OrderList from '../components/features/admin/orders/OrderList';
 import CustomerList from '../components/features/admin/customers/CustomerList';
+import RefundList from '../components/features/admin/refunds/RefundList';
+import DeliverySettings from '../components/features/admin/delivery/DeliverySettings';
 import SalesCharts from '../components/features/admin/sales/SalesCharts';
-import Settings from '../components/features/admin/Settings';
 
 const AdminDashboard = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
@@ -34,7 +35,7 @@ const AdminDashboard = () => {
   const renderContent = () => {
     switch (activeTab) {
       case 'dashboard':
-        return <Dashboard />;
+        return <Dashboard setActiveTab={setActiveTab} />;
       case 'products':
         return (
           <div>
@@ -87,6 +88,18 @@ const AdminDashboard = () => {
             <CustomerList />
           </div>
         );
+      case 'refunds':
+        return (
+          <div>
+            <RefundList />
+          </div>
+        );
+      case 'delivery':
+        return (
+          <div>
+            <DeliverySettings />
+          </div>
+        );
       case 'sales':
         return (
           <div>
@@ -94,10 +107,8 @@ const AdminDashboard = () => {
             <SalesCharts />
           </div>
         );
-      case 'settings':
-        return <Settings />;
       default:
-        return <Dashboard />;
+        return <Dashboard setActiveTab={setActiveTab} />;
     }
   };
 

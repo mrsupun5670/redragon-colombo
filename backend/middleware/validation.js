@@ -8,9 +8,9 @@ const registerValidation = [
     .withMessage('First name is required')
     .isLength({ min: 2, max: 100 })
     .withMessage('First name must be between 2 and 100 characters')
-    .matches(/^[a-zA-Z\s'-]+$/)
+    .matches(/^[a-zA-Z\u0D80-\u0DFF\u0B80-\u0BFF\s'-]+$/)
     .withMessage('First name can only contain letters, spaces, hyphens, and apostrophes')
-    .escape(), // Sanitize to prevent XSS
+    .escape(), // Sanitize to prevent XSS (supports Sinhala and Tamil Unicode)
 
   body('lastName')
     .trim()
@@ -18,9 +18,9 @@ const registerValidation = [
     .withMessage('Last name is required')
     .isLength({ min: 2, max: 100 })
     .withMessage('Last name must be between 2 and 100 characters')
-    .matches(/^[a-zA-Z\s'-]+$/)
+    .matches(/^[a-zA-Z\u0D80-\u0DFF\u0B80-\u0BFF\s'-]+$/)
     .withMessage('Last name can only contain letters, spaces, hyphens, and apostrophes')
-    .escape(),
+    .escape(), // Supports Sinhala and Tamil Unicode
 
   body('email')
     .trim()
@@ -36,7 +36,7 @@ const registerValidation = [
     .trim()
     .notEmpty()
     .withMessage('Phone number is required')
-    .matches(/^(\+94|0)?[0-9]{9,10}$/)
+    .matches(/^(\+94|0)?(7[0-9]{8}|[1-9][0-9]{8})$/)
     .withMessage('Please provide a valid Sri Lankan phone number (e.g., 0771234567 or +94771234567)')
     .isLength({ max: 20 })
     .withMessage('Phone number must not exceed 20 characters'),

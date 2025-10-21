@@ -1,4 +1,4 @@
-import React, { createContext, useState, useEffect } from 'react';
+import React, { createContext, useState, useEffect, useMemo } from 'react';
 
 const CartContext = createContext();
 
@@ -28,9 +28,45 @@ export const CartProvider = ({ children }) => {
     );
   };
 
+  const clearCart = () => {
+    setCartItems([]);
+  };
+
+  // Calculate cart subtotal
+  const cartSubtotal = useMemo(() => {
+    return cartItems.reduce((sum, item) => {
+      const price = parseFloat(item.price) || 0;
+      const quantity = parseInt(item.quantity) || 0;
+      return sum + (price * quantity);
+    }, 0);
+  }, [cartItems]);
+
+  // Calculate total weight (in kg)
+  const totalWeight = useMemo(() => {
+    return cartItems.reduce((sum, item) => {
+      const weight = parseFloat(item.weight) || 1.0; // Default to 1kg if not specified
+      const quantity = parseInt(item.quantity) || 0;
+      return sum + (weight * quantity);
+    }, 0);
+  }, [cartItems]);
+
+  // Get cart item count
+  const cartItemCount = useMemo(() => {
+    return cartItems.reduce((sum, item) => sum + (parseInt(item.quantity) || 0), 0);
+  }, [cartItems]);
+
   return (
     <CartContext.Provider
-      value={{ cartItems, addToCart, removeFromCart, updateQuantity }}
+      value={{
+        cartItems,
+        addToCart,
+        removeFromCart,
+        updateQuantity,
+        clearCart,
+        cartSubtotal,
+        totalWeight,
+        cartItemCount
+      }}
     >
       {children}
     </CartContext.Provider>

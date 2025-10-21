@@ -127,101 +127,31 @@ const Navbar = () => {
               )}
             </motion.a>
 
-            {!loading && (
-              <AnimatePresence mode="wait">
-                {isAuthenticated && user ? (
-                  <motion.div
-                    key="user-greeting"
-                    initial={{ opacity: 0, x: 20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    exit={{ opacity: 0, x: -20 }}
-                    className="hidden lg:flex items-center gap-2 relative"
-                  >
-                    <span className="font-semibold text-sm">
-                      Hello, {user.firstName || user.username}
-                    </span>
-                    <div className="relative">
-                      <motion.button
-                        onClick={() => setShowUserMenu(!showUserMenu)}
-                        whileHover={{ scale: 1.05, y: -2 }}
-                        whileTap={{ scale: 0.95 }}
-                        className="bg-gray-100 text-gray-700 px-4 py-2 rounded-xl font-bold text-sm transition-all border-2 border-transparent hover:border-red-500/20 flex items-center gap-2"
-                      >
-                        <User className="w-4 h-4" />
-                        {user.type === 'admin' ? 'Admin' : 'Account'}
-                      </motion.button>
-                      
-                      <AnimatePresence>
-                        {showUserMenu && (
-                          <motion.div
-                            initial={{ opacity: 0, y: 10, scale: 0.95 }}
-                            animate={{ opacity: 1, y: 0, scale: 1 }}
-                            exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                            className="absolute right-0 top-full mt-2 w-48 bg-white rounded-xl shadow-xl border-2 border-gray-100 overflow-hidden z-50"
-                          >
-                            {user.type === 'admin' ? (
-                              <a
-                                href="/admin/dashboard"
-                                className="block px-4 py-3 text-gray-700 hover:bg-red-50 hover:text-red-500 transition-all border-b border-gray-100"
-                              >
-                                Admin Dashboard
-                              </a>
-                            ) : (
-                              <>
-                                <a
-                                  href="/account"
-                                  className="block px-4 py-3 text-gray-700 hover:bg-red-50 hover:text-red-500 transition-all border-b border-gray-100"
-                                >
-                                  My Account
-                                </a>
-                                <a
-                                  href="/orders"
-                                  className="block px-4 py-3 text-gray-700 hover:bg-red-50 hover:text-red-500 transition-all border-b border-gray-100"
-                                >
-                                  My Orders
-                                </a>
-                              </>
-                            )}
-                            <button
-                              onClick={handleLogout}
-                              className="w-full text-left px-4 py-3 text-red-600 hover:bg-red-50 transition-all flex items-center gap-2"
-                            >
-                              <LogOut className="w-4 h-4" />
-                              Logout
-                            </button>
-                          </motion.div>
-                        )}
-                      </AnimatePresence>
-                    </div>
-                  </motion.div>
-                ) : (
-                  <motion.div
-                    key="auth-buttons"
-                    initial={{ opacity: 0, x: 20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    exit={{ opacity: 0, x: -20 }}
-                    className="hidden lg:flex items-center gap-2"
-                  >
-                    <motion.a
-                      href="/login"
-                      whileHover={{ scale: 1.1 }}
-                      whileTap={{ scale: 0.95 }}
-                      className="flex items-center justify-center w-10 h-10 rounded-xl transition-all bg-gray-100 hover:bg-red-50 text-gray-700 hover:text-red-500 border border-gray-200"
-                    >
-                      <User className="w-5 h-5" />
-                    </motion.a>
-                    <motion.a
-                      href="/register"
-                      whileHover={{ scale: 1.05, y: -2 }}
-                      whileTap={{ scale: 0.95 }}
-                      className="inline-flex items-center gap-2 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white px-6 py-2.5 rounded-xl font-bold transition-all shadow-lg hover:shadow-xl border-2 border-white/20"
-                    >
-                      <Package className="w-4 h-4" />
-                      Sign Up
-                    </motion.a>
-                  </motion.div>
-                )}
-              </AnimatePresence>
+            {/* User Account Icon - Desktop only */}
+            <motion.a
+              href="/account"
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.95 }}
+              className="hidden lg:flex items-center justify-center w-10 h-10 rounded-xl transition-all bg-gray-100 hover:bg-red-50 text-gray-700 hover:text-red-500 border border-gray-200"
+              title="My Account"
+            >
+              <User className="w-5 h-5" />
+            </motion.a>
+
+            {/* Sign Up Button - Only show when not authenticated */}
+            {!loading && !isAuthenticated && (
+              <motion.a
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -20 }}
+                href="/register"
+                whileHover={{ scale: 1.05, y: -2 }}
+                whileTap={{ scale: 0.95 }}
+                className="hidden lg:inline-flex items-center gap-2 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white px-6 py-2.5 rounded-xl font-bold transition-all shadow-lg hover:shadow-xl border-2 border-white/20"
+              >
+                <Package className="w-4 h-4" />
+                Sign Up
+              </motion.a>
             )}
 
             {/* Mobile Menu Button */}
@@ -353,6 +283,7 @@ const Navbar = () => {
                   { name: "Home", href: "/" },
                   { name: "Products", href: "/products" },
                   { name: "Categories", href: "/categories" },
+                  { name: "My Account", href: "/account", icon: User, highlight: true },
                   { name: "Deals", href: "/deals" },
                   { name: "About", href: "/about" },
                 ].map((link, index) => (
@@ -362,8 +293,13 @@ const Navbar = () => {
                     initial={{ opacity: 0, x: -20 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: index * 0.1 }}
-                    className="block px-4 py-3 text-gray-700 hover:text-red-500 hover:bg-red-50 rounded-xl font-bold transition-all border-2 border-transparent hover:border-red-500/20"
+                    className={`flex items-center gap-2 px-4 py-3 ${
+                      link.highlight
+                        ? 'bg-red-50 text-red-600 border-2 border-red-500/30 hover:bg-red-100'
+                        : 'text-gray-700 hover:text-red-500 hover:bg-red-50 border-2 border-transparent hover:border-red-500/20'
+                    } rounded-xl font-bold transition-all`}
                   >
+                    {link.icon && <link.icon className="w-5 h-5" />}
                     {link.name}
                   </motion.a>
                 ))}
