@@ -1,34 +1,80 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Edit, Plus, X, Upload } from 'lucide-react';
+import { Edit, Plus, X, Upload, Trash2 } from 'lucide-react';
 import AddBrandModal from './AddBrandModal';
-
-const brandsData = [
-  { id: 1, name: 'Redragon', image: null },
-  { id: 2, name: 'Logitech', image: null },
-  { id: 3, name: 'SteelSeries', image: null },
-];
+import { adminApi } from '../../../../utils/adminApi';
 
 const BrandsTab = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [brands, setBrands] = useState(brandsData);
+  const [brands, setBrands] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [editingBrand, setEditingBrand] = useState(null);
   const [editName, setEditName] = useState('');
   const [editImage, setEditImage] = useState(null);
+  const [updating, setUpdating] = useState(false);
+
+  // Fetch brands from API
+  const fetchBrands = async () => {
+    try {
+      const response = await adminApi.get('http://localhost:5001/api/brands');
+      const data = await response.json();
+      
+      if (data.success) {
+        setBrands(data.data);
+      } else {
+        console.error('Failed to fetch brands:', data.message);
+      }
+    } catch (error) {
+      console.error('Error fetching brands:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchBrands();
+  }, []);
 
   const handleEditClick = (brand) => {
     setEditingBrand(brand);
     setEditName(brand.name);
-    setEditImage(brand.image);
+    setEditImage(brand.logo_url || brand.image_url);
   };
 
-  const handleSaveEdit = () => {
-    setBrands(brands.map(b =>
-      b.id === editingBrand.id ? { ...b, name: editName, image: editImage } : b
-    ));
-    setEditingBrand(null);
-    setEditName('');
-    setEditImage(null);
+  const handleSaveEdit = async () => {
+    if (!editName.trim()) {
+      alert('Brand name is required');
+      return;
+    }
+
+    setUpdating(true);
+    try {
+      const formData = new FormData();
+      formData.append('name', editName.trim());
+      
+      // If editImage is a file, append it
+      if (editImage && typeof editImage !== 'string') {
+        formData.append('image', editImage);
+      }
+
+      const response = await adminApi.putFormData(`http://localhost:5001/api/brands/${editingBrand.id}`, formData);
+
+      const data = await response.json();
+      
+      if (data.success) {
+        await fetchBrands(); // Refresh the list
+        setEditingBrand(null);
+        setEditName('');
+        setEditImage(null);
+      } else {
+        alert(data.message || 'Failed to update brand');
+      }
+    } catch (error) {
+      console.error('Error updating brand:', error);
+      alert('Failed to update brand');
+    } finally {
+      setUpdating(false);
+    }
   };
 
   const handleCancelEdit = () => {
@@ -39,11 +85,7 @@ const BrandsTab = () => {
 
   const handleImageUpload = (file) => {
     if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setEditImage(reader.result);
-      };
-      reader.readAsDataURL(file);
+      setEditImage(file); // Store the file object for upload
     }
   };
 
@@ -51,10 +93,41 @@ const BrandsTab = () => {
     setEditImage(null);
   };
 
+  const handleDeleteBrand = async (brandId, brandName) => {
+    if (!window.confirm(`Are you sure you want to delete "${brandName}"? This action cannot be undone.`)) {
+      return;
+    }
+
+    try {
+      const response = await adminApi.delete(`http://localhost:5001/api/brands/${brandId}`);
+
+      const data = await response.json();
+      
+      if (data.success) {
+        await fetchBrands(); // Refresh the list
+      } else {
+        alert(data.message || 'Failed to delete brand');
+      }
+    } catch (error) {
+      console.error('Error deleting brand:', error);
+      alert('Failed to delete brand');
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="bg-blue-50 rounded-2xl shadow-lg p-8">
+        <div className="flex justify-center items-center h-64">
+          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-red-600"></div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="bg-blue-50 rounded-2xl shadow-lg p-8">
       <div className="flex justify-between items-center mb-4">
-        <h2 className="text-2xl font-bold">Brands</h2>
+        <h2 className="text-2xl font-bold">Brands ({brands.length})</h2>
         <motion.button onClick={() => setIsModalOpen(true)} whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="flex items-center px-4 py-2 text-white bg-red-600 rounded-lg">
           <Plus className="w-5 h-5 mr-2" />
           Add Brand
@@ -64,6 +137,7 @@ const BrandsTab = () => {
         <thead>
           <tr className="border-b border-blue-200">
             <th className="p-4">Brand</th>
+            <th className="p-4">Logo</th>
             <th className="p-4">Actions</th>
           </tr>
         </thead>
@@ -76,16 +150,37 @@ const BrandsTab = () => {
               transition={{ delay: index * 0.1 }}
               className="border-b border-blue-200 hover:bg-blue-100"
             >
-              <td className="p-4">{brand.name}</td>
+              <td className="p-4 font-semibold">{brand.name}</td>
               <td className="p-4">
-                <motion.button
-                  onClick={() => handleEditClick(brand)}
-                  whileHover={{ scale: 1.1 }}
-                  whileTap={{ scale: 0.9 }}
-                  className="p-2 rounded-lg bg-blue-100 text-blue-500 hover:bg-blue-200"
-                >
-                  <Edit className="w-5 h-5" />
-                </motion.button>
+                {(brand.logo_url || brand.image_url) ? (
+                  <img 
+                    src={brand.logo_url || brand.image_url} 
+                    alt={brand.name}
+                    className="h-8 w-auto object-contain"
+                  />
+                ) : (
+                  <span className="text-gray-400 text-sm">No logo</span>
+                )}
+              </td>
+              <td className="p-4">
+                <div className="flex space-x-2">
+                  <motion.button
+                    onClick={() => handleEditClick(brand)}
+                    whileHover={{ scale: 1.1 }}
+                    whileTap={{ scale: 0.9 }}
+                    className="p-2 rounded-lg bg-blue-100 text-blue-500 hover:bg-blue-200"
+                  >
+                    <Edit className="w-5 h-5" />
+                  </motion.button>
+                  <motion.button
+                    onClick={() => handleDeleteBrand(brand.id, brand.name)}
+                    whileHover={{ scale: 1.1 }}
+                    whileTap={{ scale: 0.9 }}
+                    className="p-2 rounded-lg bg-red-100 text-red-500 hover:bg-red-200"
+                  >
+                    <Trash2 className="w-5 h-5" />
+                  </motion.button>
+                </div>
               </td>
             </motion.tr>
           ))}
@@ -137,7 +232,7 @@ const BrandsTab = () => {
                     {editImage ? (
                       <div className="relative">
                         <img
-                          src={editImage}
+                          src={typeof editImage === 'string' ? editImage : URL.createObjectURL(editImage)}
                           alt="Brand logo preview"
                           className="w-full h-48 object-contain bg-white rounded-lg border-2 border-gray-200 p-4"
                         />
@@ -177,9 +272,10 @@ const BrandsTab = () => {
                 </button>
                 <button
                   onClick={handleSaveEdit}
-                  className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-semibold"
+                  disabled={updating}
+                  className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-semibold disabled:opacity-50"
                 >
-                  Save Changes
+                  {updating ? 'Saving...' : 'Save Changes'}
                 </button>
               </div>
             </motion.div>
@@ -187,7 +283,12 @@ const BrandsTab = () => {
         )}
       </AnimatePresence>
 
-      {isModalOpen && <AddBrandModal onClose={() => setIsModalOpen(false)} />}
+      {isModalOpen && (
+        <AddBrandModal 
+          onClose={() => setIsModalOpen(false)} 
+          onBrandAdded={fetchBrands}
+        />
+      )}
     </div>
   );
 };

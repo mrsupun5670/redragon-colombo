@@ -1,64 +1,18 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Edit, Filter, X, Plus, Trash2, Upload, Search } from 'lucide-react';
-
-const productsData = [
-  {
-    id: 1,
-    name: 'Redragon K552 Keyboard',
-    brand: 'Redragon',
-    category: 'Keyboards',
-    subcategory: 'Mechanical',
-    cost: 45.00,
-    price: 59.99,
-    stock: 100,
-    sold: 245,
-    status: 'Active',
-    datePublished: '2024-01-15'
-  },
-  {
-    id: 2,
-    name: 'Logitech G502 Mouse',
-    brand: 'Logitech',
-    category: 'Mice',
-    subcategory: 'Gaming',
-    cost: 60.00,
-    price: 79.99,
-    stock: 0,
-    sold: 189,
-    status: 'Active',
-    datePublished: '2024-02-10'
-  },
-  {
-    id: 3,
-    name: 'SteelSeries Arctis 7 Headset',
-    brand: 'SteelSeries',
-    category: 'Headsets',
-    subcategory: 'Wireless',
-    cost: 110.00,
-    price: 149.99,
-    stock: 75,
-    sold: 92,
-    status: 'Inactive',
-    datePublished: '2024-03-05'
-  },
-  {
-    id: 4,
-    name: 'Razer BlackWidow V3',
-    brand: 'Razer',
-    category: 'Keyboards',
-    subcategory: 'RGB',
-    cost: 85.00,
-    price: 129.99,
-    stock: 45,
-    sold: 156,
-    status: 'Active',
-    datePublished: '2024-01-20'
-  },
-];
+import { adminApi } from '../../../../utils/adminApi';
 
 const ProductList = () => {
-  const [products, setProducts] = useState(productsData);
+  const [allProducts, setAllProducts] = useState([]);
+  const [products, setProducts] = useState([]);
+  const [brands, setBrands] = useState([]);
+  const [mainCategories, setMainCategories] = useState([]);
+  const [subCategories, setSubCategories] = useState([]);
+  const [brandNames, setBrandNames] = useState(['all']);
+  const [mainCategoryNames, setMainCategoryNames] = useState(['all']);
+  const [subCategoryNames, setSubCategoryNames] = useState(['all']);
+  const [loading, setLoading] = useState(true);
   const [showFilters, setShowFilters] = useState(false);
   const [editingProduct, setEditingProduct] = useState(null);
   const [activeTab, setActiveTab] = useState('details');
@@ -71,13 +25,230 @@ const ProductList = () => {
     category: 'all',
     subcategory: 'all'
   });
+  const [isUpdating, setIsUpdating] = useState(false);
+  const [editFormData, setEditFormData] = useState({});
+  const [selectedImages, setSelectedImages] = useState([]);
+  const [imagePreviews, setImagePreviews] = useState([]);
+  const [existingImages, setExistingImages] = useState([]);
 
-  const brands = ['all', ...new Set(productsData.map(p => p.brand))];
-  const categories = ['all', ...new Set(productsData.map(p => p.category))];
-  const subcategories = ['all', ...new Set(productsData.map(p => p.subcategory))];
+  // Fetch all data
+  const fetchData = async () => {
+    setLoading(true);
+    try {
+      // Fetch products, brands, and categories in parallel using authenticated API calls
+      const [productsRes, brandsRes, mainCategoriesRes, subCategoriesRes] = await Promise.all([
+        adminApi.get('http://localhost:5001/api/products'),
+        adminApi.get('http://localhost:5001/api/brands'),
+        adminApi.get('http://localhost:5001/api/categories/main'),
+        adminApi.get('http://localhost:5001/api/categories/sub')
+      ]);
+
+      const [productsData, brandsData, mainCategoriesData, subCategoriesData] = await Promise.all([
+        productsRes.json(),
+        brandsRes.json(),
+        mainCategoriesRes.json(),
+        subCategoriesRes.json()
+      ]);
+
+      if (productsData.success) {
+        setAllProducts(productsData.data);
+        setProducts(productsData.data);
+      }
+
+      if (brandsData.success) {
+        setBrands(brandsData.data);
+        setBrandNames(['all', ...brandsData.data.map(b => b.name)]);
+      }
+
+      if (mainCategoriesData.success) {
+        setMainCategories(mainCategoriesData.data);
+        setMainCategoryNames(['all', ...mainCategoriesData.data.map(c => c.name)]);
+      }
+
+      if (subCategoriesData.success) {
+        setSubCategories(subCategoriesData.data);
+        setSubCategoryNames(['all', ...subCategoriesData.data.map(c => c.name)]);
+      }
+    } catch (error) {
+      console.error('Error fetching data:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  const handleEditClick = async (product) => {
+    setEditingProduct(product);
+    setEditFormData({
+      name: product.name,
+      description: product.description,
+      brand_name: product.brand_name,
+      main_category_name: product.main_category_name,
+      sub_category_name: product.sub_category_name,
+      price: product.price,
+      cost_price: product.cost_price,
+      stock_quantity: product.stock_quantity,
+      shipping_fee: product.shipping_fee || 0,
+      is_active: product.is_active
+    });
+    setSelectedImages([]);
+    setImagePreviews([]);
+    setExistingImages([]);
+    setActiveTab('details');
+
+    // Fetch existing product images
+    try {
+      const imagesResponse = await adminApi.get(`http://localhost:5001/api/products/${product.id}/images`);
+      const imagesData = await imagesResponse.json();
+      
+      if (imagesData.success && imagesData.data) {
+        const existingImageData = imagesData.data;
+        const existingPreviews = [];
+        
+        // Fill up to 5 image slots with existing images
+        for (let i = 0; i < 5; i++) {
+          if (existingImageData[i]) {
+            existingPreviews[i] = existingImageData[i].image_path;
+          } else {
+            existingPreviews[i] = null;
+          }
+        }
+        
+        setExistingImages(existingImageData);
+        setImagePreviews(existingPreviews);
+      }
+    } catch (error) {
+      console.error('Error fetching product images:', error);
+    }
+  };
+
+  const handleEditFormChange = (field, value) => {
+    setEditFormData(prev => ({
+      ...prev,
+      [field]: value
+    }));
+  };
+
+  const handleImageSelect = (index, file) => {
+    if (file) {
+      const newSelectedImages = [...selectedImages];
+      const newImagePreviews = [...imagePreviews];
+      
+      newSelectedImages[index] = file;
+      
+      // Create preview URL
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        newImagePreviews[index] = e.target.result;
+        setImagePreviews([...newImagePreviews]);
+      };
+      reader.readAsDataURL(file);
+      
+      setSelectedImages(newSelectedImages);
+    }
+  };
+
+  const removeImage = (index) => {
+    const newSelectedImages = [...selectedImages];
+    const newImagePreviews = [...imagePreviews];
+    
+    // Clear the image at this index
+    newSelectedImages[index] = null;
+    newImagePreviews[index] = null;
+    
+    setSelectedImages(newSelectedImages);
+    setImagePreviews(newImagePreviews);
+  };
+
+  const handleEditSubmit = async (e) => {
+    e.preventDefault();
+    setIsUpdating(true);
+
+    try {
+      // Basic validation
+      if (!editFormData.name || !editFormData.price || !editFormData.stock_quantity) {
+        alert('Please fill in required fields');
+        return;
+      }
+
+      // Find brand and category IDs from names
+      const selectedBrand = brands.find(b => b.name === editFormData.brand_name);
+      const selectedMainCategory = mainCategories.find(c => c.name === editFormData.main_category_name);
+      const selectedSubCategory = subCategories.find(c => c.name === editFormData.sub_category_name);
+
+      // Prepare data for API
+      const updateData = {
+        name: editFormData.name,
+        description: editFormData.description,
+        price: parseFloat(editFormData.price),
+        cost_price: parseFloat(editFormData.cost_price) || 0,
+        stock_quantity: parseInt(editFormData.stock_quantity),
+        shipping_fee: parseFloat(editFormData.shipping_fee) || 0,
+        is_active: editFormData.is_active
+      };
+
+      // Add brand and category IDs if selected
+      if (selectedBrand) {
+        updateData.brand_id = selectedBrand.id;
+      }
+      if (selectedMainCategory) {
+        updateData.main_category_id = selectedMainCategory.id;
+      }
+      if (selectedSubCategory) {
+        updateData.sub_category_id = selectedSubCategory.id;
+      }
+
+      // First update the product details
+      const response = await adminApi.put(`http://localhost:5001/api/products/${editingProduct.id}`, updateData);
+      const data = await response.json();
+
+      if (data.success) {
+        // If there are images to upload, handle them separately
+        if (selectedImages.some(img => img !== null && img !== undefined)) {
+          try {
+            const formData = new FormData();
+            selectedImages.forEach((image) => {
+              if (image) {
+                formData.append('images', image);
+              }
+            });
+
+            const imageResponse = await adminApi.putFormData(
+              `http://localhost:5001/api/products/${editingProduct.id}/images`,
+              formData
+            );
+            
+            const imageData = await imageResponse.json();
+            if (!imageData.success) {
+              console.warn('Image upload failed:', imageData.message);
+            }
+          } catch (imageError) {
+            console.error('Error uploading images:', imageError);
+          }
+        }
+
+        alert('Product updated successfully!');
+        setEditingProduct(null);
+        setEditFormData({});
+        setSelectedImages([]);
+        setImagePreviews([]);
+        fetchData(); // Refresh the list
+      } else {
+        alert(data.message || 'Error updating product');
+      }
+    } catch (error) {
+      console.error('Error updating product:', error);
+      alert('Error updating product. Please try again.');
+    } finally {
+      setIsUpdating(false);
+    }
+  };
 
   const applyFilters = () => {
-    let filtered = [...productsData];
+    let filtered = [...allProducts];
 
     // Filter by search query (ID or name)
     if (searchQuery.trim()) {
@@ -89,29 +260,30 @@ const ProductList = () => {
 
     // Filter by stock status
     if (filters.stockStatus === 'inStock') {
-      filtered = filtered.filter(p => p.stock > 0);
+      filtered = filtered.filter(p => p.stock_quantity > 0);
     } else if (filters.stockStatus === 'outOfStock') {
-      filtered = filtered.filter(p => p.stock === 0);
+      filtered = filtered.filter(p => p.stock_quantity === 0);
     }
 
     // Filter by status
     if (filters.status !== 'all') {
-      filtered = filtered.filter(p => p.status === filters.status);
+      const statusValue = filters.status === 'Active' ? 1 : 0;
+      filtered = filtered.filter(p => p.is_active === statusValue);
     }
 
     // Filter by brand
     if (filters.brand !== 'all') {
-      filtered = filtered.filter(p => p.brand === filters.brand);
+      filtered = filtered.filter(p => p.brand_name === filters.brand);
     }
 
     // Filter by category
     if (filters.category !== 'all') {
-      filtered = filtered.filter(p => p.category === filters.category);
+      filtered = filtered.filter(p => p.main_category_name === filters.category);
     }
 
     // Filter by subcategory
     if (filters.subcategory !== 'all') {
-      filtered = filtered.filter(p => p.subcategory === filters.subcategory);
+      filtered = filtered.filter(p => p.sub_category_name === filters.subcategory);
     }
 
     // Sort by price
@@ -134,12 +306,24 @@ const ProductList = () => {
       category: 'all',
       subcategory: 'all'
     });
-    setProducts(productsData);
+    setProducts(allProducts);
   };
 
   React.useEffect(() => {
-    applyFilters();
-  }, [filters, searchQuery]);
+    if (allProducts.length > 0) {
+      applyFilters();
+    }
+  }, [filters, searchQuery, allProducts]);
+
+  if (loading) {
+    return (
+      <div className="bg-blue-50 rounded-xl md:rounded-2xl shadow-lg p-4 md:p-6 lg:p-8">
+        <div className="flex justify-center items-center h-64">
+          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-red-600"></div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="bg-blue-50 rounded-xl md:rounded-2xl shadow-lg p-4 md:p-6 lg:p-8">
@@ -238,7 +422,7 @@ const ProductList = () => {
                 onChange={(e) => setFilters({ ...filters, brand: e.target.value })}
                 className="w-full px-3 py-2 text-sm bg-white border border-gray-300 rounded-lg focus:outline-none focus:border-red-400"
               >
-                {brands.map(brand => (
+                {brandNames.map(brand => (
                   <option key={brand} value={brand}>{brand === 'all' ? 'All Brands' : brand}</option>
                 ))}
               </select>
@@ -252,7 +436,7 @@ const ProductList = () => {
                 onChange={(e) => setFilters({ ...filters, category: e.target.value })}
                 className="w-full px-3 py-2 text-sm bg-white border border-gray-300 rounded-lg focus:outline-none focus:border-red-400"
               >
-                {categories.map(category => (
+                {mainCategoryNames.map(category => (
                   <option key={category} value={category}>{category === 'all' ? 'All Categories' : category}</option>
                 ))}
               </select>
@@ -266,7 +450,7 @@ const ProductList = () => {
                 onChange={(e) => setFilters({ ...filters, subcategory: e.target.value })}
                 className="w-full px-3 py-2 text-sm bg-white border border-gray-300 rounded-lg focus:outline-none focus:border-red-400"
               >
-                {subcategories.map(subcategory => (
+                {subCategoryNames.map(subcategory => (
                   <option key={subcategory} value={subcategory}>{subcategory === 'all' ? 'All Subcategories' : subcategory}</option>
                 ))}
               </select>
@@ -303,36 +487,33 @@ const ProductList = () => {
                 >
                   <td className="p-2 md:p-3 text-xs md:text-sm">#{product.id}</td>
                   <td className="p-2 md:p-3 text-xs md:text-sm font-medium max-w-[150px] md:max-w-none truncate">{product.name}</td>
-                  <td className="p-2 md:p-3 text-xs md:text-sm hidden lg:table-cell">{product.cost.toFixed(2)}</td>
-                  <td className="p-2 md:p-3 text-xs md:text-sm font-semibold whitespace-nowrap">{product.price.toFixed(2)}</td>
-                  <td className="p-2 md:p-3 text-xs md:text-sm hidden xl:table-cell whitespace-nowrap">{new Date(product.datePublished).toLocaleDateString()}</td>
+                  <td className="p-2 md:p-3 text-xs md:text-sm hidden lg:table-cell">Rs. {product.cost_price ? parseFloat(product.cost_price).toFixed(2) : '0.00'}</td>
+                  <td className="p-2 md:p-3 text-xs md:text-sm font-semibold whitespace-nowrap">Rs. {parseFloat(product.price).toFixed(2)}</td>
+                  <td className="p-2 md:p-3 text-xs md:text-sm hidden xl:table-cell whitespace-nowrap">{new Date(product.created_at).toLocaleDateString()}</td>
                   <td className="p-2 md:p-3 text-xs md:text-sm">
                     <span className={`px-1.5 md:px-2 py-0.5 md:py-1 rounded-full text-xs font-semibold whitespace-nowrap ${
-                      product.stock === 0
+                      product.stock_quantity === 0
                         ? 'bg-red-100 text-red-800'
-                        : product.stock < 50
+                        : product.stock_quantity < 50
                         ? 'bg-yellow-100 text-yellow-800'
                         : 'bg-green-100 text-green-800'
                     }`}>
-                      {product.stock}
+                      {product.stock_quantity}
                     </span>
                   </td>
-                  <td className="p-2 md:p-3 text-xs md:text-sm hidden sm:table-cell">{product.sold}</td>
+                  <td className="p-2 md:p-3 text-xs md:text-sm hidden sm:table-cell">{product.sold_count || 0}</td>
                   <td className="p-2 md:p-3 text-xs md:text-sm hidden md:table-cell">
                     <span className={`px-1.5 md:px-2 py-0.5 md:py-1 rounded-full text-xs font-semibold whitespace-nowrap ${
-                      product.status === 'Active'
+                      product.is_active === 1
                         ? 'bg-green-100 text-green-800'
                         : 'bg-gray-100 text-gray-800'
                     }`}>
-                      {product.status}
+                      {product.is_active === 1 ? 'Active' : 'Inactive'}
                     </span>
                   </td>
                   <td className="p-2 md:p-3">
                     <motion.button
-                      onClick={() => {
-                        setEditingProduct(product);
-                        setActiveTab('details');
-                      }}
+                      onClick={() => handleEditClick(product)}
                       whileHover={{ scale: 1.1 }}
                       whileTap={{ scale: 0.9 }}
                       className="p-1.5 md:p-2 rounded-lg bg-blue-100 text-blue-500 hover:bg-blue-200"
@@ -401,11 +582,7 @@ const ProductList = () => {
               </div>
 
               {/* Form Content */}
-              <form onSubmit={(e) => {
-                e.preventDefault();
-                // Save changes logic here
-                setEditingProduct(null);
-              }}>
+              <form onSubmit={handleEditSubmit}>
                 {activeTab === 'details' && (
                   <div className="space-y-6">
                     {/* Product Title */}
@@ -413,8 +590,21 @@ const ProductList = () => {
                       <label className="block text-sm font-medium text-gray-700 mb-2">Product Title *</label>
                       <input
                         type="text"
-                        defaultValue={editingProduct.name}
+                        value={editFormData.name || ''}
+                        onChange={(e) => handleEditFormChange('name', e.target.value)}
                         placeholder="Enter product name"
+                        className="w-full px-4 py-3 text-gray-800 bg-gray-50 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-red-400"
+                      />
+                    </div>
+
+                    {/* Description */}
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Description</label>
+                      <textarea
+                        value={editFormData.description || ''}
+                        onChange={(e) => handleEditFormChange('description', e.target.value)}
+                        placeholder="Enter product description"
+                        rows="4"
                         className="w-full px-4 py-3 text-gray-800 bg-gray-50 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-red-400"
                       />
                     </div>
@@ -424,28 +614,27 @@ const ProductList = () => {
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">Brand *</label>
                         <select
-                          defaultValue={editingProduct.brand}
+                          value={editFormData.brand_name || ''}
+                          onChange={(e) => handleEditFormChange('brand_name', e.target.value)}
                           className="w-full px-4 py-3 text-gray-800 bg-gray-50 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-red-400"
                         >
                           <option value="">Select Brand</option>
-                          <option value="Redragon">Redragon</option>
-                          <option value="Logitech">Logitech</option>
-                          <option value="Razer">Razer</option>
-                          <option value="Corsair">Corsair</option>
-                          <option value="SteelSeries">SteelSeries</option>
+                          {brands.map(brand => (
+                            <option key={brand.id} value={brand.name}>{brand.name}</option>
+                          ))}
                         </select>
                       </div>
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">Category *</label>
                         <select
-                          defaultValue={editingProduct.category}
+                          value={editFormData.main_category_name || ''}
+                          onChange={(e) => handleEditFormChange('main_category_name', e.target.value)}
                           className="w-full px-4 py-3 text-gray-800 bg-gray-50 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-red-400"
                         >
                           <option value="">Select Category</option>
-                          <option value="Keyboards">Keyboards</option>
-                          <option value="Mice">Mice</option>
-                          <option value="Headsets">Headsets</option>
-                          <option value="Monitors">Monitors</option>
+                          {mainCategories.map(category => (
+                            <option key={category.id} value={category.name}>{category.name}</option>
+                          ))}
                         </select>
                       </div>
                     </div>
@@ -455,20 +644,21 @@ const ProductList = () => {
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">Sub-category</label>
                         <select
-                          defaultValue={editingProduct.subcategory}
+                          value={editFormData.sub_category_name || ''}
+                          onChange={(e) => handleEditFormChange('sub_category_name', e.target.value)}
                           className="w-full px-4 py-3 text-gray-800 bg-gray-50 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-red-400"
                         >
                           <option value="">Select Sub-category</option>
-                          <option value="Mechanical">Mechanical</option>
-                          <option value="Wireless">Wireless</option>
-                          <option value="Gaming">Gaming</option>
-                          <option value="RGB">RGB</option>
+                          {subCategories.map(subcategory => (
+                            <option key={subcategory.id} value={subcategory.name}>{subcategory.name}</option>
+                          ))}
                         </select>
                       </div>
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">Status</label>
                         <select
-                          defaultValue={editingProduct.status}
+                          value={editFormData.is_active === 1 ? 'Active' : 'Inactive'}
+                          onChange={(e) => handleEditFormChange('is_active', e.target.value === 'Active' ? 1 : 0)}
                           className="w-full px-4 py-3 text-gray-800 bg-gray-50 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-red-400"
                         >
                           <option value="Active">Active</option>
@@ -477,13 +667,14 @@ const ProductList = () => {
                       </div>
                     </div>
 
-                    {/* Quantity, Cost, and Price Row */}
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    {/* Quantity and Cost Row */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">Stock Quantity *</label>
                         <input
                           type="number"
-                          defaultValue={editingProduct.stock}
+                          value={editFormData.stock_quantity || ''}
+                          onChange={(e) => handleEditFormChange('stock_quantity', e.target.value)}
                           placeholder="0"
                           min="0"
                           className="w-full px-4 py-3 text-gray-800 bg-gray-50 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-red-400"
@@ -493,7 +684,24 @@ const ProductList = () => {
                         <label className="block text-sm font-medium text-gray-700 mb-2">Cost (Rs.) *</label>
                         <input
                           type="number"
-                          defaultValue={editingProduct.cost}
+                          value={editFormData.cost_price || ''}
+                          onChange={(e) => handleEditFormChange('cost_price', e.target.value)}
+                          placeholder="0.00"
+                          min="0"
+                          step="0.01"
+                          className="w-full px-4 py-3 text-gray-800 bg-gray-50 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-red-400"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Price and Shipping Fee Row */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">Price (Rs.) *</label>
+                        <input
+                          type="number"
+                          value={editFormData.price || ''}
+                          onChange={(e) => handleEditFormChange('price', e.target.value)}
                           placeholder="0.00"
                           min="0"
                           step="0.01"
@@ -501,10 +709,11 @@ const ProductList = () => {
                         />
                       </div>
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">Price (Rs.) *</label>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">Shipping Fee (Rs.)</label>
                         <input
                           type="number"
-                          defaultValue={editingProduct.price}
+                          value={editFormData.shipping_fee || ''}
+                          onChange={(e) => handleEditFormChange('shipping_fee', e.target.value)}
                           placeholder="0.00"
                           min="0"
                           step="0.01"
@@ -525,17 +734,40 @@ const ProductList = () => {
                       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3 md:gap-4">
                         {[0, 1, 2, 3, 4].map((index) => (
                           <div key={index} className="relative aspect-square">
-                            <label className="flex flex-col items-center justify-center w-full h-full border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-red-400 hover:bg-gray-50 transition-all">
-                              <Upload className="w-8 h-8 text-gray-400 mb-2" />
-                              <span className="text-xs text-gray-500 text-center px-2">
-                                Upload<br />Image {index + 1}
-                              </span>
-                              <input
-                                type="file"
-                                accept="image/*"
-                                className="hidden"
-                              />
-                            </label>
+                            {imagePreviews[index] ? (
+                              <div className="relative w-full h-full">
+                                <img
+                                  src={imagePreviews[index]}
+                                  alt={`Product image ${index + 1}`}
+                                  className="w-full h-full object-cover rounded-lg border-2 border-gray-300"
+                                />
+                                <button
+                                  type="button"
+                                  onClick={() => removeImage(index)}
+                                  className="absolute -top-2 -right-2 p-1 bg-red-500 text-white rounded-full hover:bg-red-600 transition-colors"
+                                >
+                                  <X className="w-4 h-4" />
+                                </button>
+                              </div>
+                            ) : (
+                              <label className="flex flex-col items-center justify-center w-full h-full border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-red-400 hover:bg-gray-50 transition-all">
+                                <Upload className="w-8 h-8 text-gray-400 mb-2" />
+                                <span className="text-xs text-gray-500 text-center px-2">
+                                  Upload<br />Image {index + 1}
+                                </span>
+                                <input
+                                  type="file"
+                                  accept="image/*"
+                                  className="hidden"
+                                  onChange={(e) => {
+                                    const file = e.target.files[0];
+                                    if (file) {
+                                      handleImageSelect(index, file);
+                                    }
+                                  }}
+                                />
+                              </label>
+                            )}
                           </div>
                         ))}
                       </div>
@@ -595,11 +827,12 @@ const ProductList = () => {
                   </motion.button>
                   <motion.button
                     type="submit"
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                    className="px-6 py-3 font-semibold text-white bg-red-600 rounded-lg hover:bg-red-700 transition-colors"
+                    disabled={isUpdating}
+                    whileHover={{ scale: isUpdating ? 1 : 1.02 }}
+                    whileTap={{ scale: isUpdating ? 1 : 0.98 }}
+                    className="px-6 py-3 font-semibold text-white bg-red-600 rounded-lg hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                   >
-                    Save Changes
+                    {isUpdating ? 'Saving...' : 'Save Changes'}
                   </motion.button>
                 </div>
               </form>

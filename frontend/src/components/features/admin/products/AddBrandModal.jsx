@@ -1,23 +1,58 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Upload } from 'lucide-react';
+import { adminApi } from '../../../../utils/adminApi';
 
-const AddBrandModal = ({ onClose }) => {
+const AddBrandModal = ({ onClose, onBrandAdded }) => {
   const [brandName, setBrandName] = useState('');
   const [brandImage, setBrandImage] = useState(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleImageUpload = (file) => {
     if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setBrandImage(reader.result);
-      };
-      reader.readAsDataURL(file);
+      setBrandImage(file); // Store file object for upload
     }
   };
 
   const removeImage = () => {
     setBrandImage(null);
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    
+    if (!brandName.trim()) {
+      alert('Brand name is required');
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      const formData = new FormData();
+      formData.append('name', brandName.trim());
+      
+      if (brandImage) {
+        formData.append('image', brandImage);
+      }
+
+      const response = await adminApi.postFormData('http://localhost:5001/api/brands', formData);
+
+      const data = await response.json();
+      
+      if (data.success) {
+        setBrandName('');
+        setBrandImage(null);
+        onBrandAdded && onBrandAdded(); // Callback to refresh brands list
+        onClose();
+      } else {
+        alert(data.message || 'Failed to create brand');
+      }
+    } catch (error) {
+      console.error('Error creating brand:', error);
+      alert('Failed to create brand');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -40,7 +75,7 @@ const AddBrandModal = ({ onClose }) => {
               <X className="w-5 h-5 text-gray-800" />
             </motion.button>
           </div>
-          <form className="space-y-6">
+          <form className="space-y-6" onSubmit={handleSubmit}>
             <div>
               <label htmlFor="brandName" className="block text-sm font-medium text-gray-500">Brand Name</label>
               <input
@@ -59,7 +94,7 @@ const AddBrandModal = ({ onClose }) => {
                 {brandImage ? (
                   <div className="relative">
                     <img
-                      src={brandImage}
+                      src={URL.createObjectURL(brandImage)}
                       alt="Brand logo preview"
                       className="w-full h-48 object-contain bg-white rounded-lg border-2 border-blue-200 p-4"
                     />
@@ -93,8 +128,14 @@ const AddBrandModal = ({ onClose }) => {
               <motion.button type="button" whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} onClick={onClose} className="px-6 py-2 font-bold text-gray-800 bg-gray-200 rounded-lg">
                 Cancel
               </motion.button>
-              <motion.button type="submit" whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="px-6 py-2 font-bold text-white bg-red-600 rounded-lg">
-                Save Brand
+              <motion.button 
+                type="submit" 
+                whileHover={{ scale: 1.05 }} 
+                whileTap={{ scale: 0.95 }} 
+                disabled={isSubmitting}
+                className="px-6 py-2 font-bold text-white bg-red-600 rounded-lg disabled:opacity-50"
+              >
+                {isSubmitting ? 'Saving...' : 'Save Brand'}
               </motion.button>
             </div>
           </form>

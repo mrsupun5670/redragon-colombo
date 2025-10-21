@@ -2,6 +2,8 @@ import React from "react";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext";
 import { CartProvider } from "./context/CartContext";
+import { AdminAuthProvider } from "./context/AdminAuthContext";
+import AdminProtectedRoute from "./components/admin/AdminProtectedRoute";
 
 import Home from "./pages/Home";
 import Products from "./pages/Products";
@@ -23,25 +25,31 @@ function App() {
   return (
     <AuthProvider>
       <CartProvider>
-        <Router>
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/products" element={<Products />} />
-            <Route path="/products/:id" element={<ProductDetail />} />
-            <Route path="/product/:id" element={<SingleProductView />} />
-            <Route path="/cart" element={<Cart />} />
-            <Route path="/checkout" element={<Checkout />} />
-            <Route path="/login" element={<LoginPage />} />
-            <Route path="/register" element={<RegisterPage />} />
-            <Route path="/forgot-password" element={<ForgotPasswordPage />} />
-            <Route path="/admin" element={<AdminDashboard />} />
-            <Route path="/admin/login" element={<AdminLogin />} />
-            <Route path="/about" element={<About />} />
-            <Route path="/wishlist" element={<Wishlist />} />
-            <Route path="/categories" element={<CategoriesPage />} />
-            <Route path="/account" element={<MyAccount />} />
-          </Routes>
-        </Router>
+        <AdminAuthProvider>
+          <Router>
+            <Routes>
+              <Route path="/" element={<Home />} />
+              <Route path="/products" element={<Products />} />
+              <Route path="/products/:id" element={<ProductDetail />} />
+              <Route path="/product/:id" element={<SingleProductView />} />
+              <Route path="/cart" element={<Cart />} />
+              <Route path="/checkout" element={<Checkout />} />
+              <Route path="/login" element={<LoginPage />} />
+              <Route path="/register" element={<RegisterPage />} />
+              <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+              <Route path="/admin" element={
+                // <AdminProtectedRoute>
+                  <AdminDashboard />
+                // </AdminProtectedRoute>
+              } />
+              <Route path="/admin/login" element={<AdminLogin />} />
+              <Route path="/about" element={<About />} />
+              <Route path="/wishlist" element={<Wishlist />} />
+              <Route path="/categories" element={<CategoriesPage />} />
+              <Route path="/account" element={<MyAccount />} />
+            </Routes>
+          </Router>
+        </AdminAuthProvider>
       </CartProvider>
     </AuthProvider>
   );

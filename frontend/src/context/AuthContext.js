@@ -1,56 +1,137 @@
-import React, { createContext, useState, useEffect } from 'react';
-import api from '../services/api';
+import React, { createContext, useState, useEffect, useContext } from 'react';
+import { authAPI, userUtils } from '../services/api';
 
 const AuthContext = createContext();
 
+export const useAuth = () => {
+  const context = useContext(AuthContext);
+  if (!context) {
+    throw new Error('useAuth must be used within an AuthProvider');
+  }
+  return context;
+};
+
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [loading, setLoading] = useState(true);
 
   // Check if user is logged in on component mount
   useEffect(() => {
-    const checkLoggedIn = async () => {
+    const initializeAuth = async () => {
       try {
-        const res = await api.get('/auth/me');
-        if (res.data.success) {
-          setUser(res.data.user);
-          setIsAuthenticated(true);
+        // Check if token exists in localStorage
+        if (userUtils.isAuthenticated()) {
+          const storedUser = userUtils.getCurrentUser();
+          
+          if (storedUser) {
+            // Verify token with backend
+            try {
+              const res = await authAPI.getCurrentUser();
+              if (res.data.success) {
+                setUser(res.data.user);
+              } else {
+                // Token invalid, clear stored data
+                userUtils.clearAuthData();
+                setUser(null);
+              }
+            } catch (err) {
+              // Token invalid or expired, clear stored data
+              userUtils.clearAuthData();
+              setUser(null);
+            }
+          } else {
+            // No stored user but token exists, clear token
+            userUtils.clearAuthData();
+            setUser(null);
+          }
         }
       } catch (err) {
-        console.error('Auth check failed:', err);
+        console.error('Auth initialization error:', err);
+        userUtils.clearAuthData();
         setUser(null);
-        setIsAuthenticated(false);
       } finally {
         setLoading(false);
       }
     };
 
-    checkLoggedIn();
+    initializeAuth();
   }, []);
 
-  // Login function - sets user data
-  const login = (userData) => {
-    setUser(userData);
-    setIsAuthenticated(true);
-  };
-
-  // Logout function - clears user data and calls logout endpoint
-  const logout = async () => {
+  // Login function
+  const login = async (credentials, isAdmin = false) => {
     try {
-      await api.post('/auth/logout');
-      setUser(null);
-      setIsAuthenticated(false);
+      const response = isAdmin 
+        ? await authAPI.adminLogin(credentials)
+        : await authAPI.login(credentials);
+
+      if (response.data.success) {
+        const { token, user: userData } = response.data;
+        
+        // Store auth data
+        userUtils.setAuthData(token, userData);
+        setUser(userData);
+        
+        return { success: true, user: userData };
+      } else {
+        return { success: false, message: response.data.message };
+      }
     } catch (err) {
-      console.error('Logout error:', err);
-      // Clear user data even if API call fails
-      setUser(null);
-      setIsAuthenticated(false);
+      const message = err.response?.data?.message || 'Login failed';
+      return { success: false, message };
     }
   };
 
+  // Register function
+  const register = async (userData) => {
+    try {
+      const response = await authAPI.register(userData);
+
+      if (response.data.success) {
+        const { token, user: newUser } = response.data;
+        
+        // Store auth data
+        userUtils.setAuthData(token, newUser);
+        setUser(newUser);
+        
+        return { success: true, user: newUser };
+      } else {
+        return { success: false, message: response.data.message };
+      }
+    } catch (err) {
+      const message = err.response?.data?.message || 'Registration failed';
+      return { success: false, message };
+    }
+  };
+
+  // Logout function
+  const logout = async () => {
+    try {
+      await authAPI.logout();
+    } catch (err) {
+      console.error('Logout API error:', err);
+    } finally {
+      // Always clear local data, even if API call fails
+      userUtils.clearAuthData();
+      setUser(null);
+    }
+  };
+
+  // Helper functions
+  const isAuthenticated = () => userUtils.isAuthenticated() && user;
+  const isAdmin = () => userUtils.isAdmin();
+
+  const value = {
+    user,
+    loading,
+    isAuthenticated: isAuthenticated(),
+    isAdmin: isAdmin(),
+    login,
+    register,
+    logout
+  };
+
   return (
-    <AuthContext.Provider value={{ user, isAuthenticated, loading, login, logout }}>
+    <AuthContext.Provider value={value}>
       {children}
     </AuthContext.Provider>
   );

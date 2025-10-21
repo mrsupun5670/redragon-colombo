@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const deliveryController = require('../controllers/deliveryController');
-const { protect, adminOnly } = require('../middleware/auth');
+const { auth, adminAuth } = require('../middleware/auth');
 
 // ========== DELIVERY ZONES ==========
 
@@ -10,11 +10,11 @@ router.get('/zones', deliveryController.getDeliveryZones);
 router.post('/calculate-delivery', deliveryController.calculateDeliveryCharge);
 
 // Admin routes (CRUD operations)
-router.get('/zones/admin', protect, adminOnly, deliveryController.getAllDeliveryZones);
-router.get('/zones/:id', protect, adminOnly, deliveryController.getDeliveryZoneById);
-router.post('/zones', protect, adminOnly, deliveryController.createDeliveryZone);
-router.put('/zones/:id', protect, adminOnly, deliveryController.updateDeliveryZone);
-router.delete('/zones/:id', protect, adminOnly, deliveryController.deleteDeliveryZone);
+router.get('/zones/admin', adminAuth, deliveryController.getAllDeliveryZones);
+router.get('/zones/:id', adminAuth, deliveryController.getDeliveryZoneById);
+router.post('/zones', adminAuth, deliveryController.createDeliveryZone);
+router.put('/zones/:id', adminAuth, deliveryController.updateDeliveryZone);
+router.delete('/zones/:id', adminAuth, deliveryController.deleteDeliveryZone);
 
 // ========== PAYMENT METHODS ==========
 
@@ -23,8 +23,8 @@ router.get('/payment-methods', deliveryController.getPaymentMethods);
 router.post('/calculate-payment-fee', deliveryController.calculatePaymentFee);
 
 // Admin routes
-router.get('/payment-methods/admin', protect, adminOnly, deliveryController.getAllPaymentMethods);
-router.put('/payment-methods/:id', protect, adminOnly, deliveryController.updatePaymentMethod);
+router.get('/payment-methods/admin', adminAuth, deliveryController.getAllPaymentMethods);
+router.put('/payment-methods/:id', adminAuth, deliveryController.updatePaymentMethod);
 
 // ========== ORDER TOTAL CALCULATION ==========
 

@@ -2,42 +2,42 @@ const dotenv = require('dotenv');
 dotenv.config(); // Loads .env from current directory (backend/.env)
 
 const express = require('express');
+const cors = require('cors');
 const cookieParser = require('cookie-parser');
 const helmet = require('helmet');
 const db = require('./config/db');
 
 const app = express();
 
-// Allowed origins for CORS
 const allowedOrigins = [
-  'http://localhost:3000',  // React development
-  'http://localhost:5173',  // Vite development
-  process.env.FRONTEND_URL, // From .env
-  // Add your production domain here when deploying
-].filter(Boolean); // Remove undefined values
+  'http://localhost:3000',  
+  'http://localhost:3001',  
+  'http://localhost:5173',  
+  process.env.FRONTEND_URL, 
+].filter(Boolean); 
 
-// CORS Configuration - Must come BEFORE helmet
-app.use((req, res, next) => {
-  const origin = req.headers.origin;
+const corsOptions = {
+  origin: function (origin, callback) {
+    if (!origin) {
+      return callback(null, true);
+    }
+    
+    if (allowedOrigins.indexOf(origin) !== -1) {
+      callback(null, true);
+    } else {
+      console.log('❌ CORS blocked origin:', origin);
+      console.log('📋 Allowed origins:', allowedOrigins);
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true, 
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+  optionsSuccessStatus: 200 
+};
 
-  // Check if the origin is in the allowed list
-  if (allowedOrigins.includes(origin)) {
-    res.setHeader('Access-Control-Allow-Origin', origin);
-  }
+app.use(cors(corsOptions));
 
-  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS, PATCH');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With');
-  res.setHeader('Access-Control-Allow-Credentials', 'true');
-
-  // Handle preflight requests
-  if (req.method === 'OPTIONS') {
-    return res.status(204).end();
-  }
-
-  next();
-});
-
-// Security Middleware (comes after CORS)
 app.use(helmet({
   crossOriginResourcePolicy: { policy: "cross-origin" }
 }));
@@ -60,14 +60,25 @@ app.use((req, res, next) => {
   next();
 });
 
+// Static file serving removed - using Cloudinary for image storage
+
 // Routes
 const authRoutes = require('./routes/auth');
+const productRoutes = require('./routes/products');
+const imageRoutes = require('./routes/images');
 const refundRoutes = require('./routes/refunds');
 const deliveryRoutes = require('./routes/delivery');
+const brandRoutes = require('./routes/brands');
+const categoryRoutes = require('./routes/categories');
+
 
 app.use('/api/auth', authRoutes);
+app.use('/api/products', productRoutes);
+app.use('/api/images', imageRoutes);
 app.use('/api/refunds', refundRoutes);
 app.use('/api/delivery', deliveryRoutes);
+app.use('/api/brands', brandRoutes);
+app.use('/api/categories', categoryRoutes);
 
 app.get('/', (req, res) => {
   res.json({ message: 'Welcome to Redragon Shop API' });

@@ -1,14 +1,13 @@
-import React, { useState, useContext } from "react";
+import React, { useState } from "react";
 import { motion } from "framer-motion";
-import { Mail, Lock, LogIn, ArrowRight } from "lucide-react";
+import { Mail, Lock, LogIn, ArrowRight, Eye, EyeOff } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "../components/layout/Navbar";
 import Footer from "../components/layout/Footer";
 import ParticleEffect from "../components/common/ParticleEffect";
 import ErrorPopup from "../components/common/ErrorPopup";
 import SuccessPopup from "../components/common/SuccessPopup";
-import api from "../services/api";
-import AuthContext from "../context/AuthContext";
+import { useAuth } from "../context/AuthContext";
 
 const LoginPage = () => {
   const [formData, setFormData] = useState({
@@ -18,8 +17,9 @@ const LoginPage = () => {
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
-  const { login } = useContext(AuthContext);
+  const { login } = useAuth();
 
   const { email, password } = formData;
 
@@ -39,15 +39,20 @@ const LoginPage = () => {
     setLoading(true);
 
     try {
-      const res = await api.post("/auth/login", { email, password });
-      setSuccess("Login successful! Redirecting...");
-      login(res.data.user);
-      setTimeout(() => {
-        navigate("/");
-      }, 1500);
+      const result = await login({ email, password });
+      
+      if (result.success) {
+        setSuccess("Login successful! Redirecting...");
+        setTimeout(() => {
+          navigate("/");
+        }, 1500);
+      } else {
+        setError(result.message || "Login failed");
+        setLoading(false);
+      }
     } catch (err) {
       setLoading(false);
-      setError(err.response?.data?.msg || "Something went wrong. Please try again.");
+      setError("Something went wrong. Please try again.");
     }
   };
 
@@ -120,14 +125,25 @@ const LoginPage = () => {
                   <div className="relative">
                     <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                     <input
-                      type="password"
+                      type={showPassword ? "text" : "password"}
                       name="password"
                       value={password}
                       onChange={onChange}
                       placeholder="••••••••"
-                      className="w-full pl-12 pr-4 py-3 bg-white/80 border-2 border-gray-300 rounded-xl focus:border-red-500 focus:outline-none focus:ring-2 focus:ring-red-500/20 transition-all"
+                      className="w-full pl-12 pr-12 py-3 bg-white/80 border-2 border-gray-300 rounded-xl focus:border-red-500 focus:outline-none focus:ring-2 focus:ring-red-500/20 transition-all"
                       required
                     />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+                    >
+                      {showPassword ? (
+                        <EyeOff className="w-5 h-5" />
+                      ) : (
+                        <Eye className="w-5 h-5" />
+                      )}
+                    </button>
                   </div>
                 </motion.div>
 

@@ -1,8 +1,10 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { LayoutDashboard, ShoppingCart, Users, BarChart2, Package, X, RefreshCw, TruckIcon } from 'lucide-react';
+import { LayoutDashboard, ShoppingCart, Users, BarChart2, Package, X, RefreshCw, TruckIcon, LogOut, User } from 'lucide-react';
+import { useAdminAuth } from '../../../context/AdminAuthContext';
 
 const AdminSidebar = ({ activeTab, setActiveTab, isSidebarOpen, setIsSidebarOpen }) => {
+  const { admin, logout } = useAdminAuth();
   const navLinks = [
     { name: 'Dashboard', id: 'dashboard', icon: LayoutDashboard },
     { name: 'Products', id: 'products', icon: Package },
@@ -86,6 +88,28 @@ const AdminSidebar = ({ activeTab, setActiveTab, isSidebarOpen, setIsSidebarOpen
 
         {/* Footer */}
         <div className="p-4 lg:p-6 border-t border-gray-800">
+          {/* Admin Info */}
+          <div className="mb-4 p-3 bg-gray-800 rounded-lg">
+            <div className="flex items-center space-x-3">
+              <div className="w-8 h-8 bg-red-500 rounded-full flex items-center justify-center">
+                <User className="w-4 h-4 text-white" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium text-white truncate">{admin?.username}</p>
+                <p className="text-xs text-gray-400">Administrator</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Logout Button */}
+          <button
+            onClick={logout}
+            className="w-full flex items-center p-3 rounded-lg text-gray-300 hover:bg-red-500 hover:bg-opacity-20 hover:text-red-400 transition-all duration-200 mb-4"
+          >
+            <LogOut className="w-5 h-5 mr-3 flex-shrink-0" />
+            <span className="text-sm font-medium">Logout</span>
+          </button>
+
           <div className="text-xs md:text-sm text-gray-400 text-center">
             <p>Redragon Admin</p>
             <p className="mt-1">&copy; 2025 All Rights Reserved</p>

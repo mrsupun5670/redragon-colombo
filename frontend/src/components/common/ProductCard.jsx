@@ -4,28 +4,54 @@ import { motion } from "framer-motion";
 import { ShoppingCart, Heart, Star } from "lucide-react";
 
 const ProductCard = ({ product }) => {
-  const navigate = useNavigate();
-
-  const handleProductClick = () => {
-    navigate(`/product/${product.id}`);
+  const getProductImage = () => {
+    if (product.primary_image) {
+      if (product.primary_image.startsWith('/uploads')) {
+        return `${process.env.REACT_APP_API_URL?.replace('/api', '') || 'http://localhost:5001'}${product.primary_image}`;
+      }
+      return product.primary_image;
+    }
+    if (product.image) {
+      return product.image;
+    }
+    // Default fallback image
+    return 'https://images.unsplash.com/photo-1518717758536-85ae29035b6d?w=400&q=80';
   };
-
+  
+  const productImage = getProductImage();
+  const productPrice = product.sale_price || product.price;
+  const originalPrice = product.price;
+  const hasDiscount = product.sale_price && parseFloat(product.sale_price) < parseFloat(product.price);
+  const rating = product.rating || 4; // Default rating
+  const reviews = product.reviews || 0; // Default reviews
+  
   return (
     <motion.div
       whileHover={{ y: -10 }}
       className="bg-gray-800 rounded-lg overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 h-full flex flex-col"
     >
-      <img
-        src={product.image}
-        alt={product.name}
-        onClick={handleProductClick}
-        className="w-full h-60 object-cover cursor-pointer"
-      />
+      <div className="relative">
+        <img
+          src={productImage}
+          alt={product.name}
+          className="w-full h-60 object-cover"
+        />
+        {hasDiscount && (
+          <div className="absolute top-2 left-2 bg-red-500 text-white px-2 py-1 rounded text-sm font-bold">
+            SALE
+          </div>
+        )}
+        {product.is_new_arrival && (
+          <div className="absolute top-2 right-2 bg-green-500 text-white px-2 py-1 rounded text-sm font-bold">
+            NEW
+          </div>
+        )}
+      </div>
       <div className="p-3 flex flex-col flex-grow">
-        <h3
-          onClick={handleProductClick}
-          className="text-lg font-bold text-white mb-2 truncate cursor-pointer hover:text-red-500 transition-colors"
-        >
+        <div className="text-xs text-gray-400 mb-1">
+          {product.brand_name}
+        </div>
+        <h3 className="text-lg font-bold text-white mb-2 truncate">
           {product.name}
         </h3>
         <div className="flex items-center mb-2">
@@ -34,18 +60,31 @@ const ProductCard = ({ product }) => {
               <Star
                 key={i}
                 className={`w-4 h-4 ${
-                  i < product.rating ? "fill-current" : ""
+                  i < rating ? "fill-current" : ""
                 }`}
               />
             ))}
           </div>
           <span className="text-gray-400 ml-2 text-sm">
-            ({product.reviews} reviews)
+            ({reviews} reviews)
           </span>
         </div>
-        <p className="text-red-500 font-bold text-2xl mb-4">
-          Rs. {product.price.toLocaleString()}
-        </p>
+        <div className="mb-4">
+          {hasDiscount ? (
+            <div className="flex items-center gap-2">
+              <p className="text-red-500 font-bold text-xl">
+                Rs. {parseFloat(productPrice).toLocaleString()}
+              </p>
+              <p className="text-gray-400 text-sm line-through">
+                Rs. {parseFloat(originalPrice).toLocaleString()}
+              </p>
+            </div>
+          ) : (
+            <p className="text-red-500 font-bold text-xl">
+              Rs. {parseFloat(productPrice).toLocaleString()}
+            </p>
+          )}
+        </div>
         <div className="flex gap-2">
           <motion.button
             whileHover={{ scale: 1.05 }}
