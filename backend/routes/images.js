@@ -1,10 +1,9 @@
 const express = require('express');
 const router = express.Router();
-const path = require('path');
-const fs = require('fs');
 const { uploadSingle, uploadMultiple, handleUploadError } = require('../middleware/upload');
 const { auth, adminAuth } = require('../middleware/auth');
 const ProductImage = require('../models/ProductImage');
+const { uploadToCloudinary, deleteFromCloudinary, uploadMultipleToCloudinary } = require('../config/cloudinary');
 
 // Upload single product image
 router.post('/upload/single/:productId', adminAuth, (req, res) => {
@@ -22,25 +21,33 @@ router.post('/upload/single/:productId', adminAuth, (req, res) => {
 
     try {
       const productId = req.params.productId;
-      const imagePath = `/uploads/products/${req.file.filename}`;
       
-      // Save to database
-      await ProductImage.create(productId, imagePath, false);
+      // Convert buffer to base64 for Cloudinary upload
+      const b64 = Buffer.from(req.file.buffer).toString('base64');
+      const dataURI = `data:${req.file.mimetype};base64,${b64}`;
+      
+      // Upload to Cloudinary
+      const cloudinaryResult = await uploadToCloudinary(dataURI, 'redragon-products');
+      
+      // Save to database with Cloudinary URL
+      await ProductImage.create(productId, cloudinaryResult.url, false, cloudinaryResult.public_id);
 
       res.json({
         success: true,
         message: 'Image uploaded successfully',
         data: {
-          filename: req.file.filename,
-          path: imagePath,
-          size: req.file.size
+          url: cloudinaryResult.url,
+          public_id: cloudinaryResult.public_id,
+          width: cloudinaryResult.width,
+          height: cloudinaryResult.height,
+          format: cloudinaryResult.format
         }
       });
     } catch (error) {
-      console.error('Database error:', error);
+      console.error('Upload error:', error);
       res.status(500).json({
         success: false,
-        message: 'Failed to save image to database'
+        message: 'Failed to upload image'
       });
     }
   });
@@ -62,27 +69,44 @@ router.post('/upload/multiple/:productId', adminAuth, (req, res) => {
 
     try {
       const productId = req.params.productId;
-      const imagePaths = req.files.map(file => `/uploads/products/${file.filename}`);
+      
+      // Convert all files to base64 for Cloudinary upload
+      const filePromises = req.files.map(file => {
+        const b64 = Buffer.from(file.buffer).toString('base64');
+        const dataURI = `data:${file.mimetype};base64,${b64}`;
+        return uploadToCloudinary(dataURI, 'redragon-products');
+      });
+      
+      // Upload all images to Cloudinary
+      const cloudinaryResults = await Promise.all(filePromises);
+      
+      // Prepare data for database
+      const imageData = cloudinaryResults.map(result => ({
+        url: result.url,
+        public_id: result.public_id
+      }));
       
       // Save to database
-      await ProductImage.createMultiple(productId, imagePaths);
+      await ProductImage.createMultiple(productId, imageData);
 
       res.json({
         success: true,
         message: `${req.files.length} images uploaded successfully`,
         data: {
-          files: req.files.map(file => ({
-            filename: file.filename,
-            path: `/uploads/products/${file.filename}`,
-            size: file.size
+          images: cloudinaryResults.map(result => ({
+            url: result.url,
+            public_id: result.public_id,
+            width: result.width,
+            height: result.height,
+            format: result.format
           }))
         }
       });
     } catch (error) {
-      console.error('Database error:', error);
+      console.error('Upload error:', error);
       res.status(500).json({
         success: false,
-        message: 'Failed to save images to database'
+        message: 'Failed to upload images'
       });
     }
   });
@@ -93,17 +117,11 @@ router.get('/product/:productId', async (req, res) => {
   try {
     const productId = req.params.productId;
     const images = await ProductImage.getByProductId(productId);
-    
-    // Add full URL to images
-    const imagesWithUrls = images.map(image => ({
-      ...image,
-      url: `${req.protocol}://${req.get('host')}${image.image_path}`
-    }));
 
     res.json({
       success: true,
       message: 'Images retrieved successfully',
-      data: imagesWithUrls
+      data: images
     });
   } catch (error) {
     console.error('Get images error:', error);
@@ -148,25 +166,27 @@ router.delete('/:imageId', adminAuth, async (req, res) => {
     const imageId = req.params.imageId;
     
     // Get image info before deleting
-    const [images] = await db.execute('SELECT * FROM product_images WHERE id = ?', [imageId]);
+    const image = await ProductImage.getById(imageId);
     
-    if (images.length === 0) {
+    if (!image) {
       return res.status(404).json({
         success: false,
         message: 'Image not found'
       });
     }
-
-    const image = images[0];
+    
+    // Delete from Cloudinary if public_id exists
+    if (image.public_id) {
+      try {
+        await deleteFromCloudinary(image.public_id);
+      } catch (cloudinaryError) {
+        console.error('Cloudinary deletion error:', cloudinaryError);
+        // Continue with database deletion even if Cloudinary deletion fails
+      }
+    }
     
     // Delete from database
     await ProductImage.delete(imageId);
-    
-    // Delete file from filesystem
-    const filePath = path.join(__dirname, '../uploads/products', path.basename(image.image_path));
-    if (fs.existsSync(filePath)) {
-      fs.unlinkSync(filePath);
-    }
 
     res.json({
       success: true,

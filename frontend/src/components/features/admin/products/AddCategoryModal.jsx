@@ -1,39 +1,68 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Plus, Trash2, Upload } from 'lucide-react';
+import { X } from 'lucide-react';
 
-const AddCategoryModal = ({ onClose }) => {
+const AddCategoryModal = ({ type = 'main', mainCategory, mainCategories, onClose, onCategoryAdded }) => {
   const [categoryName, setCategoryName] = useState('');
-  const [categoryImage, setCategoryImage] = useState(null);
-  const [subcategories, setSubcategories] = useState(['']);
+  const [categoryDescription, setCategoryDescription] = useState('');
+  const [selectedMainCategoryId, setSelectedMainCategoryId] = useState(mainCategory?.id || '');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSubcategoryChange = (index, value) => {
-    const newSubcategories = [...subcategories];
-    newSubcategories[index] = value;
-    setSubcategories(newSubcategories);
-  };
-
-  const addSubcategoryField = () => {
-    setSubcategories([...subcategories, '']);
-  };
-
-  const removeSubcategoryField = (index) => {
-    const newSubcategories = subcategories.filter((_, i) => i !== index);
-    setSubcategories(newSubcategories);
-  };
-
-  const handleImageUpload = (file) => {
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setCategoryImage(reader.result);
-      };
-      reader.readAsDataURL(file);
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    
+    if (!categoryName.trim()) {
+      alert('Category name is required');
+      return;
     }
-  };
 
-  const removeImage = () => {
-    setCategoryImage(null);
+    if (type === 'sub' && !selectedMainCategoryId) {
+      alert('Main category is required');
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      const endpoint = type === 'main' 
+        ? 'http://localhost:5001/api/categories/main'
+        : 'http://localhost:5001/api/categories/sub';
+
+      const body = type === 'main' 
+        ? {
+            name: categoryName.trim(),
+            description: categoryDescription.trim() || null
+          }
+        : {
+            name: categoryName.trim(),
+            description: categoryDescription.trim() || null,
+            main_category_id: selectedMainCategoryId
+          };
+
+      const response = await fetch(endpoint, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(body),
+      });
+
+      const data = await response.json();
+      
+      if (data.success) {
+        setCategoryName('');
+        setCategoryDescription('');
+        setSelectedMainCategoryId(mainCategory?.id || '');
+        onCategoryAdded && onCategoryAdded();
+        onClose();
+      } else {
+        alert(data.message || `Failed to create ${type} category`);
+      }
+    } catch (error) {
+      console.error(`Error creating ${type} category:`, error);
+      alert(`Failed to create ${type} category`);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -51,94 +80,78 @@ const AddCategoryModal = ({ onClose }) => {
           className="bg-blue-50 rounded-2xl shadow-2xl p-8 w-full max-w-lg"
         >
           <div className="flex justify-between items-center mb-6">
-            <h2 className="text-2xl font-bold text-gray-800">Add New Category</h2>
+            <h2 className="text-2xl font-bold text-gray-800">
+              Add New {type === 'main' ? 'Main Category' : 'Sub Category'}
+              {type === 'sub' && mainCategory && ` to ${mainCategory.name}`}
+            </h2>
             <motion.button whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }} onClick={onClose} className="p-2 rounded-full bg-blue-100">
               <X className="w-5 h-5 text-gray-800" />
             </motion.button>
           </div>
-          <form className="space-y-6">
+          <form className="space-y-6" onSubmit={handleSubmit}>
             <div>
-              <label htmlFor="categoryName" className="block text-sm font-medium text-gray-500">Category Name</label>
+              <label htmlFor="categoryName" className="block text-sm font-medium text-gray-500">
+                {type === 'main' ? 'Main Category' : 'Sub Category'} Name
+              </label>
               <input
                 type="text"
                 id="categoryName"
                 value={categoryName}
                 onChange={(e) => setCategoryName(e.target.value)}
-                className="w-full mt-1 px-4 py-2 text-gray-800 bg-blue-100 border-2 border-blue-200 rounded-lg"
+                className="w-full mt-1 px-4 py-2 text-gray-800 bg-blue-100 border-2 border-blue-200 rounded-lg focus:outline-none focus:border-red-400"
+                autoFocus
+              />
+            </div>
+            
+            <div>
+              <label htmlFor="categoryDescription" className="block text-sm font-medium text-gray-500">Description (Optional)</label>
+              <textarea
+                id="categoryDescription"
+                value={categoryDescription}
+                onChange={(e) => setCategoryDescription(e.target.value)}
+                className="w-full mt-1 px-4 py-2 text-gray-800 bg-blue-100 border-2 border-blue-200 rounded-lg focus:outline-none focus:border-red-400"
+                rows="3"
+                placeholder={`Brief description of this ${type} category...`}
               />
             </div>
 
-            {/* Category Image Upload */}
-            <div>
-              <label className="block text-sm font-medium text-gray-500 mb-2">Category Image</label>
-              <div className="relative group">
-                {categoryImage ? (
-                  <div className="relative">
-                    <img
-                      src={categoryImage}
-                      alt="Category preview"
-                      className="w-full h-48 object-cover rounded-lg border-2 border-blue-200"
-                    />
-                    <button
-                      type="button"
-                      onClick={removeImage}
-                      className="absolute top-2 right-2 p-2 bg-red-500 text-white rounded-full hover:bg-red-600 transition-colors"
-                    >
-                      <X className="w-4 h-4" />
-                    </button>
-                  </div>
-                ) : (
-                  <label className="flex flex-col items-center justify-center w-full h-48 border-2 border-dashed border-blue-300 rounded-lg cursor-pointer hover:border-red-400 hover:bg-blue-50 transition-all">
-                    <Upload className="w-12 h-12 text-gray-400 mb-2" />
-                    <span className="text-sm text-gray-500 text-center px-2 font-semibold">
-                      Click to upload category image
-                    </span>
-                    <span className="text-xs text-gray-400 mt-1">Recommended: 800x600px (4:3 ratio)</span>
-                    <span className="text-xs text-gray-400">PNG, JPG up to 5MB</span>
-                    <input
-                      type="file"
-                      accept="image/*"
-                      onChange={(e) => handleImageUpload(e.target.files[0])}
-                      className="hidden"
-                    />
-                  </label>
-                )}
+            {type === 'sub' && (
+              <div>
+                <label htmlFor="mainCategory" className="block text-sm font-medium text-gray-500">Main Category</label>
+                <select
+                  id="mainCategory"
+                  value={selectedMainCategoryId}
+                  onChange={(e) => setSelectedMainCategoryId(e.target.value)}
+                  className="w-full mt-1 px-4 py-2 text-gray-800 bg-blue-100 border-2 border-blue-200 rounded-lg focus:outline-none focus:border-red-400"
+                >
+                  <option value="">Select main category</option>
+                  {mainCategories?.map(category => (
+                    <option key={category.id} value={category.id}>
+                      {category.name}
+                    </option>
+                  ))}
+                </select>
               </div>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-500">Sub-categories</label>
-              <div className="space-y-2 mt-1">
-                {subcategories.map((subcategory, index) => (
-                  <div key={index} className="flex items-center space-x-2">
-                    <input 
-                      type="text" 
-                      value={subcategory}
-                      onChange={(e) => handleSubcategoryChange(index, e.target.value)}
-                      className="w-full px-4 py-2 text-gray-800 bg-blue-100 border-2 border-blue-200 rounded-lg" 
-                    />
-                    <motion.button type="button" whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }} onClick={() => removeSubcategoryField(index)} className="p-2 rounded-lg bg-red-100 text-red-500">
-                      <Trash2 className="w-5 h-5" />
-                    </motion.button>
-                  </div>
-                ))}
-              </div>
+            )}
+            
+            <div className="flex justify-end space-x-4">
               <motion.button 
                 type="button" 
                 whileHover={{ scale: 1.05 }} 
                 whileTap={{ scale: 0.95 }} 
-                onClick={addSubcategoryField} 
-                className="flex items-center mt-2 px-3 py-1 text-sm text-white bg-green-600 rounded-lg"
+                onClick={onClose} 
+                className="px-6 py-2 font-bold text-gray-800 bg-gray-200 rounded-lg"
               >
-                <Plus className="w-4 h-4 mr-1" />
-                Add Sub-category
-              </motion.button>
-            </div>
-            <div className="flex justify-end space-x-4">
-              <motion.button type="button" whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} onClick={onClose} className="px-6 py-2 font-bold text-gray-800 bg-gray-200 rounded-lg">
                 Cancel
               </motion.button>
-              <motion.button type="submit" whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="px-6 py-2 font-bold text-white bg-red-600 rounded-lg">
-                Save Category
+              <motion.button 
+                type="submit" 
+                whileHover={{ scale: 1.05 }} 
+                whileTap={{ scale: 0.95 }} 
+                disabled={isSubmitting}
+                className="px-6 py-2 font-bold text-white bg-red-600 rounded-lg disabled:opacity-50"
+              >
+                {isSubmitting ? 'Saving...' : `Save ${type === 'main' ? 'Main Category' : 'Sub Category'}`}
               </motion.button>
             </div>
           </form>

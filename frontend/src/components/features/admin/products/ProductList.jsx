@@ -1,64 +1,15 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Edit, Filter, X, Plus, Trash2, Upload, Search } from 'lucide-react';
-
-const productsData = [
-  {
-    id: 1,
-    name: 'Redragon K552 Keyboard',
-    brand: 'Redragon',
-    category: 'Keyboards',
-    subcategory: 'Mechanical',
-    cost: 45.00,
-    price: 59.99,
-    stock: 100,
-    sold: 245,
-    status: 'Active',
-    datePublished: '2024-01-15'
-  },
-  {
-    id: 2,
-    name: 'Logitech G502 Mouse',
-    brand: 'Logitech',
-    category: 'Mice',
-    subcategory: 'Gaming',
-    cost: 60.00,
-    price: 79.99,
-    stock: 0,
-    sold: 189,
-    status: 'Active',
-    datePublished: '2024-02-10'
-  },
-  {
-    id: 3,
-    name: 'SteelSeries Arctis 7 Headset',
-    brand: 'SteelSeries',
-    category: 'Headsets',
-    subcategory: 'Wireless',
-    cost: 110.00,
-    price: 149.99,
-    stock: 75,
-    sold: 92,
-    status: 'Inactive',
-    datePublished: '2024-03-05'
-  },
-  {
-    id: 4,
-    name: 'Razer BlackWidow V3',
-    brand: 'Razer',
-    category: 'Keyboards',
-    subcategory: 'RGB',
-    cost: 85.00,
-    price: 129.99,
-    stock: 45,
-    sold: 156,
-    status: 'Active',
-    datePublished: '2024-01-20'
-  },
-];
+import { adminApi } from '../../../../utils/adminApi';
 
 const ProductList = () => {
-  const [products, setProducts] = useState(productsData);
+  const [allProducts, setAllProducts] = useState([]);
+  const [products, setProducts] = useState([]);
+  const [brands, setBrands] = useState(['all']);
+  const [mainCategories, setMainCategories] = useState(['all']);
+  const [subCategories, setSubCategories] = useState(['all']);
+  const [loading, setLoading] = useState(true);
   const [showFilters, setShowFilters] = useState(false);
   const [editingProduct, setEditingProduct] = useState(null);
   const [activeTab, setActiveTab] = useState('details');
@@ -72,12 +23,54 @@ const ProductList = () => {
     subcategory: 'all'
   });
 
-  const brands = ['all', ...new Set(productsData.map(p => p.brand))];
-  const categories = ['all', ...new Set(productsData.map(p => p.category))];
-  const subcategories = ['all', ...new Set(productsData.map(p => p.subcategory))];
+  // Fetch all data
+  const fetchData = async () => {
+    setLoading(true);
+    try {
+      // Fetch products, brands, and categories in parallel using authenticated API calls
+      const [productsRes, brandsRes, mainCategoriesRes, subCategoriesRes] = await Promise.all([
+        adminApi.get('http://localhost:5001/api/products'),
+        adminApi.get('http://localhost:5001/api/brands'),
+        adminApi.get('http://localhost:5001/api/categories/main'),
+        adminApi.get('http://localhost:5001/api/categories/sub')
+      ]);
+
+      const [productsData, brandsData, mainCategoriesData, subCategoriesData] = await Promise.all([
+        productsRes.json(),
+        brandsRes.json(),
+        mainCategoriesRes.json(),
+        subCategoriesRes.json()
+      ]);
+
+      if (productsData.success) {
+        setAllProducts(productsData.data);
+        setProducts(productsData.data);
+      }
+
+      if (brandsData.success) {
+        setBrands(['all', ...brandsData.data.map(b => b.name)]);
+      }
+
+      if (mainCategoriesData.success) {
+        setMainCategories(['all', ...mainCategoriesData.data.map(c => c.name)]);
+      }
+
+      if (subCategoriesData.success) {
+        setSubCategories(['all', ...subCategoriesData.data.map(c => c.name)]);
+      }
+    } catch (error) {
+      console.error('Error fetching data:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchData();
+  }, []);
 
   const applyFilters = () => {
-    let filtered = [...productsData];
+    let filtered = [...allProducts];
 
     // Filter by search query (ID or name)
     if (searchQuery.trim()) {
@@ -89,29 +82,30 @@ const ProductList = () => {
 
     // Filter by stock status
     if (filters.stockStatus === 'inStock') {
-      filtered = filtered.filter(p => p.stock > 0);
+      filtered = filtered.filter(p => p.stock_quantity > 0);
     } else if (filters.stockStatus === 'outOfStock') {
-      filtered = filtered.filter(p => p.stock === 0);
+      filtered = filtered.filter(p => p.stock_quantity === 0);
     }
 
     // Filter by status
     if (filters.status !== 'all') {
-      filtered = filtered.filter(p => p.status === filters.status);
+      const statusValue = filters.status === 'Active' ? 1 : 0;
+      filtered = filtered.filter(p => p.is_active === statusValue);
     }
 
     // Filter by brand
     if (filters.brand !== 'all') {
-      filtered = filtered.filter(p => p.brand === filters.brand);
+      filtered = filtered.filter(p => p.brand_name === filters.brand);
     }
 
     // Filter by category
     if (filters.category !== 'all') {
-      filtered = filtered.filter(p => p.category === filters.category);
+      filtered = filtered.filter(p => p.main_category_name === filters.category);
     }
 
     // Filter by subcategory
     if (filters.subcategory !== 'all') {
-      filtered = filtered.filter(p => p.subcategory === filters.subcategory);
+      filtered = filtered.filter(p => p.sub_category_name === filters.subcategory);
     }
 
     // Sort by price
@@ -134,12 +128,24 @@ const ProductList = () => {
       category: 'all',
       subcategory: 'all'
     });
-    setProducts(productsData);
+    setProducts(allProducts);
   };
 
   React.useEffect(() => {
-    applyFilters();
-  }, [filters, searchQuery]);
+    if (allProducts.length > 0) {
+      applyFilters();
+    }
+  }, [filters, searchQuery, allProducts]);
+
+  if (loading) {
+    return (
+      <div className="bg-blue-50 rounded-xl md:rounded-2xl shadow-lg p-4 md:p-6 lg:p-8">
+        <div className="flex justify-center items-center h-64">
+          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-red-600"></div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="bg-blue-50 rounded-xl md:rounded-2xl shadow-lg p-4 md:p-6 lg:p-8">
@@ -252,7 +258,7 @@ const ProductList = () => {
                 onChange={(e) => setFilters({ ...filters, category: e.target.value })}
                 className="w-full px-3 py-2 text-sm bg-white border border-gray-300 rounded-lg focus:outline-none focus:border-red-400"
               >
-                {categories.map(category => (
+                {mainCategories.map(category => (
                   <option key={category} value={category}>{category === 'all' ? 'All Categories' : category}</option>
                 ))}
               </select>
@@ -266,7 +272,7 @@ const ProductList = () => {
                 onChange={(e) => setFilters({ ...filters, subcategory: e.target.value })}
                 className="w-full px-3 py-2 text-sm bg-white border border-gray-300 rounded-lg focus:outline-none focus:border-red-400"
               >
-                {subcategories.map(subcategory => (
+                {subCategories.map(subcategory => (
                   <option key={subcategory} value={subcategory}>{subcategory === 'all' ? 'All Subcategories' : subcategory}</option>
                 ))}
               </select>
@@ -303,28 +309,28 @@ const ProductList = () => {
                 >
                   <td className="p-2 md:p-3 text-xs md:text-sm">#{product.id}</td>
                   <td className="p-2 md:p-3 text-xs md:text-sm font-medium max-w-[150px] md:max-w-none truncate">{product.name}</td>
-                  <td className="p-2 md:p-3 text-xs md:text-sm hidden lg:table-cell">{product.cost.toFixed(2)}</td>
-                  <td className="p-2 md:p-3 text-xs md:text-sm font-semibold whitespace-nowrap">{product.price.toFixed(2)}</td>
-                  <td className="p-2 md:p-3 text-xs md:text-sm hidden xl:table-cell whitespace-nowrap">{new Date(product.datePublished).toLocaleDateString()}</td>
+                  <td className="p-2 md:p-3 text-xs md:text-sm hidden lg:table-cell">Rs. {product.cost_price ? parseFloat(product.cost_price).toFixed(2) : '0.00'}</td>
+                  <td className="p-2 md:p-3 text-xs md:text-sm font-semibold whitespace-nowrap">Rs. {parseFloat(product.price).toFixed(2)}</td>
+                  <td className="p-2 md:p-3 text-xs md:text-sm hidden xl:table-cell whitespace-nowrap">{new Date(product.created_at).toLocaleDateString()}</td>
                   <td className="p-2 md:p-3 text-xs md:text-sm">
                     <span className={`px-1.5 md:px-2 py-0.5 md:py-1 rounded-full text-xs font-semibold whitespace-nowrap ${
-                      product.stock === 0
+                      product.stock_quantity === 0
                         ? 'bg-red-100 text-red-800'
-                        : product.stock < 50
+                        : product.stock_quantity < 50
                         ? 'bg-yellow-100 text-yellow-800'
                         : 'bg-green-100 text-green-800'
                     }`}>
-                      {product.stock}
+                      {product.stock_quantity}
                     </span>
                   </td>
-                  <td className="p-2 md:p-3 text-xs md:text-sm hidden sm:table-cell">{product.sold}</td>
+                  <td className="p-2 md:p-3 text-xs md:text-sm hidden sm:table-cell">{product.sold_count || 0}</td>
                   <td className="p-2 md:p-3 text-xs md:text-sm hidden md:table-cell">
                     <span className={`px-1.5 md:px-2 py-0.5 md:py-1 rounded-full text-xs font-semibold whitespace-nowrap ${
-                      product.status === 'Active'
+                      product.is_active === 1
                         ? 'bg-green-100 text-green-800'
                         : 'bg-gray-100 text-gray-800'
                     }`}>
-                      {product.status}
+                      {product.is_active === 1 ? 'Active' : 'Inactive'}
                     </span>
                   </td>
                   <td className="p-2 md:p-3">
@@ -424,28 +430,25 @@ const ProductList = () => {
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">Brand *</label>
                         <select
-                          defaultValue={editingProduct.brand}
+                          defaultValue={editingProduct.brand_name}
                           className="w-full px-4 py-3 text-gray-800 bg-gray-50 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-red-400"
                         >
                           <option value="">Select Brand</option>
-                          <option value="Redragon">Redragon</option>
-                          <option value="Logitech">Logitech</option>
-                          <option value="Razer">Razer</option>
-                          <option value="Corsair">Corsair</option>
-                          <option value="SteelSeries">SteelSeries</option>
+                          {brands.filter(b => b !== 'all').map(brand => (
+                            <option key={brand} value={brand}>{brand}</option>
+                          ))}
                         </select>
                       </div>
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">Category *</label>
                         <select
-                          defaultValue={editingProduct.category}
+                          defaultValue={editingProduct.main_category_name}
                           className="w-full px-4 py-3 text-gray-800 bg-gray-50 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-red-400"
                         >
                           <option value="">Select Category</option>
-                          <option value="Keyboards">Keyboards</option>
-                          <option value="Mice">Mice</option>
-                          <option value="Headsets">Headsets</option>
-                          <option value="Monitors">Monitors</option>
+                          {mainCategories.filter(c => c !== 'all').map(category => (
+                            <option key={category} value={category}>{category}</option>
+                          ))}
                         </select>
                       </div>
                     </div>
@@ -455,20 +458,19 @@ const ProductList = () => {
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">Sub-category</label>
                         <select
-                          defaultValue={editingProduct.subcategory}
+                          defaultValue={editingProduct.sub_category_name}
                           className="w-full px-4 py-3 text-gray-800 bg-gray-50 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-red-400"
                         >
                           <option value="">Select Sub-category</option>
-                          <option value="Mechanical">Mechanical</option>
-                          <option value="Wireless">Wireless</option>
-                          <option value="Gaming">Gaming</option>
-                          <option value="RGB">RGB</option>
+                          {subCategories.filter(c => c !== 'all').map(subcategory => (
+                            <option key={subcategory} value={subcategory}>{subcategory}</option>
+                          ))}
                         </select>
                       </div>
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">Status</label>
                         <select
-                          defaultValue={editingProduct.status}
+                          defaultValue={editingProduct.is_active === 1 ? 'Active' : 'Inactive'}
                           className="w-full px-4 py-3 text-gray-800 bg-gray-50 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-red-400"
                         >
                           <option value="Active">Active</option>
@@ -483,7 +485,7 @@ const ProductList = () => {
                         <label className="block text-sm font-medium text-gray-700 mb-2">Stock Quantity *</label>
                         <input
                           type="number"
-                          defaultValue={editingProduct.stock}
+                          defaultValue={editingProduct.stock_quantity}
                           placeholder="0"
                           min="0"
                           className="w-full px-4 py-3 text-gray-800 bg-gray-50 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-red-400"
@@ -493,7 +495,7 @@ const ProductList = () => {
                         <label className="block text-sm font-medium text-gray-700 mb-2">Cost (Rs.) *</label>
                         <input
                           type="number"
-                          defaultValue={editingProduct.cost}
+                          defaultValue={editingProduct.cost_price}
                           placeholder="0.00"
                           min="0"
                           step="0.01"

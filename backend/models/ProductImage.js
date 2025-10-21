@@ -2,7 +2,7 @@ const db = require('../config/db');
 
 class ProductImage {
   // Add image to product
-  static async create(productId, imagePath, isPrimary = false) {
+  static async create(productId, imagePath, isPrimary = false, publicId = null) {
     try {
       // If this is set as primary, remove primary flag from other images
       if (isPrimary) {
@@ -13,10 +13,10 @@ class ProductImage {
       }
 
       const query = `
-        INSERT INTO product_image_uploads (product_id, image_path, is_primary)
-        VALUES (?, ?, ?)
+        INSERT INTO product_image_uploads (product_id, image_path, is_primary, public_id)
+        VALUES (?, ?, ?, ?)
       `;
-      const [result] = await db.execute(query, [productId, imagePath, isPrimary ? 1 : 0]);
+      const [result] = await db.execute(query, [productId, imagePath, isPrimary ? 1 : 0, publicId]);
       return result;
     } catch (error) {
       throw error;
@@ -53,6 +53,17 @@ class ProductImage {
     }
   }
 
+  // Get image by ID
+  static async getById(imageId) {
+    try {
+      const query = 'SELECT * FROM product_image_uploads WHERE id = ?';
+      const [rows] = await db.execute(query, [imageId]);
+      return rows[0] || null;
+    } catch (error) {
+      throw error;
+    }
+  }
+
   // Delete image
   static async delete(imageId) {
     try {
@@ -83,17 +94,23 @@ class ProductImage {
   }
 
   // Bulk create images for a product
-  static async createMultiple(productId, imagePaths) {
+  static async createMultiple(productId, imageData) {
     try {
-      if (!imagePaths || imagePaths.length === 0) {
+      if (!imageData || imageData.length === 0) {
         return [];
       }
 
       // First image is primary by default
       const results = [];
-      for (let i = 0; i < imagePaths.length; i++) {
+      for (let i = 0; i < imageData.length; i++) {
         const isPrimary = i === 0;
-        const result = await this.create(productId, imagePaths[i], isPrimary);
+        const data = imageData[i];
+        
+        // Handle both old format (string paths) and new format (objects with url and public_id)
+        const imagePath = typeof data === 'string' ? data : data.url;
+        const publicId = typeof data === 'object' ? data.public_id : null;
+        
+        const result = await this.create(productId, imagePath, isPrimary, publicId);
         results.push(result);
       }
       

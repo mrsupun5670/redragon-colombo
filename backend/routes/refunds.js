@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { protect } = require('../middleware/auth');
+const { auth } = require('../middleware/auth');
 const {
   createRefund,
   getAllRefunds,
@@ -11,8 +11,8 @@ const {
 } = require('../controllers/refundController');
 
 // Customer routes
-router.post('/', protect, createRefund); // Create refund request
-router.get('/my-refunds', protect, getCustomerRefunds); // Get customer's refunds
+router.post('/', auth, createRefund); // Create refund request
+router.get('/my-refunds', auth, getCustomerRefunds); // Get customer's refunds
 
 // Admin routes (add admin middleware if needed)
 router.get('/', getAllRefunds); // Get all refunds (with filters)

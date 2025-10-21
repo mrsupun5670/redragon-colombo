@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Mail, Lock, User, Eye, EyeOff } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../../../context/AuthContext';
+import { useAdminAuth } from '../../../context/AdminAuthContext';
 import ErrorPopup from '../../common/ErrorPopup';
 import SuccessPopup from '../../common/SuccessPopup';
 
@@ -16,7 +16,7 @@ const AdminLoginForm = () => {
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
-  const { login } = useAuth();
+  const { login } = useAdminAuth();
 
   const { username, password } = formData;
 
@@ -36,12 +36,12 @@ const AdminLoginForm = () => {
     setLoading(true);
 
     try {
-      const result = await login({ username, password }, true); // true for admin login
+      const result = await login(username, password);
       
       if (result.success) {
         setSuccess('Admin login successful! Redirecting...');
         setTimeout(() => {
-          navigate('/admin/dashboard');
+          navigate('/admin');
         }, 1500);
       } else {
         setError(result.message || 'Admin login failed');

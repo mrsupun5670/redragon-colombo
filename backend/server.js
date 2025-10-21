@@ -9,19 +9,15 @@ const db = require('./config/db');
 
 const app = express();
 
-// Allowed origins for CORS
 const allowedOrigins = [
-  'http://localhost:3000',  // React development
-  'http://localhost:3001',  // React development (alternative port)
-  'http://localhost:5173',  // Vite development
-  process.env.FRONTEND_URL, // From .env
-  // Add your production domain here when deploying
-].filter(Boolean); // Remove undefined values
+  'http://localhost:3000',  
+  'http://localhost:3001',  
+  'http://localhost:5173',  
+  process.env.FRONTEND_URL, 
+].filter(Boolean); 
 
-// CORS Configuration - Must come BEFORE other middleware
 const corsOptions = {
   origin: function (origin, callback) {
-    // Allow requests with no origin (like mobile apps or curl requests)
     if (!origin) {
       return callback(null, true);
     }
@@ -34,15 +30,14 @@ const corsOptions = {
       callback(new Error('Not allowed by CORS'));
     }
   },
-  credentials: true, // Allow cookies and authorization headers
+  credentials: true, 
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
-  optionsSuccessStatus: 200 // For legacy browser support
+  optionsSuccessStatus: 200 
 };
 
 app.use(cors(corsOptions));
 
-// Security Middleware (comes after CORS)
 app.use(helmet({
   crossOriginResourcePolicy: { policy: "cross-origin" }
 }));
@@ -65,17 +60,25 @@ app.use((req, res, next) => {
   next();
 });
 
-// Static file serving for uploaded images
-app.use('/uploads', express.static('uploads'));
+// Static file serving removed - using Cloudinary for image storage
 
 // Routes
 const authRoutes = require('./routes/auth');
 const productRoutes = require('./routes/products');
 const imageRoutes = require('./routes/images');
+const refundRoutes = require('./routes/refunds');
+const deliveryRoutes = require('./routes/delivery');
+const brandRoutes = require('./routes/brands');
+const categoryRoutes = require('./routes/categories');
+
 
 app.use('/api/auth', authRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/images', imageRoutes);
+app.use('/api/refunds', refundRoutes);
+app.use('/api/delivery', deliveryRoutes);
+app.use('/api/brands', brandRoutes);
+app.use('/api/categories', categoryRoutes);
 
 app.get('/', (req, res) => {
   res.json({ message: 'Welcome to Redragon Shop API' });

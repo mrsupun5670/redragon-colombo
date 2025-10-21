@@ -41,7 +41,7 @@ CREATE TABLE `admins` (
 --
 
 INSERT INTO `admins` (`id`, `username`, `email`, `password_hash`, `is_active`, `last_login`) VALUES
-(1, 'admin\r\n', 'admin@gmail.com', 'rghaw4g3y43g sfd3g34tg', 1, '2025-10-15 23:54:52');
+(1, 'admin\r\n', 'admin@gmail.com', '$2a$12$rIhKJPR3UxmUlx67MzpHquo8q9qf/KQzguiMdeHem0AyghRtvrNV.', 1, '2025-10-15 23:54:52');
 
 -- --------------------------------------------------------
 

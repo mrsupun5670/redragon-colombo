@@ -1,63 +1,48 @@
 # Product Image Upload System
 
 ## Overview
-This system allows you to store product images locally in the backend and serve them to the frontend. Images are stored in the `uploads/products/` directory and their paths are saved in the `product_images` table.
+This system uses Cloudinary for cloud-based image storage and management. Images are uploaded to Cloudinary and their URLs are saved in the `product_image_uploads` table. This provides better performance, automatic optimization, and CDN delivery.
 
-## Directory Structure
+## Configuration Structure
 ```
 backend/
-├── uploads/
-│   └── products/           # All product images stored here
-│       ├── redragon-k552-keyboard.jpg
-│       ├── redragon-m652-mouse.jpg
-│       └── ...
+├── config/
+│   └── cloudinary.js      # Cloudinary configuration and upload functions
 ├── routes/
 │   └── images.js          # Image upload and management routes
 ├── models/
 │   └── ProductImage.js    # Product image database model
 └── middleware/
-    └── upload.js          # Multer configuration for file uploads
+    └── upload.js          # Multer configuration for memory storage
 ```
 
-## Image Path Examples
-When you store images manually, use these path formats in the database:
+## Cloudinary URL Examples
+Images are now stored on Cloudinary and return full URLs:
 
-### ✅ Correct Image Paths
+### ✅ Cloudinary URLs (Automatic)
 ```sql
--- Always start with /uploads/products/
-INSERT INTO product_images (product_id, image_path, is_primary) VALUES 
-(13, '/uploads/products/redragon-k552-keyboard.jpg', 1);
+-- Cloudinary URLs are automatically generated during upload
+INSERT INTO product_image_uploads (product_id, image_path, public_id, is_primary) VALUES 
+(13, 'https://res.cloudinary.com/dgcautrc4/image/upload/v1234567890/redragon-products/keyboard.jpg', 'redragon-products/keyboard', 1);
 ```
 
-### ❌ Incorrect Image Paths
-```sql
--- Don't use these formats:
-(13, 'redragon-k552-keyboard.jpg', 1);           -- Missing path prefix
-(13, 'uploads/products/keyboard.jpg', 1);        -- Missing leading slash
-(13, '/backend/uploads/products/keyboard.jpg', 1); -- Including backend folder
+### Environment Variables Required
+```env
+CLOUDINARY_CLOUD_NAME=your_cloud_name
+CLOUDINARY_API_KEY=your_api_key
+CLOUDINARY_API_SECRET=your_api_secret
 ```
 
-## Manual Image Setup Process
+## Image Upload Process
 
-### 1. Add Images to Uploads Folder
-Place your images in: `/backend/uploads/products/`
+### 1. Upload via API
+Use the image upload endpoints to upload images directly to Cloudinary:
 
-Example files:
-- `redragon-k552-keyboard.jpg`
-- `redragon-m652-mouse.jpg` 
-- `dell-xps-laptop.jpg`
-
-### 2. Insert Database Records
-```sql
--- For each product, add image records
-INSERT INTO product_images (product_id, image_path, is_primary, created_at) VALUES 
-(13, '/uploads/products/redragon-k552-keyboard.jpg', 1, NOW()),
-(14, '/uploads/products/redragon-m652-mouse.jpg', 1, NOW()),
-(15, '/uploads/products/redragon-h510-headset.jpg', 1, NOW());
-```
+### 2. Automatic Database Storage
+The system automatically saves Cloudinary URLs and public_ids to the database
 
 ### 3. Verify Images Work
-Visit: `http://localhost:5001/uploads/products/your-image.jpg`
+Images are served directly from Cloudinary CDN with automatic optimization
 
 ## API Endpoints
 

@@ -4,10 +4,8 @@ import { motion } from "framer-motion";
 import { ShoppingCart, Heart, Star } from "lucide-react";
 
 const ProductCard = ({ product }) => {
-  // Handle different data sources (database vs static data)
   const getProductImage = () => {
     if (product.primary_image) {
-      // If primary_image starts with /uploads, prepend the API URL
       if (product.primary_image.startsWith('/uploads')) {
         return `${process.env.REACT_APP_API_URL?.replace('/api', '') || 'http://localhost:5001'}${product.primary_image}`;
       }
