@@ -120,6 +120,124 @@ class Product {
     }
   }
 
+  // Create new product
+  static async create(productData) {
+    try {
+      const query = `
+        INSERT INTO products (
+          name, slug, sku, description, specifications, brand_id, main_category_id, 
+          sub_category_id, price, sale_price, cost_price, stock_quantity, 
+          shipping_fee, color_id, weight, is_active
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      `;
+      
+      const values = [
+        productData.name,
+        productData.slug,
+        productData.sku,
+        productData.description,
+        JSON.stringify(productData.specifications),
+        productData.brand_id,
+        productData.main_category_id,
+        productData.sub_category_id,
+        productData.price,
+        productData.sale_price,
+        productData.cost_price,
+        productData.stock_quantity,
+        productData.shipping_fee || 0,
+        productData.color_id,
+        productData.weight,
+        productData.is_active !== undefined ? productData.is_active : 1
+      ];
+      
+      const [result] = await db.execute(query, values);
+      return result;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  // Update product
+  static async update(productId, productData) {
+    try {
+      const query = `
+        UPDATE products SET 
+          name = ?, slug = ?, sku = ?, description = ?, specifications = ?,
+          brand_id = ?, main_category_id = ?, sub_category_id = ?, price = ?,
+          sale_price = ?, cost_price = ?, stock_quantity = ?, shipping_fee = ?,
+          color_id = ?, weight = ?, is_active = ?, updated_at = CURRENT_TIMESTAMP
+        WHERE id = ?
+      `;
+      
+      const values = [
+        productData.name,
+        productData.slug,
+        productData.sku,
+        productData.description,
+        JSON.stringify(productData.specifications),
+        productData.brand_id,
+        productData.main_category_id,
+        productData.sub_category_id,
+        productData.price,
+        productData.sale_price,
+        productData.cost_price,
+        productData.stock_quantity,
+        productData.shipping_fee || 0,
+        productData.color_id,
+        productData.weight,
+        productData.is_active !== undefined ? productData.is_active : 1,
+        productId
+      ];
+      
+      const [result] = await db.execute(query, values);
+      return result;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  // Delete product (soft delete)
+  static async delete(productId) {
+    try {
+      const query = 'UPDATE products SET is_active = 0 WHERE id = ?';
+      const [result] = await db.execute(query, [productId]);
+      return result;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  // Generate unique slug
+  static async generateSlug(name, id = null) {
+    try {
+      let baseSlug = name.toLowerCase()
+        .replace(/[^a-z0-9\s-]/g, '')
+        .replace(/\s+/g, '-')
+        .replace(/-+/g, '-')
+        .replace(/^-|-$/g, '');
+
+      let slug = baseSlug;
+      let counter = 1;
+
+      while (true) {
+        const query = id 
+          ? 'SELECT id FROM products WHERE slug = ? AND id != ?'
+          : 'SELECT id FROM products WHERE slug = ?';
+        const params = id ? [slug, id] : [slug];
+        const [rows] = await db.execute(query, params);
+
+        if (rows.length === 0) {
+          return slug;
+        }
+
+        slug = `${baseSlug}-${counter}`;
+        counter++;
+      }
+    } catch (error) {
+      throw error;
+    }
+  }
+
   // Legacy methods for backward compatibility
   static getAll_old(callback) {
     const query = 'SELECT * FROM products';
@@ -131,17 +249,17 @@ class Product {
     db.query(query, [id], callback);
   }
   
-  static create(product, callback) {
+  static create_old(product, callback) {
     const query = 'INSERT INTO products SET ?';
     db.query(query, product, callback);
   }
   
-  static update(id, product, callback) {
+  static update_old(id, product, callback) {
     const query = 'UPDATE products SET ? WHERE id = ?';
     db.query(query, [product, id], callback);
   }
   
-  static delete(id, callback) {
+  static delete_old(id, callback) {
     const query = 'DELETE FROM products WHERE id = ?';
     db.query(query, [id], callback);
   }

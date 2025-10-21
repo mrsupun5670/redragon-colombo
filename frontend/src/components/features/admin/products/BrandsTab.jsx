@@ -16,7 +16,7 @@ const BrandsTab = () => {
   // Fetch brands from API
   const fetchBrands = async () => {
     try {
-      const response = await fetch('http://localhost:5001/api/brands');
+      const response = await adminApi.get('http://localhost:5001/api/brands');
       const data = await response.json();
       
       if (data.success) {
@@ -57,10 +57,7 @@ const BrandsTab = () => {
         formData.append('image', editImage);
       }
 
-      const response = await fetch(`http://localhost:5001/api/brands/${editingBrand.id}`, {
-        method: 'PUT',
-        body: formData,
-      });
+      const response = await adminApi.putFormData(`http://localhost:5001/api/brands/${editingBrand.id}`, formData);
 
       const data = await response.json();
       
@@ -102,9 +99,7 @@ const BrandsTab = () => {
     }
 
     try {
-      const response = await fetch(`http://localhost:5001/api/brands/${brandId}`, {
-        method: 'DELETE',
-      });
+      const response = await adminApi.delete(`http://localhost:5001/api/brands/${brandId}`);
 
       const data = await response.json();
       

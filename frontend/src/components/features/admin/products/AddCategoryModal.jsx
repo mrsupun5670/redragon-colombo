@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X } from 'lucide-react';
+import { adminApi } from '../../../../utils/adminApi';
 
 const AddCategoryModal = ({ type = 'main', mainCategory, mainCategories, onClose, onCategoryAdded }) => {
   const [categoryName, setCategoryName] = useState('');
@@ -38,13 +39,7 @@ const AddCategoryModal = ({ type = 'main', mainCategory, mainCategories, onClose
             main_category_id: selectedMainCategoryId
           };
 
-      const response = await fetch(endpoint, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(body),
-      });
+      const response = await adminApi.post(endpoint, body);
 
       const data = await response.json();
       

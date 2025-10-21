@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Edit, Plus, ChevronDown, X, Upload, Trash2 } from 'lucide-react';
 import AddCategoryModal from './AddCategoryModal';
+import { adminApi } from '../../../../utils/adminApi';
 
 const CategoriesTab = () => {
   const [mainCategories, setMainCategories] = useState([]);
@@ -21,7 +22,7 @@ const CategoriesTab = () => {
   // Fetch main categories
   const fetchMainCategories = async () => {
     try {
-      const response = await fetch('http://localhost:5001/api/categories/main');
+      const response = await adminApi.get('http://localhost:5001/api/categories/main');
       const data = await response.json();
       if (data.success) {
         setMainCategories(data.data);
@@ -34,7 +35,7 @@ const CategoriesTab = () => {
   // Fetch sub categories
   const fetchSubCategories = async () => {
     try {
-      const response = await fetch('http://localhost:5001/api/categories/sub');
+      const response = await adminApi.get('http://localhost:5001/api/categories/sub');
       const data = await response.json();
       if (data.success) {
         setSubCategories(data.data);
@@ -95,15 +96,9 @@ const CategoriesTab = () => {
 
     setUpdating(true);
     try {
-      const response = await fetch(`http://localhost:5001/api/categories/main/${editingCategory.id}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          name: editName.trim(),
-          description: editDescription.trim() || null
-        }),
+      const response = await adminApi.put(`http://localhost:5001/api/categories/main/${editingCategory.id}`, {
+        name: editName.trim(),
+        description: editDescription.trim() || null
       });
 
       const data = await response.json();
@@ -137,16 +132,10 @@ const CategoriesTab = () => {
 
     setUpdating(true);
     try {
-      const response = await fetch(`http://localhost:5001/api/categories/sub/${editingSubcategory.id}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          name: editName.trim(),
-          description: editDescription.trim() || null,
-          main_category_id: editMainCategoryId
-        }),
+      const response = await adminApi.put(`http://localhost:5001/api/categories/sub/${editingSubcategory.id}`, {
+        name: editName.trim(),
+        description: editDescription.trim() || null,
+        main_category_id: editMainCategoryId
       });
 
       const data = await response.json();
@@ -174,9 +163,7 @@ const CategoriesTab = () => {
     }
 
     try {
-      const response = await fetch(`http://localhost:5001/api/categories/main/${categoryId}`, {
-        method: 'DELETE',
-      });
+      const response = await adminApi.delete(`http://localhost:5001/api/categories/main/${categoryId}`);
 
       const data = await response.json();
       
@@ -197,9 +184,7 @@ const CategoriesTab = () => {
     }
 
     try {
-      const response = await fetch(`http://localhost:5001/api/categories/sub/${subCategoryId}`, {
-        method: 'DELETE',
-      });
+      const response = await adminApi.delete(`http://localhost:5001/api/categories/sub/${subCategoryId}`);
 
       const data = await response.json();
       

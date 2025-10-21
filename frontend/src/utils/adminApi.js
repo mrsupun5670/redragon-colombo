@@ -4,18 +4,27 @@ const getAdminToken = () => {
   return localStorage.getItem('adminToken');
 };
 
-const getAuthHeaders = () => {
+const getAuthHeaders = (isFormData = false) => {
   const token = getAdminToken();
-  return {
-    'Content-Type': 'application/json',
-    'Authorization': token ? `Bearer ${token}` : ''
-  };
+  const headers = {};
+  
+  // Don't set Content-Type for FormData, let browser set it with boundary
+  if (!isFormData) {
+    headers['Content-Type'] = 'application/json';
+  }
+  
+  if (token) {
+    headers['Authorization'] = `Bearer ${token}`;
+  }
+  
+  return headers;
 };
 
 // Wrapper for fetch with admin authentication
 export const adminFetch = async (url, options = {}) => {
+  const isFormData = options.body instanceof FormData;
   const headers = {
-    ...getAuthHeaders(),
+    ...getAuthHeaders(isFormData),
     ...options.headers
   };
 
@@ -46,6 +55,16 @@ export const adminApi = {
   put: (url, data) => adminFetch(url, {
     method: 'PUT',
     body: JSON.stringify(data)
+  }),
+  
+  putFormData: (url, formData) => adminFetch(url, {
+    method: 'PUT',
+    body: formData
+  }),
+  
+  postFormData: (url, formData) => adminFetch(url, {
+    method: 'POST',
+    body: formData
   }),
   
   delete: (url) => adminFetch(url, {

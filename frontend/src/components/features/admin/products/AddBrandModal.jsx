@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Upload } from 'lucide-react';
+import { adminApi } from '../../../../utils/adminApi';
 
 const AddBrandModal = ({ onClose, onBrandAdded }) => {
   const [brandName, setBrandName] = useState('');
@@ -34,10 +35,7 @@ const AddBrandModal = ({ onClose, onBrandAdded }) => {
         formData.append('image', brandImage);
       }
 
-      const response = await fetch('http://localhost:5001/api/brands', {
-        method: 'POST',
-        body: formData,
-      });
+      const response = await adminApi.postFormData('http://localhost:5001/api/brands', formData);
 
       const data = await response.json();
       

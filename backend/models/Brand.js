@@ -31,7 +31,7 @@ class Brand {
     try {
       const { name, image_url } = brandData;
       const query = `
-        INSERT INTO brands (name, image_url)
+        INSERT INTO brands (name, logo_url)
         VALUES (?, ?)
       `;
       const [result] = await db.execute(query, [name, image_url || null]);
@@ -51,7 +51,7 @@ class Brand {
       const { name, image_url } = brandData;
       const query = `
         UPDATE brands 
-        SET name = ?, image_url = ?, updated_at = CURRENT_TIMESTAMP
+        SET name = ?, logo_url = ?
         WHERE id = ?
       `;
       const [result] = await db.execute(query, [name, image_url || null, brandId]);

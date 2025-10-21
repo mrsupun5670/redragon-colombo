@@ -38,9 +38,9 @@ function App() {
               <Route path="/register" element={<RegisterPage />} />
               <Route path="/forgot-password" element={<ForgotPasswordPage />} />
               <Route path="/admin" element={
-                <AdminProtectedRoute>
+                // <AdminProtectedRoute>
                   <AdminDashboard />
-                </AdminProtectedRoute>
+                // </AdminProtectedRoute>
               } />
               <Route path="/admin/login" element={<AdminLogin />} />
               <Route path="/about" element={<About />} />

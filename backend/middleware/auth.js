@@ -7,14 +7,20 @@ const auth = (req, res, next) => {
     let token = req.cookies.token;
     
     if (!token) {
-      const authHeader = req.header('Authorization');
+      const authHeader = req.header('Authorization') || req.headers.authorization;
       if (authHeader && authHeader.startsWith('Bearer ')) {
         token = authHeader.substring(7);
       }
     }
+    
 
-    // Check if token exists
+    // Debug logging for token issues
     if (!token) {
+      console.log('❌ No token found in:', {
+        cookies: !!req.cookies.token,
+        authHeader: req.header('Authorization') || req.headers.authorization,
+        headers: Object.keys(req.headers)
+      });
       return res.status(401).json({ 
         success: false,
         message: 'No token, authorization denied' 
@@ -23,12 +29,13 @@ const auth = (req, res, next) => {
 
     // Verify token
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    console.log('✅ Token verified for user:', decoded.username || decoded.email, 'Type:', decoded.type);
 
     // Add user from payload to request object
     req.user = decoded;
     next();
   } catch (err) {
-    console.error('Auth middleware error:', err.message);
+    console.error('❌ Auth middleware error:', err.message);
     res.status(401).json({ 
       success: false,
       message: 'Token is not valid' 
