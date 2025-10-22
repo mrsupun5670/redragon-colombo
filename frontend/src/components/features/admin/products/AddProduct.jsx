@@ -14,8 +14,9 @@ const AddProduct = () => {
     price: '',
     cost: '',
     stock: '',
-    shippingFee: '',
+    weight: '',
     color: '',
+    isFeatured: false,
     specifications: [{ key: '', value: '' }],
     images: [null, null, null, null, null],
   });
@@ -31,16 +32,10 @@ const AddProduct = () => {
     const loadData = async () => {
       setLoading(true);
       try {
-        const [brandsRes, mainCategoriesRes, subCategoriesRes] = await Promise.all([
-          adminApi.get('http://localhost:5001/api/brands'),
-          adminApi.get('http://localhost:5001/api/categories/main'),
-          adminApi.get('http://localhost:5001/api/categories/sub')
-        ]);
-
         const [brandsData, mainCategoriesData, subCategoriesData] = await Promise.all([
-          brandsRes.json(),
-          mainCategoriesRes.json(),
-          subCategoriesRes.json()
+          adminApi.get('/brands'),
+          adminApi.get('/categories/main'),
+          adminApi.get('/categories/sub')
         ]);
 
         if (brandsData.success) setBrands(brandsData.data);
@@ -203,7 +198,7 @@ const AddProduct = () => {
         </div>
       </div>
 
-      {/* Price and Shipping Fee Row */}
+      {/* Price and Weight Row */}
       <div className="grid grid-cols-2 gap-4">
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">Price (Rs.) *</label>
@@ -218,16 +213,34 @@ const AddProduct = () => {
           />
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">Shipping Fee (Rs.)</label>
+          <label className="block text-sm font-medium text-gray-700 mb-2">Weight (grams)</label>
           <input
             type="number"
-            value={product.shippingFee}
-            onChange={(e) => handleInputChange('shippingFee', e.target.value)}
-            placeholder="0.00"
+            value={product.weight}
+            onChange={(e) => handleInputChange('weight', e.target.value)}
+            placeholder="0"
             min="0"
-            step="0.01"
             className="w-full px-4 py-3 text-gray-800 bg-blue-100 border-2 border-blue-200 rounded-lg focus:outline-none focus:border-red-400"
           />
+        </div>
+      </div>
+
+      {/* Featured Product Checkbox */}
+      <div className="grid grid-cols-1 gap-4">
+        <div className="flex items-center">
+          <input
+            type="checkbox"
+            id="isFeatured"
+            checked={product.isFeatured}
+            onChange={(e) => handleInputChange('isFeatured', e.target.checked)}
+            className="w-5 h-5 text-red-600 bg-blue-100 border-blue-300 rounded focus:ring-red-500 focus:ring-2"
+          />
+          <label htmlFor="isFeatured" className="ml-3 text-sm font-medium text-gray-700">
+            Featured Product
+          </label>
+          <p className="ml-2 text-xs text-gray-500">
+            (Check to display this product in the featured section)
+          </p>
         </div>
       </div>
     </div>
@@ -365,7 +378,10 @@ const AddProduct = () => {
       formData.append('price', product.price);
       formData.append('cost_price', product.cost || 0);
       formData.append('stock_quantity', product.stock);
-      formData.append('shipping_fee', product.shippingFee || 0);
+      formData.append('weight', product.weight || 0);
+      
+      // Add featured flag
+      formData.append('is_featured', product.isFeatured ? 1 : 0);
       
       // Add specifications
       const specs = {};
@@ -398,8 +414,7 @@ const AddProduct = () => {
       });
 
       // Submit to API
-      const response = await adminApi.postFormData('http://localhost:5001/api/products', formData);
-      const data = await response.json();
+      const data = await adminApi.postFormData('/products', formData);
 
       if (data.success) {
         alert('Product created successfully!');
@@ -413,8 +428,9 @@ const AddProduct = () => {
           price: '',
           cost: '',
           stock: '',
-          shippingFee: '',
+          weight: '',
           color: '',
+          isFeatured: false,
           specifications: [{ key: '', value: '' }],
           images: [null, null, null, null, null],
         });

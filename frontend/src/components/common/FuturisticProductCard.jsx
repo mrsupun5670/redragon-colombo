@@ -2,10 +2,12 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Star, Shield, ShoppingCart, Eye } from 'lucide-react';
+import { getOptimizedImageUrl, handleImageError, getAspectRatioStyle } from '../../utils/imageUtils';
 
 const FuturisticProductCard = ({ product, showCategory = false }) => {
   const navigate = useNavigate();
   const [isHovered, setIsHovered] = useState(false);
+
 
   const handleProductClick = () => {
     navigate(`/product/${product.id}`);
@@ -56,9 +58,11 @@ const FuturisticProductCard = ({ product, showCategory = false }) => {
             style={{ transformStyle: 'preserve-3d' }}
           >
             <img
-              src={product.image}
+              src={getOptimizedImageUrl(product, 'card')}
               alt={product.name}
               className="w-full h-full object-contain relative z-10"
+              style={getAspectRatioStyle('1/1')}
+              onError={handleImageError}
             />
 
             {/* 3D Shadow Layer */}

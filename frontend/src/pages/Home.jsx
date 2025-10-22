@@ -9,106 +9,63 @@ import AutoScrollBrands from '../components/features/home/AutoScrollBrands';
 import AutoScrollProducts from '../components/features/home/AutoScrollProducts';
 import YouTubeEmbed from '../components/common/YouTubeEmbed';
 import GoogleReviewsWidget from '../components/common/GoogleReviewsWidget';
-import { productAPI } from '../services/api';
+import { productAPI, categoryAPI, brandAPI } from '../services/api';
 import { motion } from 'framer-motion';
 
-const categories = [
-  { name: 'Keyboards', image: 'https://images.unsplash.com/photo-1587829741301-dc798b83add3?w=400&q=80' },
-  { name: 'Mice', image: 'https://images.unsplash.com/photo-1527864550417-7fd91fc51a46?w=400&q=80' },
-  { name: 'Headsets', image: 'https://images.unsplash.com/photo-1599669454699-248893623440?w=400&q=80' },
-  { name: 'Monitors', image: 'https://images.unsplash.com/photo-1527443224154-c4a3942d3acf?w=400&q=80' },
-  { name: 'PC Computers', image: 'https://images.unsplash.com/photo-1587202372634-32705e3bf49c?w=400&q=80' },
-  { name: 'Laptops', image: 'https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=400&q=80' },
-  { name: 'Gaming Chairs', image: 'https://images.unsplash.com/photo-1598550476439-6847785fcea6?w=400&q=80' },
-  { name: 'Webcams', image: 'https://images.unsplash.com/photo-1588516903720-8ceb67f9ef84?w=400&q=80' },
-  { name: 'Microphones', image: 'https://images.unsplash.com/photo-1590602847861-f357a9332bbc?w=400&q=80' },
-  { name: 'Speakers', image: 'https://images.unsplash.com/photo-1545454675-3531b543be5d?w=400&q=80' },
-  { name: 'Mouse Pads', image: 'https://images.unsplash.com/photo-1625225233840-695456021cde?w=400&q=80' },
-  { name: 'Controllers', image: 'https://images.unsplash.com/photo-1592840496694-26d035b52b48?w=400&q=80' },
-];
-
-const brands = [
-  {
-    name: 'Redragon',
-    logo: 'https://logos-world.net/wp-content/uploads/2023/02/Redragon-Logo.png',
-  },
-  {
-    name: 'MSI',
-    logo: 'https://logos-world.net/wp-content/uploads/2020/07/MSI-Logo.png',
-  },
-  {
-    name: 'Dell',
-    logo: 'https://logos-world.net/wp-content/uploads/2020/04/Dell-Logo.png',
-  },
-  {
-    name: 'HP',
-    logo: 'https://logos-world.net/wp-content/uploads/2020/09/HP-Logo.png',
-  },
-  {
-    name: 'Kingston',
-    logo: 'https://logos-world.net/wp-content/uploads/2021/02/Kingston-Technology-Logo.png',
-  },
-  {
-    name: 'ADATA',
-    logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/d/d1/ADATA_Technology_logo.svg/2560px-ADATA_Technology_logo.svg.png',
-  },
-  {
-    name: 'Prolink',
-    logo: 'https://www.prolink2u.com/images/logo.png',
-  },
-  {
-    name: 'ASUS',
-    logo: 'https://logos-world.net/wp-content/uploads/2020/07/Asus-Logo.png',
-  },
-  {
-    name: 'Logitech',
-    logo: 'https://logos-world.net/wp-.com/uploads/2020/12/Logitech-Logo.png',
-  },
-  {
-    name: 'Razer',
-    logo: 'https://logos-world.net/wp-content/uploads/2020/05/Razer-Logo.png',
-  },
-  {
-    name: 'Corsair',
-    logo: 'https://logos-world.net/wp-content/uploads/2021/03/Corsair-Logo.png',
-  },
-  {
-    name: 'SteelSeries',
-    logo: 'https://logos-world.net/wp-content/uploads/2022/04/SteelSeries-Logo.png',
-  },
-];
+// These will be fetched from the database
 
 const HomePage = () => {
   const [featuredProducts, setFeaturedProducts] = useState([]);
   const [newArrivals, setNewArrivals] = useState([]);
   const [redragonProducts, setRedragonProducts] = useState([]);
+  const [categories, setCategories] = useState([]);
+  const [brands, setBrands] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    const fetchProducts = async () => {
+    const fetchData = async () => {
       try {
         setLoading(true);
         
-        // Fetch all product categories concurrently
-        const [featuredRes, newArrivalsRes, redragonRes] = await Promise.all([
+        // Fetch all data concurrently
+        const [featuredRes, newArrivalsRes, redragonRes, categoriesRes, brandsRes] = await Promise.all([
           productAPI.getFeatured(),
           productAPI.getNewArrivals(),
-          productAPI.getRedragonProducts()
+          productAPI.getRedragonProducts(),
+          categoryAPI.getMainCategories(),
+          brandAPI.getAll()
         ]);
 
         setFeaturedProducts(featuredRes.data.data || []);
         setNewArrivals(newArrivalsRes.data.data || []);
         setRedragonProducts(redragonRes.data.data || []);
+        
+        // Transform categories data to match expected format
+        const categoryData = categoriesRes.data.data || [];
+        const transformedCategories = categoryData.map(category => ({
+          name: category.name,
+          image: category.icon || '/image_not_there.avif' // fallback image
+        }));
+        setCategories(transformedCategories);
+        
+        // Transform brands data to match expected format  
+        const brandData = brandsRes.data.data || [];
+        const transformedBrands = brandData.map(brand => ({
+          name: brand.name,
+          logo: brand.logo || '/image_not_there.avif'// fallback logo
+        }));
+        setBrands(transformedBrands);
+        
       } catch (err) {
-        console.error('Error fetching products:', err);
-        setError('Failed to load products. Please try again later.');
+        console.error('Error fetching data:', err);
+        setError('Failed to load data. Please try again later.');
       } finally {
         setLoading(false);
       }
     };
 
-    fetchProducts();
+    fetchData();
   }, []);
 
   console.log('Navbar:', Navbar);
@@ -118,7 +75,7 @@ const HomePage = () => {
       <div className="bg-gray-900 text-white min-h-screen flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-red-500 mx-auto"></div>
-          <p className="mt-4 text-xl">Loading products...</p>
+          <p className="mt-4 text-xl">Loading content...</p>
         </div>
       </div>
     );
@@ -164,7 +121,11 @@ const HomePage = () => {
           >
             Shop by Category
           </motion.h2>
-          <AutoScrollCategories categories={categories} />
+          {categories.length > 0 ? (
+            <AutoScrollCategories categories={categories} />
+          ) : (
+            <p className="text-center text-gray-400">No categories available at the moment.</p>
+          )}
         </div>
       </div>
 
@@ -213,9 +174,11 @@ const HomePage = () => {
       {/* Featured Products Section */}
       <div className="py-16 bg-gray-900">
         <div className="container mx-auto px-4">
+          {console.log(featuredProducts)  }
           <h2 className="text-3xl font-bold text-white text-center mb-8 uppercase">Featured Products</h2>
           {featuredProducts.length > 0 ? (
             <AutoScrollProducts products={featuredProducts} bg_color="from-gray-900" />
+            
           ) : (
             <p className="text-center text-gray-400">No featured products available at the moment.</p>
           )}
@@ -240,7 +203,11 @@ const HomePage = () => {
           >
             Shop by Brand
           </motion.h2>
-          <AutoScrollBrands brands={brands} />
+          {brands.length > 0 ? (
+            <AutoScrollBrands brands={brands} />
+          ) : (
+            <p className="text-center text-gray-400">No brands available at the moment.</p>
+          )}
         </div>
       </div>
 

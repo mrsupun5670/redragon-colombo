@@ -2,29 +2,18 @@ import React from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { ShoppingCart, Heart, Star } from "lucide-react";
+import { getOptimizedImageUrl, handleImageError, getAspectRatioStyle } from "../../utils/imageUtils";
 
 const ProductCard = ({ product }) => {
-  const getProductImage = () => {
-    if (product.primary_image) {
-      if (product.primary_image.startsWith('/uploads')) {
-        return `${process.env.REACT_APP_API_URL?.replace('/api', '') || 'http://localhost:5001'}${product.primary_image}`;
-      }
-      return product.primary_image;
-    }
-    if (product.image) {
-      return product.image;
-    }
-    // Default fallback image
-    return 'https://images.unsplash.com/photo-1518717758536-85ae29035b6d?w=400&q=80';
-  };
-  
-  const productImage = getProductImage();
+  const productImage = getOptimizedImageUrl(product, 'card');
   const productPrice = product.sale_price || product.price;
   const originalPrice = product.price;
-  const hasDiscount = product.sale_price && parseFloat(product.sale_price) < parseFloat(product.price);
+  const hasDiscount =
+    product.sale_price &&
+    parseFloat(product.sale_price) < parseFloat(product.price);
   const rating = product.rating || 4; // Default rating
   const reviews = product.reviews || 0; // Default reviews
-  
+
   return (
     <motion.div
       whileHover={{ y: -10 }}
@@ -34,7 +23,9 @@ const ProductCard = ({ product }) => {
         <img
           src={productImage}
           alt={product.name}
-          className="w-full h-60 object-cover"
+          className="w-full h-64 object-cover bg-gray-700"
+          style={getAspectRatioStyle('1/1')}
+          onError={handleImageError}
         />
         {hasDiscount && (
           <div className="absolute top-2 left-2 bg-red-500 text-white px-2 py-1 rounded text-sm font-bold">
@@ -48,9 +39,7 @@ const ProductCard = ({ product }) => {
         )}
       </div>
       <div className="p-3 flex flex-col flex-grow">
-        <div className="text-xs text-gray-400 mb-1">
-          {product.brand_name}
-        </div>
+        <div className="text-xs text-gray-400 mb-1">{product.brand_name}</div>
         <h3 className="text-lg font-bold text-white mb-2 truncate">
           {product.name}
         </h3>
@@ -59,9 +48,7 @@ const ProductCard = ({ product }) => {
             {[...Array(5)].map((_, i) => (
               <Star
                 key={i}
-                className={`w-4 h-4 ${
-                  i < rating ? "fill-current" : ""
-                }`}
+                className={`w-4 h-4 ${i < rating ? "fill-current" : ""}`}
               />
             ))}
           </div>
@@ -92,7 +79,9 @@ const ProductCard = ({ product }) => {
             className="bg-red-600 text-white rounded-lg flex items-center justify-center p-2 sm:flex-1 sm:px-2 sm:py-1 sm:gap-1"
           >
             <ShoppingCart className="w-5 h-5 sm:w-4 sm:h-4" />
-            <span className="hidden sm:inline text-xs sm:text-sm font-semibold">Add to Cart</span>
+            <span className="hidden sm:inline text-xs sm:text-sm font-semibold">
+              Add to Cart
+            </span>
           </motion.button>
           <motion.button
             whileHover={{ scale: 1.05 }}

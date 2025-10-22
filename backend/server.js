@@ -60,7 +60,18 @@ app.use((req, res, next) => {
   next();
 });
 
-// Static file serving removed - using Cloudinary for image storage
+// Serve static files for uploaded images
+const path = require('path');
+const uploadsPath = path.join(__dirname, 'uploads');
+console.log('Setting up static files at:', uploadsPath);
+
+// Debug middleware for uploads
+app.use('/uploads', (req, res, next) => {
+  console.log('Static file request:', req.url);
+  next();
+});
+
+app.use('/uploads', express.static(uploadsPath));
 
 // Routes
 const authRoutes = require('./routes/auth');
@@ -82,6 +93,11 @@ app.use('/api/categories', categoryRoutes);
 
 app.get('/', (req, res) => {
   res.json({ message: 'Welcome to Redragon Shop API' });
+});
+
+// Test route for static files
+app.get('/test-upload', (req, res) => {
+  res.json({ message: 'Upload test route working' });
 });
 
 // Error handling middleware

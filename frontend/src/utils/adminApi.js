@@ -1,73 +1,88 @@
-// Utility functions for making authenticated admin API calls
+import axios from 'axios';
+
+const API_BASE_URL = 'http://localhost:5001/api';
 
 const getAdminToken = () => {
   return localStorage.getItem('adminToken');
 };
 
-const getAuthHeaders = (isFormData = false) => {
-  const token = getAdminToken();
-  const headers = {};
-  
-  // Don't set Content-Type for FormData, let browser set it with boundary
-  if (!isFormData) {
-    headers['Content-Type'] = 'application/json';
+const apiClient = axios.create({
+  baseURL: API_BASE_URL,
+  timeout: 10000,
+});
+
+apiClient.interceptors.request.use(
+  (config) => {
+    const token = getAdminToken();
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
   }
-  
-  if (token) {
-    headers['Authorization'] = `Bearer ${token}`;
+);
+
+// Response interceptor to handle auth errors
+apiClient.interceptors.response.use(
+  (response) => {
+    return response;
+  },
+  (error) => {
+    if (error.response?.status === 401 || error.response?.status === 403) {
+      localStorage.removeItem('adminToken');
+      window.location.href = '/admin/login';
+    }
+    return Promise.reject(error);
   }
-  
-  return headers;
-};
+);
 
-// Wrapper for fetch with admin authentication
-export const adminFetch = async (url, options = {}) => {
-  const isFormData = options.body instanceof FormData;
-  const headers = {
-    ...getAuthHeaders(isFormData),
-    ...options.headers
-  };
-
-  const response = await fetch(url, {
-    ...options,
-    headers
-  });
-
-  // If unauthorized, redirect to admin login
-  if (response.status === 401 || response.status === 403) {
-    localStorage.removeItem('adminToken');
-    window.location.href = '/admin/login';
-    throw new Error('Authentication required');
-  }
-
-  return response;
-};
-
-// Helper methods for common admin API operations
+// Admin API methods
 export const adminApi = {
-  get: (url) => adminFetch(url),
-  
-  post: (url, data) => adminFetch(url, {
-    method: 'POST',
-    body: JSON.stringify(data)
-  }),
-  
-  put: (url, data) => adminFetch(url, {
-    method: 'PUT',
-    body: JSON.stringify(data)
-  }),
-  
-  putFormData: (url, formData) => adminFetch(url, {
-    method: 'PUT',
-    body: formData
-  }),
-  
-  postFormData: (url, formData) => adminFetch(url, {
-    method: 'POST',
-    body: formData
-  }),
-  
-  delete: (url) => adminFetch(url, {
-    method: 'DELETE'
-  })
+  // GET request
+  get: async (endpoint) => {
+    const response = await apiClient.get(endpoint);
+    return response.data;
+  },
+
+  // POST request with JSON data
+  post: async (endpoint, data) => {
+    const response = await apiClient.post(endpoint, data);
+    return response.data;
+  },
+
+  // POST request with FormData
+  postFormData: async (endpoint, formData) => {
+    const response = await apiClient.post(endpoint, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+    return response.data;
+  },
+
+  // PUT request with JSON data
+  put: async (endpoint, data) => {
+    const response = await apiClient.put(endpoint, data);
+    return response.data;
+  },
+
+  // PUT request with FormData
+  putFormData: async (endpoint, formData) => {
+    const response = await apiClient.put(endpoint, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+    return response.data;
+  },
+
+  // DELETE request
+  delete: async (endpoint) => {
+    const response = await apiClient.delete(endpoint);
+    return response.data;
+  },
 };
+
+export default apiClient;

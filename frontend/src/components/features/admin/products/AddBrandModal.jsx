@@ -35,7 +35,7 @@ const AddBrandModal = ({ onClose, onBrandAdded }) => {
         formData.append('image', brandImage);
       }
 
-      const response = await adminApi.postFormData('http://localhost:5001/api/brands', formData);
+      const response = await adminApi.postFormData('/brands', formData);
 
       const data = await response.json();
       

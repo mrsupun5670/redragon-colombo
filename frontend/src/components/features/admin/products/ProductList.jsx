@@ -36,18 +36,11 @@ const ProductList = () => {
     setLoading(true);
     try {
       // Fetch products, brands, and categories in parallel using authenticated API calls
-      const [productsRes, brandsRes, mainCategoriesRes, subCategoriesRes] = await Promise.all([
-        adminApi.get('http://localhost:5001/api/products'),
-        adminApi.get('http://localhost:5001/api/brands'),
-        adminApi.get('http://localhost:5001/api/categories/main'),
-        adminApi.get('http://localhost:5001/api/categories/sub')
-      ]);
-
       const [productsData, brandsData, mainCategoriesData, subCategoriesData] = await Promise.all([
-        productsRes.json(),
-        brandsRes.json(),
-        mainCategoriesRes.json(),
-        subCategoriesRes.json()
+        adminApi.get('/products'),
+        adminApi.get('/brands'),
+        adminApi.get('/categories/main'),
+        adminApi.get('/categories/sub')
       ]);
 
       if (productsData.success) {
@@ -101,8 +94,7 @@ const ProductList = () => {
 
     // Fetch existing product images
     try {
-      const imagesResponse = await adminApi.get(`http://localhost:5001/api/products/${product.id}/images`);
-      const imagesData = await imagesResponse.json();
+      const imagesData = await adminApi.get(`/products/${product.id}/images`);
       
       if (imagesData.success && imagesData.data) {
         const existingImageData = imagesData.data;
@@ -202,8 +194,7 @@ const ProductList = () => {
       }
 
       // First update the product details
-      const response = await adminApi.put(`http://localhost:5001/api/products/${editingProduct.id}`, updateData);
-      const data = await response.json();
+      const data = await adminApi.put(`/products/${editingProduct.id}`, updateData);
 
       if (data.success) {
         // If there are images to upload, handle them separately
@@ -216,12 +207,10 @@ const ProductList = () => {
               }
             });
 
-            const imageResponse = await adminApi.putFormData(
-              `http://localhost:5001/api/products/${editingProduct.id}/images`,
+            const imageData = await adminApi.putFormData(
+              `/products/${editingProduct.id}/images`,
               formData
             );
-            
-            const imageData = await imageResponse.json();
             if (!imageData.success) {
               console.warn('Image upload failed:', imageData.message);
             }
