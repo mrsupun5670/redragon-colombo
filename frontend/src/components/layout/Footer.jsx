@@ -44,14 +44,19 @@ const Footer = () => {
             </ul>
           </div>
 
-          {/* Support */}
+          {/* Company Links */}
           <div>
-            <h3 className="font-black mb-4 text-gray-900 uppercase text-sm">SUPPORT</h3>
+            <h3 className="font-black mb-4 text-gray-900 uppercase text-sm">COMPANY</h3>
             <ul className="space-y-2 text-sm">
-              {["Contact Us", "Warranty Info", "Shipping Policy", "Return Policy", "FAQ"].map((item) => (
-                <li key={item}>
-                  <a href="#" className="text-gray-700 hover:text-red-500 transition-colors hover:translate-x-1 inline-block">
-                    {item}
+              {[
+                { label: "Home", href: "/" },
+                { label: "Products", href: "/products" },
+                { label: "Categories", href: "/categories" },
+                { label: "About", href: "/about" }
+              ].map((item) => (
+                <li key={item.label}>
+                  <a href={item.href} className="text-gray-700 hover:text-red-500 transition-colors hover:translate-x-1 inline-block">
+                    {item.label}
                   </a>
                 </li>
               ))}
@@ -103,6 +108,23 @@ const Footer = () => {
                 <Twitter className="w-5 h-5" />
               </motion.a>
             </div>
+          </div>
+        </div>
+
+        {/* Legal Links */}
+        <div className="border-t border-gray-300 py-6">
+          <div className="flex flex-wrap justify-center items-center gap-4 text-xs">
+            <a href="/privacy-policy" className="text-gray-700 hover:text-red-500 transition-colors font-semibold">
+              Privacy Policy
+            </a>
+            <span className="text-gray-300">•</span>
+            <a href="/terms-conditions" className="text-gray-700 hover:text-red-500 transition-colors font-semibold">
+              Terms & Conditions
+            </a>
+            <span className="text-gray-300">•</span>
+            <a href="/refund-policy" className="text-gray-700 hover:text-red-500 transition-colors font-semibold">
+              Refund Policy
+            </a>
           </div>
         </div>
 
