@@ -14,9 +14,9 @@ const AddProduct = () => {
     price: '',
     cost: '',
     stock: '',
-    shippingFee: '',
+    weight: '',
     color: '',
-    productFlag: '', // For is_redragon, is_new_arrival, is_featured
+    isFeatured: false,
     specifications: [{ key: '', value: '' }],
     images: [null, null, null, null, null],
   });
@@ -198,7 +198,7 @@ const AddProduct = () => {
         </div>
       </div>
 
-      {/* Price and Shipping Fee Row */}
+      {/* Price and Weight Row */}
       <div className="grid grid-cols-2 gap-4">
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">Price (Rs.) *</label>
@@ -213,36 +213,33 @@ const AddProduct = () => {
           />
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">Shipping Fee (Rs.)</label>
+          <label className="block text-sm font-medium text-gray-700 mb-2">Weight (grams)</label>
           <input
             type="number"
-            value={product.shippingFee}
-            onChange={(e) => handleInputChange('shippingFee', e.target.value)}
-            placeholder="0.00"
+            value={product.weight}
+            onChange={(e) => handleInputChange('weight', e.target.value)}
+            placeholder="0"
             min="0"
-            step="0.01"
             className="w-full px-4 py-3 text-gray-800 bg-blue-100 border-2 border-blue-200 rounded-lg focus:outline-none focus:border-red-400"
           />
         </div>
       </div>
 
-      {/* Product Flag Row */}
+      {/* Featured Product Checkbox */}
       <div className="grid grid-cols-1 gap-4">
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">Product Category Flag *</label>
-          <select
-            value={product.productFlag}
-            onChange={(e) => handleInputChange('productFlag', e.target.value)}
-            className="w-full px-4 py-3 text-gray-800 bg-blue-100 border-2 border-blue-200 rounded-lg focus:outline-none focus:border-red-400"
-            required
-          >
-            <option value="">Select Product Flag</option>
-            <option value="featured">Featured Product</option>
-            <option value="new_arrival">New Arrival</option>
-            <option value="redragon">Redragon Product</option>
-          </select>
-          <p className="text-xs text-gray-500 mt-1">
-            Choose where this product should appear on the homepage
+        <div className="flex items-center">
+          <input
+            type="checkbox"
+            id="isFeatured"
+            checked={product.isFeatured}
+            onChange={(e) => handleInputChange('isFeatured', e.target.checked)}
+            className="w-5 h-5 text-red-600 bg-blue-100 border-blue-300 rounded focus:ring-red-500 focus:ring-2"
+          />
+          <label htmlFor="isFeatured" className="ml-3 text-sm font-medium text-gray-700">
+            Featured Product
+          </label>
+          <p className="ml-2 text-xs text-gray-500">
+            (Check to display this product in the featured section)
           </p>
         </div>
       </div>
@@ -349,8 +346,8 @@ const AddProduct = () => {
     e.preventDefault();
     
     // Basic validation
-    if (!product.title || !product.brand || !product.category || !product.price || !product.stock || !product.productFlag) {
-      alert('Please fill in all required fields including Product Flag');
+    if (!product.title || !product.brand || !product.category || !product.price || !product.stock) {
+      alert('Please fill in all required fields');
       return;
     }
 
@@ -381,12 +378,10 @@ const AddProduct = () => {
       formData.append('price', product.price);
       formData.append('cost_price', product.cost || 0);
       formData.append('stock_quantity', product.stock);
-      formData.append('shipping_fee', product.shippingFee || 0);
+      formData.append('weight', product.weight || 0);
       
-      // Add product flags based on selection
-      formData.append('is_featured', product.productFlag === 'featured' ? 1 : 0);
-      formData.append('is_new_arrival', product.productFlag === 'new_arrival' ? 1 : 0);
-      formData.append('is_redragon', product.productFlag === 'redragon' ? 1 : 0);
+      // Add featured flag
+      formData.append('is_featured', product.isFeatured ? 1 : 0);
       
       // Add specifications
       const specs = {};
@@ -433,9 +428,9 @@ const AddProduct = () => {
           price: '',
           cost: '',
           stock: '',
-          shippingFee: '',
+          weight: '',
           color: '',
-          productFlag: '',
+          isFeatured: false,
           specifications: [{ key: '', value: '' }],
           images: [null, null, null, null, null],
         });
