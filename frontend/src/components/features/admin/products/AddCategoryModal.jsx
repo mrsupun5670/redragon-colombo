@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X } from 'lucide-react';
+import { X, Upload, Image } from 'lucide-react';
 import { adminApi } from '../../../../utils/adminApi';
 
 const AddCategoryModal = ({ type = 'main', mainCategory, mainCategories, onClose, onCategoryAdded }) => {
@@ -8,6 +8,27 @@ const AddCategoryModal = ({ type = 'main', mainCategory, mainCategories, onClose
   const [categoryDescription, setCategoryDescription] = useState('');
   const [selectedMainCategoryId, setSelectedMainCategoryId] = useState(mainCategory?.id || '');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [selectedImage, setSelectedImage] = useState(null);
+  const [imagePreview, setImagePreview] = useState(null);
+
+  const handleImageSelect = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setSelectedImage(file);
+      
+      // Create preview URL
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        setImagePreview(e.target.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const removeImage = () => {
+    setSelectedImage(null);
+    setImagePreview(null);
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -24,29 +45,40 @@ const AddCategoryModal = ({ type = 'main', mainCategory, mainCategories, onClose
 
     setIsSubmitting(true);
     try {
-      const endpoint = type === 'main' 
-        ? 'http://localhost:5001/api/categories/main'
-        : 'http://localhost:5001/api/categories/sub';
+      const endpoint = type === 'main' ? '/categories/main' : '/categories/sub';
+      let data;
 
-      const body = type === 'main' 
-        ? {
-            name: categoryName.trim(),
-            description: categoryDescription.trim() || null
-          }
-        : {
-            name: categoryName.trim(),
-            description: categoryDescription.trim() || null,
-            main_category_id: selectedMainCategoryId
-          };
+      if (type === 'main' && selectedImage) {
+        // Use FormData for main categories with image
+        const formData = new FormData();
+        formData.append('name', categoryName.trim());
+        formData.append('description', categoryDescription.trim() || '');
+        formData.append('image', selectedImage);
 
-      const response = await adminApi.post(endpoint, body);
+        data = await adminApi.postFormData(endpoint, formData);
+      } else {
+        // Use JSON for sub categories or main categories without image
+        const body = type === 'main' 
+          ? {
+              name: categoryName.trim(),
+              description: categoryDescription.trim() || null
+            }
+          : {
+              name: categoryName.trim(),
+              description: categoryDescription.trim() || null,
+              main_category_id: selectedMainCategoryId
+            };
 
-      const data = await response.json();
+        data = await adminApi.post(endpoint, body);
+      }
       
       if (data.success) {
+        console.log("data " + data.data.data)
         setCategoryName('');
         setCategoryDescription('');
         setSelectedMainCategoryId(mainCategory?.id || '');
+        setSelectedImage(null);
+        setImagePreview(null);
         onCategoryAdded && onCategoryAdded();
         onClose();
       } else {
@@ -54,7 +86,7 @@ const AddCategoryModal = ({ type = 'main', mainCategory, mainCategories, onClose
       }
     } catch (error) {
       console.error(`Error creating ${type} category:`, error);
-      alert(`Failed to create ${type} category`);
+      alert(error.response?.data?.message || `Failed to create ${type} category`);
     } finally {
       setIsSubmitting(false);
     }
@@ -109,6 +141,45 @@ const AddCategoryModal = ({ type = 'main', mainCategory, mainCategories, onClose
                 placeholder={`Brief description of this ${type} category...`}
               />
             </div>
+
+            {type === 'main' && (
+              <div>
+                <label className="block text-sm font-medium text-gray-500 mb-2">Category Image (Optional)</label>
+                {imagePreview ? (
+                  <div className="relative inline-block">
+                    <img
+                      src={imagePreview}
+                      alt="Category preview"
+                      className="w-32 h-32 object-cover rounded-lg border-2 border-blue-200"
+                    />
+                    <motion.button
+                      type="button"
+                      onClick={removeImage}
+                      whileHover={{ scale: 1.1 }}
+                      whileTap={{ scale: 0.9 }}
+                      className="absolute -top-2 -right-2 p-1 bg-red-500 text-white rounded-full hover:bg-red-600 transition-colors"
+                    >
+                      <X className="w-4 h-4" />
+                    </motion.button>
+                  </div>
+                ) : (
+                  <div className="w-32 h-32 border-2 border-dashed border-blue-300 rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-red-400 hover:bg-blue-50 transition-all">
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleImageSelect}
+                      className="hidden"
+                      id="categoryImage"
+                    />
+                    <label htmlFor="categoryImage" className="cursor-pointer flex flex-col items-center">
+                      <Upload className="w-8 h-8 text-blue-400 mb-2" />
+                      <span className="text-xs text-blue-500 text-center">Upload Image</span>
+                    </label>
+                  </div>
+                )}
+                <p className="text-xs text-gray-400 mt-1">Recommended: 256x256px, PNG/JPG, Max 5MB</p>
+              </div>
+            )}
 
             {type === 'sub' && (
               <div>

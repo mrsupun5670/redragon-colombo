@@ -77,6 +77,24 @@ export const productAPI = {
   getById: (id) => api.get(`/products/${id}`),
 };
 
+// Category API functions
+export const categoryAPI = {
+  // Get all main categories
+  getMainCategories: () => api.get('/categories/main'),
+  
+  // Get all sub categories
+  getSubCategories: () => api.get('/categories/sub'),
+  
+  // Get sub categories by main category ID
+  getSubCategoriesByMainCategory: (mainCategoryId) => api.get(`/categories/sub/main/${mainCategoryId}`),
+};
+
+// Brand API functions
+export const brandAPI = {
+  // Get all brands
+  getAll: () => api.get('/brands'),
+};
+
 // User management utilities
 export const userUtils = {
   setAuthData: (token, user) => {

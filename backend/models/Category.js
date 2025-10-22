@@ -76,16 +76,17 @@ class Category {
   // Create new main category
   static async createMainCategory(categoryData) {
     try {
-      const { name, description } = categoryData;
+      const { name, description, icon } = categoryData;
       const query = `
-        INSERT INTO main_categories (name, description)
-        VALUES (?, ?)
+        INSERT INTO main_categories (name, description, icon)
+        VALUES (?, ?, ?)
       `;
-      const [result] = await db.execute(query, [name, description || null]);
+      const [result] = await db.execute(query, [name, description || null, icon || null]);
       return {
         id: result.insertId,
         name,
-        description: description || null
+        description: description || null,
+        icon: icon || null
       };
     } catch (error) {
       throw error;
@@ -115,13 +116,13 @@ class Category {
   // Update main category
   static async updateMainCategory(categoryId, categoryData) {
     try {
-      const { name, description } = categoryData;
+      const { name, description, icon } = categoryData;
       const query = `
         UPDATE main_categories 
-        SET name = ?, description = ?, updated_at = CURRENT_TIMESTAMP
+        SET name = ?, description = ?, icon = ?, updated_at = CURRENT_TIMESTAMP
         WHERE id = ?
       `;
-      const [result] = await db.execute(query, [name, description || null, categoryId]);
+      const [result] = await db.execute(query, [name, description || null, icon || null, categoryId]);
       
       if (result.affectedRows === 0) {
         return null;

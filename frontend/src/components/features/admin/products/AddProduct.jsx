@@ -16,6 +16,7 @@ const AddProduct = () => {
     stock: '',
     shippingFee: '',
     color: '',
+    productFlag: '', // For is_redragon, is_new_arrival, is_featured
     specifications: [{ key: '', value: '' }],
     images: [null, null, null, null, null],
   });
@@ -31,16 +32,10 @@ const AddProduct = () => {
     const loadData = async () => {
       setLoading(true);
       try {
-        const [brandsRes, mainCategoriesRes, subCategoriesRes] = await Promise.all([
-          adminApi.get('http://localhost:5001/api/brands'),
-          adminApi.get('http://localhost:5001/api/categories/main'),
-          adminApi.get('http://localhost:5001/api/categories/sub')
-        ]);
-
         const [brandsData, mainCategoriesData, subCategoriesData] = await Promise.all([
-          brandsRes.json(),
-          mainCategoriesRes.json(),
-          subCategoriesRes.json()
+          adminApi.get('/brands'),
+          adminApi.get('/categories/main'),
+          adminApi.get('/categories/sub')
         ]);
 
         if (brandsData.success) setBrands(brandsData.data);
@@ -230,6 +225,27 @@ const AddProduct = () => {
           />
         </div>
       </div>
+
+      {/* Product Flag Row */}
+      <div className="grid grid-cols-1 gap-4">
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">Product Category Flag *</label>
+          <select
+            value={product.productFlag}
+            onChange={(e) => handleInputChange('productFlag', e.target.value)}
+            className="w-full px-4 py-3 text-gray-800 bg-blue-100 border-2 border-blue-200 rounded-lg focus:outline-none focus:border-red-400"
+            required
+          >
+            <option value="">Select Product Flag</option>
+            <option value="featured">Featured Product</option>
+            <option value="new_arrival">New Arrival</option>
+            <option value="redragon">Redragon Product</option>
+          </select>
+          <p className="text-xs text-gray-500 mt-1">
+            Choose where this product should appear on the homepage
+          </p>
+        </div>
+      </div>
     </div>
   );
 
@@ -333,8 +349,8 @@ const AddProduct = () => {
     e.preventDefault();
     
     // Basic validation
-    if (!product.title || !product.brand || !product.category || !product.price || !product.stock) {
-      alert('Please fill in all required fields');
+    if (!product.title || !product.brand || !product.category || !product.price || !product.stock || !product.productFlag) {
+      alert('Please fill in all required fields including Product Flag');
       return;
     }
 
@@ -367,6 +383,11 @@ const AddProduct = () => {
       formData.append('stock_quantity', product.stock);
       formData.append('shipping_fee', product.shippingFee || 0);
       
+      // Add product flags based on selection
+      formData.append('is_featured', product.productFlag === 'featured' ? 1 : 0);
+      formData.append('is_new_arrival', product.productFlag === 'new_arrival' ? 1 : 0);
+      formData.append('is_redragon', product.productFlag === 'redragon' ? 1 : 0);
+      
       // Add specifications
       const specs = {};
       product.specifications.forEach(spec => {
@@ -398,8 +419,7 @@ const AddProduct = () => {
       });
 
       // Submit to API
-      const response = await adminApi.postFormData('http://localhost:5001/api/products', formData);
-      const data = await response.json();
+      const data = await adminApi.postFormData('/products', formData);
 
       if (data.success) {
         alert('Product created successfully!');
@@ -415,6 +435,7 @@ const AddProduct = () => {
           stock: '',
           shippingFee: '',
           color: '',
+          productFlag: '',
           specifications: [{ key: '', value: '' }],
           images: [null, null, null, null, null],
         });

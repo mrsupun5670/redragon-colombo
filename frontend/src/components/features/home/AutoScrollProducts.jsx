@@ -11,9 +11,9 @@ const AutoScrollProducts = ({ products, bg_color }) => {
 
   const cardWidth = width < 768 ? 250 : 300;
   const gap = width < 768 ? 16 : 24;
-
+  
   useEffect(() => {
-    if (isPaused) return;
+    if (isPaused || products.length === 0) return;
 
     const scrollContainer = scrollRef.current;
     if (!scrollContainer) return;
@@ -59,8 +59,6 @@ const AutoScrollProducts = ({ products, bg_color }) => {
     };
   }, [currentIndex, isPaused, products.length, cardWidth, gap]);
 
-  const duplicatedProducts = [...products, ...products];
-
   return (
     <div className="relative w-full overflow-hidden py-4">
       <div
@@ -70,9 +68,9 @@ const AutoScrollProducts = ({ products, bg_color }) => {
         onMouseEnter={() => setIsPaused(true)}
         onMouseLeave={() => setIsPaused(false)}
       >
-        {duplicatedProducts.map((product, index) => (
+        {products.map((product, index) => (
           <motion.div
-            key={`${product.id}-${index}`}
+            key={product.id}
             className={`flex-shrink-0 ${width < 768 ? 'w-64' : 'w-72'} group cursor-pointer`}
             whileHover={{ y: -8, scale: 1.05 }}
             transition={{ duration: 0.3 }}

@@ -22,8 +22,7 @@ const CategoriesTab = () => {
   // Fetch main categories
   const fetchMainCategories = async () => {
     try {
-      const response = await adminApi.get('http://localhost:5001/api/categories/main');
-      const data = await response.json();
+      const data = await adminApi.get('/categories/main');
       if (data.success) {
         setMainCategories(data.data);
       }
@@ -35,8 +34,7 @@ const CategoriesTab = () => {
   // Fetch sub categories
   const fetchSubCategories = async () => {
     try {
-      const response = await adminApi.get('http://localhost:5001/api/categories/sub');
-      const data = await response.json();
+      const data = await adminApi.get('/categories/sub');
       if (data.success) {
         setSubCategories(data.data);
       }
@@ -96,12 +94,10 @@ const CategoriesTab = () => {
 
     setUpdating(true);
     try {
-      const response = await adminApi.put(`http://localhost:5001/api/categories/main/${editingCategory.id}`, {
+      const data = await adminApi.put(`/categories/main/${editingCategory.id}`, {
         name: editName.trim(),
         description: editDescription.trim() || null
       });
-
-      const data = await response.json();
       
       if (data.success) {
         await fetchCategories();
@@ -132,13 +128,11 @@ const CategoriesTab = () => {
 
     setUpdating(true);
     try {
-      const response = await adminApi.put(`http://localhost:5001/api/categories/sub/${editingSubcategory.id}`, {
+      const data = await adminApi.put(`/categories/sub/${editingSubcategory.id}`, {
         name: editName.trim(),
         description: editDescription.trim() || null,
         main_category_id: editMainCategoryId
       });
-
-      const data = await response.json();
       
       if (data.success) {
         await fetchCategories();
@@ -163,9 +157,7 @@ const CategoriesTab = () => {
     }
 
     try {
-      const response = await adminApi.delete(`http://localhost:5001/api/categories/main/${categoryId}`);
-
-      const data = await response.json();
+      const data = await adminApi.delete(`/categories/main/${categoryId}`);
       
       if (data.success) {
         await fetchCategories();
@@ -184,9 +176,7 @@ const CategoriesTab = () => {
     }
 
     try {
-      const response = await adminApi.delete(`http://localhost:5001/api/categories/sub/${subCategoryId}`);
-
-      const data = await response.json();
+      const data = await adminApi.delete(`/categories/sub/${subCategoryId}`);
       
       if (data.success) {
         await fetchCategories();

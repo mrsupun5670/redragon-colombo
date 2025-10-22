@@ -119,7 +119,7 @@ exports.createProduct = async (req, res) => {
     const {
       name, description, specifications, brand_id, main_category_id,
       sub_category_id, price, sale_price, cost_price, stock_quantity,
-      shipping_fee, color_id, weight, sku
+      shipping_fee, color_id, weight, sku, is_featured, is_new_arrival, is_redragon
     } = req.body;
 
     // Validate required fields
@@ -160,9 +160,15 @@ exports.createProduct = async (req, res) => {
       shipping_fee: shipping_fee ? parseFloat(shipping_fee) : 0,
       color_id: color_id ? parseInt(color_id) : null,
       weight: weight ? parseFloat(weight) : null,
-      is_active: 1
+      is_active: 1,
+      is_featured: parseInt(is_featured) || 0,
+      is_new_arrival: parseInt(is_new_arrival) || 0,
+      is_redragon: parseInt(is_redragon) || 0
     };
 
+    // Debug: Log the product data being created
+    console.log('Creating product with data:', productData);
+    
     // Create product
     const result = await Product.create(productData);
     const productId = result.insertId;
@@ -220,7 +226,7 @@ exports.updateProduct = async (req, res) => {
     const {
       name, description, specifications, brand_id, main_category_id,
       sub_category_id, price, sale_price, cost_price, stock_quantity,
-      shipping_fee, color_id, weight, sku, is_active
+      shipping_fee, color_id, weight, sku, is_active, is_featured, is_new_arrival, is_redragon
     } = req.body;
 
     // Check if product exists
@@ -263,7 +269,10 @@ exports.updateProduct = async (req, res) => {
       shipping_fee: shipping_fee !== undefined ? parseFloat(shipping_fee) : (existingProduct.shipping_fee || 0),
       color_id: color_id ? parseInt(color_id) : existingProduct.color_id,
       weight: weight ? parseFloat(weight) : existingProduct.weight,
-      is_active: is_active !== undefined ? parseInt(is_active) : existingProduct.is_active
+      is_active: is_active !== undefined ? parseInt(is_active) : existingProduct.is_active,
+      is_featured: is_featured !== undefined ? parseInt(is_featured) : (existingProduct.is_featured || 0),
+      is_new_arrival: is_new_arrival !== undefined ? parseInt(is_new_arrival) : (existingProduct.is_new_arrival || 0),
+      is_redragon: is_redragon !== undefined ? parseInt(is_redragon) : (existingProduct.is_redragon || 0)
     };
 
     // Update product

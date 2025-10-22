@@ -127,8 +127,8 @@ class Product {
         INSERT INTO products (
           name, slug, sku, description, specifications, brand_id, main_category_id, 
           sub_category_id, price, sale_price, cost_price, stock_quantity, 
-          shipping_fee, color_id, weight, is_active
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+          shipping_fee, color_id, weight, is_active, is_featured, is_new_arrival, is_redragon
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       `;
       
       const values = [
@@ -147,7 +147,10 @@ class Product {
         productData.shipping_fee || 0,
         productData.color_id,
         productData.weight,
-        productData.is_active !== undefined ? productData.is_active : 1
+        productData.is_active !== undefined ? productData.is_active : 1,
+        productData.is_featured || 0,
+        productData.is_new_arrival || 0,
+        productData.is_redragon || 0
       ];
       
       const [result] = await db.execute(query, values);
@@ -165,7 +168,8 @@ class Product {
           name = ?, slug = ?, sku = ?, description = ?, specifications = ?,
           brand_id = ?, main_category_id = ?, sub_category_id = ?, price = ?,
           sale_price = ?, cost_price = ?, stock_quantity = ?, shipping_fee = ?,
-          color_id = ?, weight = ?, is_active = ?, updated_at = CURRENT_TIMESTAMP
+          color_id = ?, weight = ?, is_active = ?, is_featured = ?, is_new_arrival = ?, is_redragon = ?,
+          updated_at = CURRENT_TIMESTAMP
         WHERE id = ?
       `;
       
@@ -186,6 +190,9 @@ class Product {
         productData.color_id,
         productData.weight,
         productData.is_active !== undefined ? productData.is_active : 1,
+        productData.is_featured || 0,
+        productData.is_new_arrival || 0,
+        productData.is_redragon || 0,
         productId
       ];
       

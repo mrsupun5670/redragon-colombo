@@ -14,14 +14,24 @@ const uploadToCloudinary = async (file, folder = 'redragon-products') => {
       folder: folder,
       resource_type: 'auto',
       transformation: [
-        { width: 800, height: 800, crop: 'limit' },
+        { width: 800, height: 800, crop: 'fill', gravity: 'center' },
         { quality: 'auto:good' },
-        { format: 'auto' }
+        { format: 'auto' },
+        { fetch_format: 'auto' }
       ]
     });
     
+    // Ensure we have a valid URL before returning
+    const imageUrl = result.secure_url || result.url;
+    
+    if (!imageUrl) {
+      console.error('Cloudinary upload failed - no URL returned');
+      console.error('Result:', result);
+      throw new Error('Image upload failed - no URL returned');
+    }
+    
     return {
-      url: result.secure_url,
+      url: imageUrl,
       public_id: result.public_id,
       width: result.width,
       height: result.height,
