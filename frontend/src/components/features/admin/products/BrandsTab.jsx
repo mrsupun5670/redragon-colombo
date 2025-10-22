@@ -16,8 +16,7 @@ const BrandsTab = () => {
   // Fetch brands from API
   const fetchBrands = async () => {
     try {
-      const response = await adminApi.get('http://localhost:5001/api/brands');
-      const data = await response.json();
+      const data = await adminApi.get('/brands');
       
       if (data.success) {
         setBrands(data.data);
@@ -38,7 +37,7 @@ const BrandsTab = () => {
   const handleEditClick = (brand) => {
     setEditingBrand(brand);
     setEditName(brand.name);
-    setEditImage(brand.logo_url || brand.image_url);
+    setEditImage(brand.logo_url);
   };
 
   const handleSaveEdit = async () => {
@@ -57,9 +56,7 @@ const BrandsTab = () => {
         formData.append('image', editImage);
       }
 
-      const response = await adminApi.putFormData(`http://localhost:5001/api/brands/${editingBrand.id}`, formData);
-
-      const data = await response.json();
+      const data = await adminApi.putFormData(`/brands/${editingBrand.id}`, formData);
       
       if (data.success) {
         await fetchBrands(); // Refresh the list
@@ -99,9 +96,7 @@ const BrandsTab = () => {
     }
 
     try {
-      const response = await adminApi.delete(`http://localhost:5001/api/brands/${brandId}`);
-
-      const data = await response.json();
+      const data = await adminApi.delete(`/brands/${brandId}`);
       
       if (data.success) {
         await fetchBrands(); // Refresh the list

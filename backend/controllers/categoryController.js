@@ -1,7 +1,9 @@
 const Category = require('../models/Category');
+const { uploadToCloudinary } = require('../config/cloudinary');
 
 // Get all main categories
 exports.getAllMainCategories = async (req, res) => {
+  console.log('Fetching all main categories');
   try {
     const categories = await Category.getAllMainCategories();
     
@@ -60,6 +62,7 @@ exports.getSubCategoriesByMainCategory = async (req, res) => {
 
 // Create new main category
 exports.createMainCategory = async (req, res) => {
+  console.log('Creating new main category');
   try {
     const { name, description } = req.body;
     
@@ -80,9 +83,51 @@ exports.createMainCategory = async (req, res) => {
       });
     }
 
+    let iconUrl = null;
+
+    console.log('Before - Received file:', req.file);
+
+    // Handle image upload if file is provided
+    if (req.file) {
+    console.log('Received file:', req.file);
+      
+      try {
+        // Convert buffer to base64 for Cloudinary upload
+        const b64 = Buffer.from(req.file.buffer).toString('base64');
+        const dataURI = `data:${req.file.mimetype};base64,${b64}`;
+
+        console.log('📤 Uploading category image to Cloudinary...');
+        
+        // Upload to Cloudinary
+        const uploadResult = await uploadToCloudinary(dataURI, 'categories');
+        console.log('🔍 Upload result from Cloudinary:', uploadResult);
+        
+        console.log(uploadResult);
+        
+        iconUrl = uploadResult.url;
+        console.log('🔍 Icon URL extracted:', iconUrl);
+        
+        // Verify we got a complete URL
+        if (!iconUrl || iconUrl === 'https://res.cloudinary.com/dgcautrc4/image/upload/') {
+          console.error('❌ Invalid Cloudinary URL received:', iconUrl);
+          console.error('❌ Full upload result was:', uploadResult);
+          throw new Error('Invalid image URL received from Cloudinary');
+        }
+        
+        console.log('✅ Valid URL received, continuing...');
+      } catch (imageError) {
+        console.error('Error uploading category image:', imageError);
+        return res.status(500).json({
+          success: false,
+          message: 'Error uploading category image'
+        });
+      }
+    }
+
     const categoryData = {
       name: name.trim(),
-      description: description?.trim() || null
+      description: description?.trim() || null,
+      icon: iconUrl
     };
 
     const newCategory = await Category.createMainCategory(categoryData);
@@ -286,6 +331,7 @@ exports.updateSubCategory = async (req, res) => {
 
 // Delete main category
 exports.deleteMainCategory = async (req, res) => {
+  console.log('Deleting main category');
   try {
     const { id } = req.params;
     

@@ -22,7 +22,7 @@ class Product {
     }
   }
 
-  // Get all new arrival products
+  // Get new arrival products (latest products by creation date)
   static async getNewArrivals() {
     try {
       const query = `
@@ -33,12 +33,14 @@ class Product {
         LEFT JOIN main_categories mc ON p.main_category_id = mc.id
         LEFT JOIN sub_categories sc ON p.sub_category_id = sc.id
         LEFT JOIN product_image_uploads pi ON p.id = pi.product_id AND pi.is_primary = 1
-        WHERE p.is_new_arrival = 1 AND p.is_active = 1
+        WHERE p.is_active = 1
         ORDER BY p.created_at DESC
+        LIMIT 10
       `;
       const [rows] = await db.execute(query);
       return rows;
     } catch (error) {
+      console.error('Get new arrivals error:', error);
       throw error;
     }
   }
@@ -127,7 +129,7 @@ class Product {
         INSERT INTO products (
           name, slug, sku, description, specifications, brand_id, main_category_id, 
           sub_category_id, price, sale_price, cost_price, stock_quantity, 
-          shipping_fee, color_id, weight, is_active
+          color_id, weight, is_active, is_featured
         ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       `;
       
@@ -144,10 +146,10 @@ class Product {
         productData.sale_price,
         productData.cost_price,
         productData.stock_quantity,
-        productData.shipping_fee || 0,
         productData.color_id,
-        productData.weight,
-        productData.is_active !== undefined ? productData.is_active : 1
+        productData.weight || 0,
+        productData.is_active !== undefined ? productData.is_active : 1,
+        productData.is_featured || 0
       ];
       
       const [result] = await db.execute(query, values);
@@ -164,8 +166,9 @@ class Product {
         UPDATE products SET 
           name = ?, slug = ?, sku = ?, description = ?, specifications = ?,
           brand_id = ?, main_category_id = ?, sub_category_id = ?, price = ?,
-          sale_price = ?, cost_price = ?, stock_quantity = ?, shipping_fee = ?,
-          color_id = ?, weight = ?, is_active = ?, updated_at = CURRENT_TIMESTAMP
+          sale_price = ?, cost_price = ?, stock_quantity = ?,
+          color_id = ?, weight = ?, is_active = ?, is_featured = ?,
+          updated_at = CURRENT_TIMESTAMP
         WHERE id = ?
       `;
       
@@ -182,10 +185,10 @@ class Product {
         productData.sale_price,
         productData.cost_price,
         productData.stock_quantity,
-        productData.shipping_fee || 0,
         productData.color_id,
-        productData.weight,
+        productData.weight || 0,
         productData.is_active !== undefined ? productData.is_active : 1,
+        productData.is_featured || 0,
         productId
       ];
       

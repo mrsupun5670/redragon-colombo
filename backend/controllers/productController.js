@@ -119,7 +119,7 @@ exports.createProduct = async (req, res) => {
     const {
       name, description, specifications, brand_id, main_category_id,
       sub_category_id, price, sale_price, cost_price, stock_quantity,
-      shipping_fee, color_id, weight, sku
+      color_id, weight, sku, is_featured
     } = req.body;
 
     // Validate required fields
@@ -157,12 +157,15 @@ exports.createProduct = async (req, res) => {
       sale_price: sale_price ? parseFloat(sale_price) : null,
       cost_price: cost_price ? parseFloat(cost_price) : null,
       stock_quantity: parseInt(stock_quantity),
-      shipping_fee: shipping_fee ? parseFloat(shipping_fee) : 0,
       color_id: color_id ? parseInt(color_id) : null,
-      weight: weight ? parseFloat(weight) : null,
-      is_active: 1
+      weight: weight ? parseInt(weight) : 0,
+      is_active: 1,
+      is_featured: parseInt(is_featured) || 0
     };
 
+    // Debug: Log the product data being created
+    console.log('Creating product with data:', productData);
+    
     // Create product
     const result = await Product.create(productData);
     const productId = result.insertId;
@@ -220,7 +223,7 @@ exports.updateProduct = async (req, res) => {
     const {
       name, description, specifications, brand_id, main_category_id,
       sub_category_id, price, sale_price, cost_price, stock_quantity,
-      shipping_fee, color_id, weight, sku, is_active
+      color_id, weight, sku, is_active, is_featured
     } = req.body;
 
     // Check if product exists
@@ -260,10 +263,10 @@ exports.updateProduct = async (req, res) => {
       sale_price: sale_price ? parseFloat(sale_price) : existingProduct.sale_price,
       cost_price: cost_price ? parseFloat(cost_price) : existingProduct.cost_price,
       stock_quantity: stock_quantity !== undefined ? parseInt(stock_quantity) : existingProduct.stock_quantity,
-      shipping_fee: shipping_fee !== undefined ? parseFloat(shipping_fee) : (existingProduct.shipping_fee || 0),
       color_id: color_id ? parseInt(color_id) : existingProduct.color_id,
-      weight: weight ? parseFloat(weight) : existingProduct.weight,
-      is_active: is_active !== undefined ? parseInt(is_active) : existingProduct.is_active
+      weight: weight !== undefined ? parseInt(weight) : (existingProduct.weight || 0),
+      is_active: is_active !== undefined ? parseInt(is_active) : existingProduct.is_active,
+      is_featured: is_featured !== undefined ? parseInt(is_featured) : (existingProduct.is_featured || 0)
     };
 
     // Update product
