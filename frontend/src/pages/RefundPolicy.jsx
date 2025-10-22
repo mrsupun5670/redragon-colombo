@@ -11,85 +11,64 @@ const RefundPolicy = () => {
 
   const sections = [
     {
-      title: "Returns",
-      icon: "📦",
-      content: `We accept returns within 30 days from the date of purchase. To be eligible for a return, your item must be:
-        • Unused and in the same condition as received
-        • In the original packaging with all accessories included
-        • Accompanied by the original receipt or proof of purchase
+      title: "Non-Refundable Policy",
+      icon: "💳",
+      content: `At Redragon Colombo, we strive to provide a seamless and satisfying shopping experience. Please note that all purchases made through our website using PayHere are non-refundable under any circumstances.
 
-Items must be returned in their original condition. If a product shows signs of use or damage caused by the customer, it may not be eligible for a full refund.`,
+We understand that each purchase matters to you. Therefore, if you have any doubts or questions before placing an order, we encourage you to contact us through our hotline, WhatsApp, or live chat. Our support team is always ready to help you make the right purchase decision.`,
     },
     {
-      title: "Refunds",
-      icon: "💰",
-      content: `Once we receive your return and inspect the item, we will notify you of the refund status within 5-7 business days. If your return is approved:
-        • A refund will be initiated to your original payment method
-        • Please allow 7-14 business days for the refund to appear in your account
-        • The refund amount will exclude any shipping charges from the initial purchase
-        • Non-refundable items: Gift cards, downloadable products, personalized items, and perishable goods`,
+      title: "Warranty Policy",
+      icon: "🛡️",
+      content: `The warranty period for each product is clearly mentioned on the respective product page on our official website, www.redragoncolombo.lk, as well as on your warranty card and invoice. The warranty becomes valid from the date of delivery.
+
+If a product is found to be defective within 7 days from the purchase date, and no signs of misuse or tampering are detected, it will qualify for an immediate replacement.`,
     },
     {
-      title: "Exchanges",
-      icon: "🔄",
-      content: `Would you like to exchange your item for a different size, color, or style? No problem!
-        • Contact our customer support team within 30 days of receiving your order
-        • Provide order number and details of the exchange desired
-        • If the new item has a higher price, you'll need to pay the difference
-        • If the new item is cheaper, we'll refund the difference
-        • Return shipping is covered by us for quality/size issues only`,
-    },
-    {
-      title: "Non-Returnable Items",
-      icon: "🚫",
-      content: `The following items are non-returnable and non-refundable:
-        • Digital products & software (once downloaded)
-        • Gift cards & store credit
-        • Personalized or custom-made products
-        • Perishable goods
-        • Items without original packaging or missing components
-        • Products damaged due to customer misuse`,
-    },
-    {
-      title: "Damaged or Defective Items",
+      title: "Warranty Voiding Conditions",
       icon: "⚠️",
-      content: `If your item arrives damaged or defective, we're here to help!
-        • Contact us immediately with photos of the damage
-        • We will arrange for a replacement or full refund
-        • No need to return the damaged item in most cases
-        • Shipping costs for the replacement will be covered by us
-        • We typically resolve these issues within 48 hours`,
+      content: `The warranty will be considered void if:
+
+• The issue occurs after the warranty period has expired.
+• The product has been misused, modified, or altered without prior authorization.
+• The product was exposed to unsuitable environmental conditions or accidents beyond our control.
+• Damage resulted from natural disasters such as lightning, fire, flooding, or earthquakes.
+
+Battery Warranty Exclusions:
+This limited warranty does not apply to batteries if:
+• They were charged using an unauthorized charger.
+• Seals are broken or show signs of tampering.
+• The battery was used in a device not specified by the manufacturer.
+
+Power Supply Unit (PSU) Exclusions:
+Warranty does not apply if the PSU is damaged due to electrical surges or lightning.
+
+Display / Dead Pixel Policy:
+Warranty will not cover displays or monitors with fewer than seven (7) dead pixels.`,
     },
     {
-      title: "Return Shipping",
-      icon: "📮",
-      content: `Return shipping responsibilities:
-        • You are responsible for return shipping costs, except:
-        • Returns due to our error (wrong item, defective product)
-        • In these cases, we provide a prepaid shipping label
-        • Use the prepaid label for faster processing
-        • Include your original invoice in the return package
-        • Insurance for your return is recommended but optional`,
-    },
-    {
-      title: "Processing Time",
-      icon: "⏱️",
-      content: `Timeline for refunds and exchanges:
-        • Inspection time: 3-5 business days after receiving return
-        • Refund processing: 7-10 business days from approval
-        • Bank processing time: 7-14 business days (depends on your bank)
-        • Exchanges: 10-15 business days to ship the replacement
-        • Tracking information will be provided for all returns and replacements`,
-    },
-    {
-      title: "Contact & Support",
-      icon: "📞",
-      content: `Have questions about our refund policy? We're here to help!
-        • Email: support@redragoncolombo.lk
-        • Phone: +94 11 234 5678
-        • WhatsApp: +94 11 234 5678
-        • Hours: Monday - Friday, 9 AM - 6 PM (Sri Lanka Time)
-        • We aim to respond to all inquiries within 24 hours`,
+      title: "Warranty Claim Procedure",
+      icon: "📋",
+      content: `• Customers must bring or courier the product to our Redragon Colombo showroom for inspection.
+  (Return shipping costs are the customer's responsibility. We recommend using a trackable courier service.)
+
+• Our technical team will inspect the item to determine if the defect is covered under warranty.
+
+• If covered, the product will be repaired or replaced at no additional cost.
+
+• In some cases, customers may be asked to visit the showroom for live testing.
+
+• The inspection and repair/replacement process generally takes 7–14 working days.
+
+• If specific parts are unavailable, the duration may extend up to 1 month or more, depending on the repair nature.
+
+• If the issue is not covered under warranty but can be repaired, the customer can choose to have it repaired at a reasonable cost.
+
+• Once repairs are complete or if the claim is rejected, customers are notified to collect their product within 1 month.
+
+• Products not collected within this period will be disposed of after an additional reminder and acknowledgment from the customer.
+
+• Storage time can be extended upon request in special situations.`,
     },
   ];
 
@@ -132,10 +111,10 @@ Items must be returned in their original condition. If a product shows signs of 
             className="text-center"
           >
             <h1 className="text-4xl md:text-6xl font-black text-white mb-4 uppercase tracking-tight">
-              Refund Policy
+              Refund & Warranty Policy
             </h1>
             <p className="text-xl text-white/90 font-semibold">
-              Your Satisfaction Guaranteed
+              Your Satisfaction & Product Protection
             </p>
           </motion.div>
         </div>
@@ -159,7 +138,7 @@ Items must be returned in their original condition. If a product shows signs of 
                   We Value Your Satisfaction
                 </h2>
                 <p className="text-gray-700 leading-relaxed">
-                  At Redragon Colombo, we're committed to ensuring you're completely satisfied with your purchase. If for any reason you're not happy with your order, our straightforward refund policy makes it easy to return or exchange your items. Your trust is important to us!
+                  At Redragon Colombo, we're committed to protecting your investment in our products. This policy outlines our warranty coverage, claims procedure, and warranty exclusions. If you have any questions before making a purchase, please don't hesitate to contact our support team.
                 </p>
               </div>
             </div>
@@ -176,19 +155,19 @@ Items must be returned in their original condition. If a product shows signs of 
         >
           {[
             {
-              icon: <RotateCcw className="w-8 h-8 text-white" />,
-              title: "30-Day Returns",
-              desc: "Full refund within 30 days of purchase",
+              icon: <PhoneCall className="w-8 h-8 text-white" />,
+              title: "Contact Before Purchase",
+              desc: "Get expert advice before buying",
             },
             {
               icon: <CheckCircle className="w-8 h-8 text-white" />,
-              title: "No Questions Asked",
-              desc: "Hassle-free returns for unused items",
+              title: "7-Day Replacement",
+              desc: "Defective items replaced within 7 days",
             },
             {
-              icon: <PhoneCall className="w-8 h-8 text-white" />,
-              title: "24/7 Support",
-              desc: "Chat with our support team anytime",
+              icon: <RotateCcw className="w-8 h-8 text-white" />,
+              title: "Warranty Coverage",
+              desc: "Comprehensive warranty protection",
             },
           ].map((benefit, idx) => (
             <motion.div
@@ -271,82 +250,6 @@ Items must be returned in their original condition. If a product shows signs of 
           </div>
         </motion.div>
 
-        {/* How to Return */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
-          className="max-w-3xl mx-auto mb-16"
-        >
-          <div className="bg-gradient-to-r from-red-600 to-red-700 rounded-2xl p-8 text-white border-2 border-red-400">
-            <h2 className="text-3xl font-black mb-8 uppercase flex items-center gap-3">
-              <span className="text-4xl">🚀</span>
-              How to Start Your Return
-            </h2>
-
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-              {[
-                { num: "1", title: "Contact Us", desc: "Email or call us with your order number" },
-                { num: "2", title: "Get Approval", desc: "We'll approve and provide return details" },
-                { num: "3", title: "Ship Back", desc: "Pack securely and ship to our warehouse" },
-                { num: "4", title: "Get Refund", desc: "Receive refund after inspection" },
-              ].map((step, idx) => (
-                <div key={idx} className="text-center">
-                  <div className="inline-flex items-center justify-center w-12 h-12 bg-white text-red-600 rounded-full font-black text-lg mb-3">
-                    {step.num}
-                  </div>
-                  <h4 className="font-black uppercase mb-1">{step.title}</h4>
-                  <p className="text-white/80 text-sm">{step.desc}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-        </motion.div>
-
-        {/* FAQ Box */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
-          className="max-w-3xl mx-auto mb-16"
-        >
-          <div className="bg-white rounded-2xl p-8 shadow-lg border-2 border-gray-100">
-            <h2 className="text-2xl font-black text-gray-900 mb-6 uppercase">
-              ❓ Common Questions
-            </h2>
-
-            <div className="space-y-6">
-              {[
-                {
-                  q: "How long do I have to return an item?",
-                  a: "You have 30 days from the date of purchase to initiate a return.",
-                },
-                {
-                  q: "Will I get a full refund?",
-                  a: "Yes, full refund for unused items. Refund excludes original shipping charges.",
-                },
-                {
-                  q: "Who pays for return shipping?",
-                  a: "You typically cover return shipping unless it's our error or defective item.",
-                },
-                {
-                  q: "How long does refund processing take?",
-                  a: "After receiving and inspecting, 7-10 business days. Banks may take 7-14 additional days.",
-                },
-              ].map((faq, idx) => (
-                <div key={idx} className="border-b border-gray-200 pb-4 last:border-0">
-                  <h4 className="font-black text-gray-900 mb-2 uppercase text-red-600">
-                    Q: {faq.q}
-                  </h4>
-                  <p className="text-gray-700">A: {faq.a}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-        </motion.div>
-
         {/* Contact Section */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -357,18 +260,18 @@ Items must be returned in their original condition. If a product shows signs of 
         >
           <div className="bg-gradient-to-r from-red-50 to-orange-50 rounded-2xl p-8 border-2 border-red-200">
             <h2 className="text-2xl font-black text-gray-900 mb-4 uppercase">
-              📞 Need Help With Your Return?
+              📞 Questions About Warranty?
             </h2>
             <p className="text-gray-700 mb-6">
-              Our friendly support team is here to help you through every step of the return process. Don't hesitate to reach out!
+              Before placing an order, feel free to contact our team with any questions or concerns. We're here to help you make an informed purchase decision.
             </p>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <a
-                href="mailto:support@redragoncolombo.lk"
+                href="mailto:info@redragoncolombo.lk"
                 className="flex items-center gap-3 bg-white hover:bg-gray-50 p-4 rounded-xl border-2 border-red-300 transition-all font-bold text-red-600 uppercase"
               >
-                📧 support@redragoncolombo.lk
+                📧 info@redragoncolombo.lk
               </a>
               <a
                 href="tel:+94112345678"

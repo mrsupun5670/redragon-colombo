@@ -44,17 +44,15 @@ const Footer = () => {
             </ul>
           </div>
 
-          {/* Support */}
+          {/* Company Links */}
           <div>
-            <h3 className="font-black mb-4 text-gray-900 uppercase text-sm">SUPPORT</h3>
+            <h3 className="font-black mb-4 text-gray-900 uppercase text-sm">COMPANY</h3>
             <ul className="space-y-2 text-sm">
               {[
-                { label: "Contact Us", href: "#" },
-                { label: "Warranty Info", href: "#" },
-                { label: "Shipping Policy", href: "#" },
-                { label: "Return Policy", href: "#" },
-                { label: "Refund Policy", href: "/refund-policy" },
-                { label: "FAQ", href: "#" }
+                { label: "Home", href: "/" },
+                { label: "Products", href: "/products" },
+                { label: "Categories", href: "/categories" },
+                { label: "About", href: "/about" }
               ].map((item) => (
                 <li key={item.label}>
                   <a href={item.href} className="text-gray-700 hover:text-red-500 transition-colors hover:translate-x-1 inline-block">

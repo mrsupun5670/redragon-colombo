@@ -10,260 +10,164 @@ const PrivacyPolicy = () => {
 
   const sections = [
     {
+      title: "Who We Are",
+      icon: "🏢",
+      content: `Redragon Colombo ("we", "us", or "our") is a company engaged in the import and distribution of high-performance gaming and technology products in Sri Lanka.
+
+We operate the website www.redragoncolombo.lk, which provides product information, online purchases, and customer support related to Redragon gaming gear and accessories.`,
+    },
+    {
       title: "Information We Collect",
       icon: "📊",
-      content: `We collect information from you in several ways:
+      content: `To provide and improve our services, we may collect various types of personal data, including:
 
-Personal Identification Information:
-• Name, email address, phone number
-• Provided voluntarily during registration or checkout
-• Updated through your account settings
+• Full name
+• Email address
+• Contact number
+• Billing and shipping address (including city, province, and postal code)
+• Identification details (such as NIC or Passport number, if applicable)
+• Cookies and usage data
 
-Payment & Billing Information:
-• Credit card details (securely processed by third-party providers)
-• Billing address and payment method
-• Order history and transaction details
-
-Browsing Information:
-• IP address and device information
-• Browser type and operating system
-• Pages visited and time spent on our website
-• Cookies and similar tracking technologies
-• Search queries and product preferences
-
-Communications:
-• Messages sent through contact forms
-• Customer support correspondence
-• Newsletter subscriptions
-• Survey and feedback responses`,
+This information may be collected when you:
+• Register or create an account
+• Place an order
+• Subscribe to our newsletter
+• Leave a comment or fill out a contact form
+• Browse our website (usage data may be collected automatically)`,
     },
     {
-      title: "How We Use Your Information",
+      title: "Comments",
+      icon: "💬",
+      content: `When visitors leave comments, we collect the information provided in the form, as well as the visitor's IP address and browser details to help prevent spam.
+
+After approval, your comment and profile image (if applicable) may appear publicly in connection with your comment.`,
+    },
+    {
+      title: "Cookies",
+      icon: "🍪",
+      content: `Cookies are small text files stored on your device to help us improve your browsing experience.
+
+We use cookies and similar tracking technologies (such as tags or scripts) to:
+• Remember your preferences
+• Maintain session data
+• Analyze website traffic and performance
+
+You can choose to disable cookies through your browser settings. However, certain features of our website may not function properly if cookies are disabled.
+
+Examples:
+• Login cookies last for two days.
+• Display preference cookies last for one year.
+• "Remember Me" cookies last for two weeks unless you log out.`,
+    },
+    {
+      title: "Embedded Content & Third-Party Services",
+      icon: "🔗",
+      content: `Our website may include embedded content (e.g., videos, social media links, analytics tools) or links to external websites.
+
+These third-party websites may collect data about you, use cookies, or track your interaction with that content.
+
+We are not responsible for the privacy practices or content of any third-party website. We encourage you to review their Privacy Policies before interacting with them.`,
+    },
+    {
+      title: "Web Analytics",
+      icon: "📈",
+      content: `We use Google Analytics to understand how visitors interact with our website.
+
+Google may collect information such as your IP address, device type, and browsing behavior. This data helps us improve our website and user experience.
+
+You can prevent Google Analytics from tracking your data by installing the Google Analytics Opt-out Browser Add-on.
+
+To learn more, please refer to the Google Privacy Policy.`,
+    },
+    {
+      title: "Usage Data",
+      icon: "⏱️",
+      content: `We may automatically collect information about how our website is accessed and used. This may include:
+
+• IP address
+• Browser type and version
+• Device identifiers
+• Pages visited and duration
+• Date and time of visit
+
+This data is collected solely for system administration, performance monitoring, and analytics purposes.`,
+    },
+    {
+      title: "How We Use Your Data",
       icon: "🔧",
-      content: `We use your information for:
+      content: `We use collected data to:
 
-Processing Orders:
-• Fulfill your purchases and deliver products
-• Process refunds and handle exchanges
-• Send order confirmations and shipping updates
-• Manage your account and account history
-
-Communication:
-• Respond to inquiries and provide customer support
-• Send newsletters and promotional offers
-• Notify you of policy changes
-• Important account notifications
-
-Personalization:
-• Customize your shopping experience
-• Recommend products based on preferences
-• Remember your saved items and wishlist
-• Improve website functionality and design
-
-Security & Analytics:
-• Detect and prevent fraud and unauthorized access
-• Protect against malicious activities
-• Analyze website traffic and user behavior
-• Improve our services and security measures
-
-Marketing:
-• Send promotional emails and special offers
-• Conduct market research and surveys
-• Understand customer preferences
-• Improve our marketing strategies`,
+• Provide and maintain our services
+• Process orders and deliver products
+• Send service-related updates or notifications
+• Improve website performance and customer experience
+• Provide customer support
+• Detect, prevent, and resolve technical issues
+• Comply with legal or regulatory requirements`,
     },
     {
-      title: "Information Sharing",
-      icon: "🔄",
-      content: `Your privacy is important. We only share information when necessary:
+      title: "Data Retention",
+      icon: "💾",
+      content: `Comments and their metadata are stored indefinitely to recognize follow-up comments automatically.
 
-Trusted Service Providers:
-• Payment processors (to process transactions)
-• Shipping companies (for delivery)
-• Email service providers (for communications)
-• Analytics providers (for website improvement)
-• These partners are contractually obligated to protect your data
+Registered users' account information is stored as long as their account remains active. Users can view, edit, or delete their information (excluding their username).
 
-Legal Requirements:
-• Required by law or court order
-• In response to government requests
-• To protect our rights and safety
-• To prevent fraud or illegal activity
-• To enforce our terms and conditions
+Website administrators have access to edit or remove data when necessary.`,
+    },
+    {
+      title: "Your Rights",
+      icon: "⚖️",
+      content: `You have the right to:
 
-We DO NOT:
-• Sell your personal information to third parties
-• Share data with unverified marketers
-• Disclose payment information unnecessarily
-• Rent or lease customer lists
-• Share data without your consent (except as required by law)`,
+• Request a copy of the personal data we hold about you
+• Request correction or deletion of your personal data
+• Withdraw consent to data collection (where applicable)
+• Object to processing or request data portability
+
+To exercise any of these rights, please contact us through the Contact Form on our website.`,
+    },
+    {
+      title: "Data Transfer",
+      icon: "🌍",
+      content: `Your personal data may be transferred to and stored on servers located in Sri Lanka or other countries.
+
+By submitting your information, you consent to this transfer, provided that adequate security measures are in place to protect your data.`,
     },
     {
       title: "Data Security",
       icon: "🔐",
-      content: `We take data protection seriously:
+      content: `We implement industry-standard measures to safeguard your data, including secure servers and encryption.
 
-Security Measures:
-• SSL encryption for all website traffic
-• Secure payment processing through trusted providers
-• Regular security audits and updates
-• Password encryption and secure authentication
-• Firewall protection and intrusion detection
-• Limited employee access to sensitive data
-
-Your Responsibilities:
-• Keep your password confidential
-• Log out after accessing your account
-• Don't share your account information
-• Report suspicious activity immediately
-• Use secure internet connections
-
-Limitations:
-• No internet transmission is 100% secure
-• Email communications may not be encrypted
-• We cannot guarantee absolute security
-• We are not liable for unauthorized third-party access
-• Report security breaches immediately to security@redragoncolombo.lk`,
+However, please note that no system is completely secure. We cannot guarantee absolute protection of your data transmitted over the internet.`,
     },
     {
-      title: "Cookies & Tracking Technologies",
-      icon: "🍪",
-      content: `We use cookies and similar technologies:
+      title: "Data from Third Parties",
+      icon: "🤝",
+      content: `Our website may receive limited information from trusted partners or analytics providers for performance tracking.
 
-What Are Cookies?
-• Small data files stored on your browser
-• Help us remember your preferences
-• Track website usage and behavior
-• Enable features like "remember me"
-
-Types of Cookies:
-• Essential Cookies: Required for website functionality
-• Performance Cookies: Track website performance
-• Preference Cookies: Remember your settings
-• Marketing Cookies: Track marketing effectiveness
-
-Your Cookie Choices:
-• Disable cookies in browser settings
-• Use browser privacy/incognito modes
-• Opt-out of specific cookie categories
-• Clear cookies regularly
-• Use cookie management tools
-
-Impact:
-• Some website features may not work properly
-• Personalization features may be limited
-• You may need to re-enter information
-• Advertising will still be shown but not personalized`,
+We do not sell or share your personal information with unaffiliated third parties for marketing purposes.`,
     },
     {
-      title: "Your Privacy Rights",
-      icon: "⚖️",
-      content: `You have rights regarding your data:
-
-Access & Transparency:
-• Request a copy of your personal data
-• Know what information we collect
-• Understand how we use your information
-• Ask who has access to your data
-
-Correction & Deletion:
-• Update inaccurate information
-• Request deletion of your data
-• Remove yourself from mailing lists
-• Close your account permanently
-
-Data Portability:
-• Receive your data in portable format
-• Transfer data to another provider
-• Opt-out of marketing communications
-• Withdraw consent anytime
-
-To Exercise Your Rights:
-• Email: privacy@redragoncolombo.lk
-• Include proof of identity
-• Specify what you're requesting
-• We'll respond within 30 days
-
-Restrictions:
-• We may retain data for legal compliance
-• Some data may be anonymized first
-• We may refuse if it risks others' privacy`,
-    },
-    {
-      title: "Children's Privacy",
-      icon: "👧",
-      content: `Protection for younger users:
-
-Our Commitment:
-• We don't knowingly collect data from children under 13
-• Our website is not directed at children
-• We comply with COPPA (Children's Online Privacy Protection Act)
-
-Parental Involvement:
-• If a child provides information, we'll delete it immediately
-• Parents can request deletion of child's data
-• Contact us if you believe we have collected child's data
-• We encourage parental monitoring of children's online activities
-
-Responsibilities:
-• Parents should supervise children's internet use
-• Teach children about online privacy and safety
-• Monitor what information children share online
-• Discuss privacy practices with children
-
-If You're a Parent/Guardian:
-• Contact us immediately if your child's data was collected
-• We'll remove the information promptly
-• We can discuss child safety measures`,
-    },
-    {
-      title: "Policy Changes",
+      title: "Legal Disclosure",
       icon: "📝",
-      content: `We may update this policy:
+      content: `We may disclose your information if required by law or in good faith when such action is necessary to:
 
-When We Change It:
-• We'll post updates on this page
-• We'll update the "Last Updated" date
-• For major changes, we'll notify you via email
-• You'll need to accept new terms to continue using the site
-
-Your Rights:
-• Review changes before accepting
-• Opt-out if you disagree with changes
-• Close your account if desired
-• Request old policy versions
-
-Effective Immediately:
-• Updates take effect when posted
-• Continued use means acceptance
-• We recommend reviewing periodically
-• Check back frequently for updates`,
+• Comply with a legal obligation
+• Protect or defend the rights and property of Redragon Colombo
+• Investigate potential misconduct or fraudulent activity
+• Protect user safety and public security
+• Prevent or address legal liability`,
     },
     {
-      title: "Contact Us",
-      icon: "📞",
-      content: `Questions about our privacy practices?
+      title: "Policy Updates",
+      icon: "🔄",
+      content: `We may update this Privacy Policy periodically.
 
-Contact Information:
-Email: privacy@redragoncolombo.lk
-Phone: +94 11 234 5678
-WhatsApp: +94 11 234 5678
-Address: 123 Gaming Street, Colombo, Sri Lanka
-Hours: Monday - Friday, 9 AM - 6 PM (Sri Lanka Time)
+Changes will be posted on this page with the revised "Effective Date."
 
-What We Can Help With:
-• Privacy inquiries and concerns
-• Data access or deletion requests
-• Cookie management questions
-• Security issue reporting
-• Policy clarification
-• Complaint resolution
+We may also notify users via email or a prominent notice on our homepage before changes take effect.
 
-Response Time:
-• We aim to respond within 24 hours
-• Complex requests may take up to 30 days
-• You'll receive confirmation of receipt
-• Updates provided throughout process`,
+We encourage you to review this page regularly to stay informed about how we protect your data.`,
     },
   ];
 
@@ -330,45 +234,16 @@ Response Time:
               <div className="text-4xl">🔒</div>
               <div>
                 <h2 className="text-2xl font-black text-gray-900 mb-3 uppercase">
-                  We're Committed to Your Privacy
+                  Welcome to Redragon Colombo
                 </h2>
                 <p className="text-gray-700 leading-relaxed">
-                  At Redragon Colombo, protecting your personal information is our top priority. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you visit our website. Please read this policy carefully to understand our privacy practices.
+                  This Privacy Policy explains how we collect, use, store, and protect your personal information when you visit or interact with our website, www.redragoncolombo.lk ("the Site", "Service", or "Platform").
+
+By accessing or using our website, you agree to the practices described in this Privacy Policy. If you do not agree with the terms outlined here, please refrain from using our website or providing any personal information.
                 </p>
               </div>
             </div>
           </div>
-        </motion.div>
-
-        {/* Key Principles */}
-        <motion.div
-          variants={containerVariants}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true }}
-          className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-16 max-w-5xl mx-auto"
-        >
-          {[
-            { icon: <Lock className="w-8 h-8 text-white" />, title: "Secure", desc: "Industry-standard encryption" },
-            { icon: <Eye className="w-8 h-8 text-white" />, title: "Transparent", desc: "Clear privacy practices" },
-            { icon: <Share2 className="w-8 h-8 text-white" />, title: "Control", desc: "You control your data" },
-            { icon: <Shield className="w-8 h-8 text-white" />, title: "Protected", desc: "We protect your information" },
-          ].map((principle, idx) => (
-            <motion.div
-              key={idx}
-              variants={itemVariants}
-              whileHover={{ y: -10 }}
-              className="bg-white rounded-2xl p-6 shadow-lg border-2 border-gray-100 hover:border-blue-500/20 transition-all text-center"
-            >
-              <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl mb-4">
-                {principle.icon}
-              </div>
-              <h3 className="text-lg font-black text-gray-900 mb-2 uppercase">
-                {principle.title}
-              </h3>
-              <p className="text-sm text-gray-600">{principle.desc}</p>
-            </motion.div>
-          ))}
         </motion.div>
 
         {/* Accordion Sections */}
@@ -434,39 +309,6 @@ Response Time:
           </div>
         </motion.div>
 
-        {/* Data Protection Tips */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
-          className="max-w-3xl mx-auto mb-16"
-        >
-          <div className="bg-gradient-to-r from-blue-600 to-blue-700 rounded-2xl p-8 text-white border-2 border-blue-400">
-            <h2 className="text-2xl font-black mb-6 uppercase flex items-center gap-3">
-              <span className="text-3xl">🛡️</span>
-              Protect Your Privacy
-            </h2>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {[
-                { title: "Use Strong Passwords", desc: "At least 12 characters with mixed case and symbols" },
-                { title: "Enable 2FA", desc: "Add two-factor authentication for extra security" },
-                { title: "Review Permissions", desc: "Check and update your privacy settings regularly" },
-                { title: "Report Issues", desc: "Immediately report suspicious activity to us" },
-              ].map((tip, idx) => (
-                <div key={idx} className="flex gap-3">
-                  <div className="flex-shrink-0 text-xl">✓</div>
-                  <div>
-                    <h4 className="font-black uppercase mb-1">{tip.title}</h4>
-                    <p className="text-white/80 text-sm">{tip.desc}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </motion.div>
-
         {/* Contact Section */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -480,15 +322,15 @@ Response Time:
               🤝 Privacy Questions?
             </h2>
             <p className="text-gray-700 mb-6">
-              We're here to answer any questions about our privacy practices and help you protect your data.
+              If you have any questions or concerns about this Privacy Policy or how your data is handled, please contact us through our Contact Form on www.redragoncolombo.lk or email us.
             </p>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <a
-                href="mailto:privacy@redragoncolombo.lk"
+                href="mailto:info@redragoncolombo.lk"
                 className="flex items-center gap-3 bg-white hover:bg-gray-50 p-4 rounded-xl border-2 border-blue-300 transition-all font-bold text-blue-600 uppercase"
               >
-                📧 privacy@redragoncolombo.lk
+                📧 info@redragoncolombo.lk
               </a>
               <a
                 href="tel:+94112345678"
@@ -499,7 +341,7 @@ Response Time:
             </div>
 
             <p className="text-gray-600 text-sm mt-4">
-              Last Updated: January 2025 • We regularly review and update this policy
+              Effective Date: January 2025
             </p>
           </div>
         </motion.div>
