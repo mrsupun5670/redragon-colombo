@@ -1,5 +1,5 @@
 import React, { useState, useContext } from "react";
-import { useNavigate } from "react-router-dom";
+import { Navigate, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   ShoppingCart,
@@ -15,8 +15,9 @@ import {
 import Navbar from "../components/layout/Navbar";
 import Footer from "../components/layout/Footer";
 import WhatsAppButton from "../components/common/WhatsAppButton";
+import ErrorPopup from "../components/common/ErrorPopup";
+import SuccessPopup from "../components/common/SuccessPopup";
 import CartContext from "../context/CartContext";
-import { getOptimizedImageUrl } from "../utils/imageUtils";
 
 const Cart = () => {
   const navigate = useNavigate();
@@ -37,6 +38,8 @@ const Cart = () => {
   
   const [promoCode, setPromoCode] = useState("");
   const [discount, setDiscount] = useState(0);
+  const [success, setSuccess] = useState(null);
+  const [popupError, setPopupError] = useState(null);
 
   // Calculate final total with discount
   const finalTotal = cartTotal - discount;
@@ -59,11 +62,15 @@ const Cart = () => {
   const applyPromo = () => {
     if (promoCode.toUpperCase() === "REDRAGON10") {
       setDiscount(cartSubtotal * 0.1);
-      alert("Promo code applied! 10% discount");
+      setSuccess("Promo code applied! 10% discount");
     } else if (promoCode) {
-      alert("Invalid promo code");
+      setPopupError("Invalid promo code");
     }
   };
+  
+  const handleCheckoutClick = () => {
+      navigate("/checkout");
+    }
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 via-white to-gray-100">
@@ -364,6 +371,7 @@ const Cart = () => {
 
                 {/* Checkout Button */}
                 <motion.button
+                onClick={handleCheckoutClick}
                   whileHover={{ scale: 1.02, y: -2 }}
                   whileTap={{ scale: 0.98 }}
                   className="w-full bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white py-4 rounded-xl font-black uppercase tracking-wider shadow-xl hover:shadow-2xl transition-all mb-4"
@@ -409,6 +417,8 @@ const Cart = () => {
 
       <Footer />
       <WhatsAppButton />
+      <ErrorPopup message={popupError} onClose={() => setPopupError(null)} />
+      <SuccessPopup message={success} onClose={() => setSuccess(null)} />
     </div>
   );
 };

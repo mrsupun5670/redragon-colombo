@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Edit, Filter, X, Plus, Trash2, Upload, Search } from 'lucide-react';
 import { adminApi } from '../../../../utils/adminApi';
+import ErrorPopup from '../../../common/ErrorPopup';
+import SuccessPopup from '../../../common/SuccessPopup';
 
 const ProductList = () => {
   const [allProducts, setAllProducts] = useState([]);
@@ -30,6 +32,8 @@ const ProductList = () => {
   const [selectedImages, setSelectedImages] = useState([]);
   const [imagePreviews, setImagePreviews] = useState([]);
   const [existingImages, setExistingImages] = useState([]);
+  const [success, setSuccess] = useState(null);
+  const [error, setError] = useState(null);
 
   // Fetch all data
   const fetchData = async () => {
@@ -163,7 +167,7 @@ const ProductList = () => {
     try {
       // Basic validation
       if (!editFormData.name || !editFormData.price || !editFormData.stock_quantity) {
-        alert('Please fill in required fields');
+        setError('Please fill in required fields');
         return;
       }
 
@@ -221,18 +225,18 @@ const ProductList = () => {
           }
         }
 
-        alert('Product updated successfully!');
+        setSuccess('Product updated successfully!');
         setEditingProduct(null);
         setEditFormData({});
         setSelectedImages([]);
         setImagePreviews([]);
         fetchData(); // Refresh the list
       } else {
-        alert(data.message || 'Error updating product');
+        setError(data.message || 'Error updating product');
       }
     } catch (error) {
       console.error('Error updating product:', error);
-      alert('Error updating product. Please try again.');
+      setError('Error updating product. Please try again.');
     } finally {
       setIsUpdating(false);
     }
@@ -831,6 +835,8 @@ const ProductList = () => {
           </motion.div>
         )}
       </AnimatePresence>
+      <ErrorPopup message={error} onClose={() => setError(null)} />
+      <SuccessPopup message={success} onClose={() => setSuccess(null)} />
     </div>
   );
 };

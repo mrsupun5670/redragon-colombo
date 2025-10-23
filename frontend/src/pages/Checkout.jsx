@@ -9,6 +9,8 @@ import Navbar from "../components/layout/Navbar";
 import Footer from "../components/layout/Footer";
 import WhatsAppButton from "../components/common/WhatsAppButton";
 import ParticleEffect from "../components/common/ParticleEffect";
+import ErrorPopup from "../components/common/ErrorPopup";
+import SuccessPopup from "../components/common/SuccessPopup";
 import CartContext from "../context/CartContext";
 import api from "../services/api";
 
@@ -25,6 +27,8 @@ const Checkout = () => {
   const [deliveryCharge, setDeliveryCharge] = useState(0);
   const [paymentFee, setPaymentFee] = useState(0);
   const [loading, setLoading] = useState(false);
+  const [success, setSuccess] = useState(null);
+  const [error, setError] = useState(null);
 
   // Form data
   const [shippingInfo, setShippingInfo] = useState({
@@ -136,7 +140,7 @@ const Checkout = () => {
   };
 
   const handleFinalSubmit = () => {
-    alert("Order placed successfully! Thank you for your purchase.");
+    setSuccess("Order placed successfully! Thank you for your purchase.");
     // Here you would typically send the order to your backend
   };
 
@@ -744,6 +748,8 @@ const Checkout = () => {
 
       <Footer />
       <WhatsAppButton />
+      <ErrorPopup message={error} onClose={() => setError(null)} />
+      <SuccessPopup message={success} onClose={() => setSuccess(null)} />
     </div>
   );
 };

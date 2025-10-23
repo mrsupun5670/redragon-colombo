@@ -4,10 +4,14 @@ import { Mail, Key, ArrowRight, Lock, RefreshCw } from "lucide-react";
 import Navbar from "../components/layout/Navbar";
 import Footer from "../components/layout/Footer";
 import ParticleEffect from "../components/common/ParticleEffect";
+import ErrorPopup from "../components/common/ErrorPopup";
+import SuccessPopup from "../components/common/SuccessPopup";
 
 const ForgotPasswordPage = () => {
   const [step, setStep] = useState(1);
   const [email, setEmail] = useState("");
+  const [success, setSuccess] = useState(null);
+  const [error, setError] = useState(null);
 
   const handleEmailSubmit = (e) => {
     e.preventDefault();
@@ -20,7 +24,7 @@ const ForgotPasswordPage = () => {
     e.preventDefault();
     // Here you would typically verify the code and reset the password
     console.log("Password has been reset.");
-    alert("Password has been reset successfully!");
+    setSuccess("Password has been reset successfully!");
     // Redirect to login or home
   };
 
@@ -185,6 +189,8 @@ const ForgotPasswordPage = () => {
         </div>
       </div>
       <Footer />
+      <ErrorPopup message={error} onClose={() => setError(null)} />
+      <SuccessPopup message={success} onClose={() => setSuccess(null)} />
     </div>
   );
 };

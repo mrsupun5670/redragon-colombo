@@ -42,14 +42,11 @@ app.use(helmet({
   crossOriginResourcePolicy: { policy: "cross-origin" }
 }));
 
-// Body Parser Middleware
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
-// Cookie Parser Middleware
 app.use(cookieParser());
 
-// Additional Security Headers
 app.use((req, res, next) => {
   res.setHeader('X-Content-Type-Options', 'nosniff');
   res.setHeader('X-Frame-Options', 'DENY');
@@ -60,12 +57,10 @@ app.use((req, res, next) => {
   next();
 });
 
-// Serve static files for uploaded images
 const path = require('path');
 const uploadsPath = path.join(__dirname, 'uploads');
 console.log('Setting up static files at:', uploadsPath);
 
-// Debug middleware for uploads
 app.use('/uploads', (req, res, next) => {
   console.log('Static file request:', req.url);
   next();
