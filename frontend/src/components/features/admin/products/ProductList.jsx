@@ -82,6 +82,7 @@ const ProductList = () => {
       main_category_name: product.main_category_name,
       sub_category_name: product.sub_category_name,
       price: product.price,
+      sale_price: product.sale_price,
       cost_price: product.cost_price,
       stock_quantity: product.stock_quantity,
       shipping_fee: product.shipping_fee || 0,
@@ -176,6 +177,7 @@ const ProductList = () => {
         name: editFormData.name,
         description: editFormData.description,
         price: parseFloat(editFormData.price),
+        sale_price: editFormData.sale_price ? parseFloat(editFormData.sale_price) : null,
         cost_price: parseFloat(editFormData.cost_price) || 0,
         stock_quantity: parseInt(editFormData.stock_quantity),
         shipping_fee: parseFloat(editFormData.shipping_fee) || 0,
@@ -683,10 +685,10 @@ const ProductList = () => {
                       </div>
                     </div>
 
-                    {/* Price and Shipping Fee Row */}
+                    {/* Price and Sale Price Row */}
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">Price (Rs.) *</label>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">Regular Price (Rs.) *</label>
                         <input
                           type="number"
                           value={editFormData.price || ''}
@@ -698,12 +700,12 @@ const ProductList = () => {
                         />
                       </div>
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">Shipping Fee (Rs.)</label>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">Sale Price (Rs.)</label>
                         <input
                           type="number"
-                          value={editFormData.shipping_fee || ''}
-                          onChange={(e) => handleEditFormChange('shipping_fee', e.target.value)}
-                          placeholder="0.00"
+                          value={editFormData.sale_price || ''}
+                          onChange={(e) => handleEditFormChange('sale_price', e.target.value)}
+                          placeholder="Leave empty for no sale"
                           min="0"
                           step="0.01"
                           className="w-full px-4 py-3 text-gray-800 bg-gray-50 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-red-400"

@@ -12,6 +12,7 @@ const AddProduct = () => {
     category: '',
     subcategory: '',
     price: '',
+    salePrice: '',
     cost: '',
     stock: '',
     weight: '',
@@ -198,15 +199,27 @@ const AddProduct = () => {
         </div>
       </div>
 
-      {/* Price and Weight Row */}
-      <div className="grid grid-cols-2 gap-4">
+      {/* Price, Sale Price, and Weight Row */}
+      <div className="grid grid-cols-3 gap-4">
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">Price (Rs.) *</label>
+          <label className="block text-sm font-medium text-gray-700 mb-2">Regular Price (Rs.) *</label>
           <input
             type="number"
             value={product.price}
             onChange={(e) => handleInputChange('price', e.target.value)}
             placeholder="0.00"
+            min="0"
+            step="0.01"
+            className="w-full px-4 py-3 text-gray-800 bg-blue-100 border-2 border-blue-200 rounded-lg focus:outline-none focus:border-red-400"
+          />
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">Sale Price (Rs.)</label>
+          <input
+            type="number"
+            value={product.salePrice}
+            onChange={(e) => handleInputChange('salePrice', e.target.value)}
+            placeholder="Leave empty for no sale"
             min="0"
             step="0.01"
             className="w-full px-4 py-3 text-gray-800 bg-blue-100 border-2 border-blue-200 rounded-lg focus:outline-none focus:border-red-400"
@@ -376,6 +389,9 @@ const AddProduct = () => {
         formData.append('sub_category_id', selectedSubCategory.id);
       }
       formData.append('price', product.price);
+      if (product.salePrice) {
+        formData.append('sale_price', product.salePrice);
+      }
       formData.append('cost_price', product.cost || 0);
       formData.append('stock_quantity', product.stock);
       formData.append('weight', product.weight || 0);
@@ -426,6 +442,7 @@ const AddProduct = () => {
           category: '',
           subcategory: '',
           price: '',
+          salePrice: '',
           cost: '',
           stock: '',
           weight: '',

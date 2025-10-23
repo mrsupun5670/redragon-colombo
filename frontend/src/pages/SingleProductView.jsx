@@ -24,7 +24,7 @@ import Navbar from "../components/layout/Navbar";
 import Footer from "../components/layout/Footer";
 import WhatsAppButton from "../components/common/WhatsAppButton";
 import ParticleEffect from "../components/common/ParticleEffect";
-import { allProducts } from "../data/products";
+import { productAPI } from "../services/api";
 import CartContext from "../context/CartContext";
 
 const SingleProductView = () => {
@@ -32,33 +32,57 @@ const SingleProductView = () => {
   const navigate = useNavigate();
   const { addToCart } = useContext(CartContext);
 
-  // Find product by ID
-  const product = allProducts.find((p) => p.id === parseInt(id));
-
   // State management
+  const [product, setProduct] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [quantity, setQuantity] = useState(1);
-  const [selectedColor, setSelectedColor] = useState(product?.colors?.[0] || null);
+  const [selectedColor, setSelectedColor] = useState(null);
   const [isWishlisted, setIsWishlisted] = useState(false);
   const [activeTab, setActiveTab] = useState("description");
   const [showImageModal, setShowImageModal] = useState(false);
 
-  // Mock multiple images (in real app, this would come from product data)
-  const productImages = product
-    ? [
-        product.image,
-        product.image, // In real scenario, these would be different images
-        product.image,
-        product.image,
-      ]
-    : [];
+  // Fetch product data on component mount
+  useEffect(() => {
+    const fetchProduct = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        const response = await productAPI.getById(id);
+        
+        if (response.data.success) {
+          setProduct(response.data.data);
+          // Set default color if available
+          const colors = response.data.data.colors || [];
+          if (colors.length > 0) {
+            setSelectedColor(colors[0]);
+          }
+        } else {
+          setError('Product not found');
+        }
+      } catch (err) {
+        console.error('Error fetching product:', err);
+        setError('Failed to load product. Please try again.');
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  // Similar products (same category, different id)
-  const similarProducts = product
-    ? allProducts
-        .filter((p) => p.category === product.category && p.id !== product.id)
-        .slice(0, 4)
-    : [];
+    if (id) {
+      fetchProduct();
+    }
+  }, [id]);
+
+  // Product images from the API data (primary image and additional images)
+  const productImages = product && product.images && product.images.length > 0
+    ? product.images.map(img => img.image_path)
+    : product && product.primary_image 
+      ? [product.primary_image]
+      : ['/image_not_there.avif'];
+
+  // Similar products (for now we'll skip this, but could fetch from category)
+  const similarProducts = [];
 
   // Handle image navigation
   const nextImage = () => {
@@ -76,27 +100,29 @@ const SingleProductView = () => {
   const decreaseQuantity = () => setQuantity((prev) => (prev > 1 ? prev - 1 : 1));
 
   // Handle add to cart
-  const handleAddToCart = () => {
-    if (product) {
-      addToCart({
-        ...product,
-        quantity,
-        selectedColor,
-      });
-      // Show success notification (you can add a toast here)
-      alert("Added to cart!");
+  const handleAddToCart = async () => {
+    if (product && product.stock_quantity > 0) {
+      try {
+        await addToCart(product, quantity);
+        // Show success notification (you can add a toast here)
+        alert(`Added ${quantity} ${product.name} to cart!`);
+      } catch (error) {
+        console.error('Error adding to cart:', error);
+        alert('Failed to add item to cart. Please try again.');
+      }
     }
   };
 
   // Handle buy now
-  const handleBuyNow = () => {
-    if (product) {
-      addToCart({
-        ...product,
-        quantity,
-        selectedColor,
-      });
-      navigate("/checkout");
+  const handleBuyNow = async () => {
+    if (product && product.stock_quantity > 0) {
+      try {
+        await addToCart(product, quantity);
+        navigate("/cart");
+      } catch (error) {
+        console.error('Error adding to cart:', error);
+        alert('Failed to add item to cart. Please try again.');
+      }
     }
   };
 
@@ -125,12 +151,28 @@ const SingleProductView = () => {
     return () => clearInterval(interval);
   }, [currentImageIndex]);
 
-  if (!product) {
+  // Loading state
+  if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-gray-50 via-white to-gray-100 flex items-center justify-center">
+      <div className="min-h-screen bg-gray-900 text-white flex items-center justify-center">
         <Navbar />
         <div className="text-center py-20">
-          <h2 className="text-3xl font-black text-gray-900 mb-4">Product Not Found</h2>
+          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-red-500 mx-auto"></div>
+          <p className="mt-4 text-xl">Loading product...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Error state
+  if (error || !product) {
+    return (
+      <div className="min-h-screen bg-gray-900 text-white flex items-center justify-center">
+        <Navbar />
+        <div className="text-center py-20">
+          <h2 className="text-3xl font-black text-red-500 mb-4">
+            {error || 'Product Not Found'}
+          </h2>
           <button
             onClick={() => navigate("/products")}
             className="bg-gradient-to-r from-red-500 to-red-600 text-white px-8 py-3 rounded-xl font-bold"
@@ -167,10 +209,10 @@ const SingleProductView = () => {
             </button>
             <BreadcrumbArrow className="w-3 h-3 sm:w-4 sm:h-4 text-gray-400 flex-shrink-0" />
             <button
-              onClick={() => navigate(`/products?category=${product.category}`)}
+              onClick={() => navigate(`/products?category=${product.main_category_name}`)}
               className="text-gray-600 hover:text-red-500 transition-colors font-semibold whitespace-nowrap"
             >
-              {product.category}
+              {product.main_category_name}
             </button>
             <BreadcrumbArrow className="w-3 h-3 sm:w-4 sm:h-4 text-gray-400 flex-shrink-0" />
             <span className="text-red-500 font-bold truncate max-w-[150px] sm:max-w-none">
@@ -192,16 +234,16 @@ const SingleProductView = () => {
               transition={{ duration: 0.3 }}
             >
               {/* Stock Badge */}
-              {!product.inStock && (
+              {product.stock_quantity <= 0 && (
                 <div className="absolute top-3 sm:top-4 left-3 sm:left-4 z-10 bg-red-500 text-white px-3 sm:px-4 py-1 sm:py-2 rounded-full text-xs sm:text-sm font-bold shadow-lg">
                   Out of Stock
                 </div>
               )}
 
               {/* Discount Badge */}
-              {product.discount && (
+              {product.sale_price && parseFloat(product.sale_price) < parseFloat(product.price) && (
                 <div className="absolute top-3 sm:top-4 right-3 sm:right-4 z-10 bg-gradient-to-r from-yellow-400 to-orange-500 text-gray-900 px-3 sm:px-4 py-1 sm:py-2 rounded-full text-xs sm:text-sm font-black shadow-lg">
-                  {product.discount}% OFF
+                  SALE
                 </div>
               )}
 
@@ -280,14 +322,12 @@ const SingleProductView = () => {
             {/* Brand */}
             <div className="flex items-center gap-2 sm:gap-3">
               <span className="text-xs sm:text-sm font-bold text-white bg-red-500 px-3 sm:px-4 py-1 sm:py-1.5 rounded-full uppercase tracking-wider">
-                {product.brand}
+                {product.brand_name || product.brand}
               </span>
-              {product.warranty && (
-                <span className="text-xs sm:text-sm font-semibold text-gray-600 flex items-center gap-1">
-                  <Shield className="w-3 h-3 sm:w-4 sm:h-4" />
-                  {product.warranty} Warranty
-                </span>
-              )}
+              <span className="text-xs sm:text-sm font-semibold text-gray-600 flex items-center gap-1">
+                <Shield className="w-3 h-3 sm:w-4 sm:h-4" />
+                1 Year Warranty
+              </span>
             </div>
 
             {/* Product Name */}
@@ -321,11 +361,11 @@ const SingleProductView = () => {
             <div className="bg-gradient-to-r from-red-50 to-orange-50 p-4 sm:p-6 rounded-xl sm:rounded-2xl border-2 border-red-200">
               <div className="flex items-baseline gap-3 sm:gap-4 mb-2">
                 <span className="text-3xl sm:text-4xl md:text-5xl font-black text-red-600">
-                  Rs. {product.price.toLocaleString()}
+                  Rs. {parseFloat(product.sale_price || product.price).toLocaleString()}
                 </span>
-                {product.originalPrice && (
+                {product.sale_price && parseFloat(product.sale_price) < parseFloat(product.price) && (
                   <span className="text-lg sm:text-xl text-gray-500 line-through">
-                    Rs. {product.originalPrice.toLocaleString()}
+                    Rs. {parseFloat(product.price).toLocaleString()}
                   </span>
                 )}
               </div>
@@ -334,29 +374,24 @@ const SingleProductView = () => {
               </p>
             </div>
 
-            {/* Color Selection */}
-            {product.colors && product.colors.length > 0 && (
-              <div>
-                <label className="block text-sm sm:text-base font-bold text-gray-900 mb-2 sm:mb-3 uppercase">
-                  Select Color
-                </label>
-                <div className="flex flex-wrap gap-2 sm:gap-3">
-                  {product.colors.map((color) => (
-                    <button
-                      key={color}
-                      onClick={() => setSelectedColor(color)}
-                      className={`px-4 sm:px-6 py-2 sm:py-3 rounded-lg sm:rounded-xl font-bold text-sm sm:text-base transition-all border-2 ${
-                        selectedColor === color
-                          ? "bg-red-500 text-white border-red-500 shadow-lg scale-105"
-                          : "bg-white text-gray-700 border-gray-300 hover:border-red-300 hover:bg-red-50"
-                      }`}
-                    >
-                      {color}
-                    </button>
-                  ))}
-                </div>
+            {/* Stock Information */}
+            <div className="bg-green-50 p-4 rounded-xl border border-green-200">
+              <div className="flex items-center gap-2">
+                {product.stock_quantity > 0 ? (
+                  <>
+                    <Check className="w-5 h-5 text-green-600" />
+                    <span className="text-green-800 font-bold">
+                      In Stock ({product.stock_quantity} available)
+                    </span>
+                  </>
+                ) : (
+                  <>
+                    <X className="w-5 h-5 text-red-600" />
+                    <span className="text-red-800 font-bold">Out of Stock</span>
+                  </>
+                )}
               </div>
-            )}
+            </div>
 
             {/* Quantity Selector */}
             <div>
@@ -381,7 +416,7 @@ const SingleProductView = () => {
                     <Plus className="w-4 h-4 sm:w-5 sm:h-5" />
                   </button>
                 </div>
-                {product.inStock && (
+                {product.stock_quantity > 0 && (
                   <span className="text-xs sm:text-sm text-green-600 font-bold flex items-center gap-1 sm:gap-2">
                     <Check className="w-4 h-4 sm:w-5 sm:h-5" />
                     In Stock
@@ -394,11 +429,11 @@ const SingleProductView = () => {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 pt-4">
               <motion.button
                 onClick={handleAddToCart}
-                disabled={!product.inStock}
-                whileHover={{ scale: product.inStock ? 1.02 : 1 }}
-                whileTap={{ scale: product.inStock ? 0.98 : 1 }}
+                disabled={product.stock_quantity <= 0}
+                whileHover={{ scale: product.stock_quantity > 0 ? 1.02 : 1 }}
+                whileTap={{ scale: product.stock_quantity > 0 ? 0.98 : 1 }}
                 className={`flex items-center justify-center gap-2 sm:gap-3 px-6 sm:px-8 py-3 sm:py-4 rounded-xl sm:rounded-2xl font-bold text-base sm:text-lg transition-all shadow-lg ${
-                  product.inStock
+                  product.stock_quantity > 0
                     ? "bg-white text-red-600 border-2 border-red-500 hover:bg-red-50"
                     : "bg-gray-300 text-gray-500 cursor-not-allowed"
                 }`}
@@ -409,11 +444,11 @@ const SingleProductView = () => {
 
               <motion.button
                 onClick={handleBuyNow}
-                disabled={!product.inStock}
-                whileHover={{ scale: product.inStock ? 1.02 : 1 }}
-                whileTap={{ scale: product.inStock ? 0.98 : 1 }}
+                disabled={product.stock_quantity <= 0}
+                whileHover={{ scale: product.stock_quantity > 0 ? 1.02 : 1 }}
+                whileTap={{ scale: product.stock_quantity > 0 ? 0.98 : 1 }}
                 className={`flex items-center justify-center gap-2 sm:gap-3 px-6 sm:px-8 py-3 sm:py-4 rounded-xl sm:rounded-2xl font-bold text-base sm:text-lg transition-all shadow-lg ${
-                  product.inStock
+                  product.stock_quantity > 0
                     ? "bg-gradient-to-r from-red-500 to-red-600 text-white hover:from-red-600 hover:to-red-700"
                     : "bg-gray-300 text-gray-500 cursor-not-allowed"
                 }`}
@@ -491,7 +526,7 @@ const SingleProductView = () => {
                   <p className="text-xs sm:text-sm font-bold text-gray-900">
                     Warranty
                   </p>
-                  <p className="text-xs text-gray-600">{product.warranty || "1 Year"}</p>
+                  <p className="text-xs text-gray-600">1 Year</p>
                 </div>
               </div>
             </div>
@@ -570,12 +605,12 @@ const SingleProductView = () => {
                   </h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
                     {[
-                      { label: "Brand", value: product.brand },
-                      { label: "Category", value: product.category },
-                      { label: "Sub-Category", value: product.subCategory },
-                      { label: "Warranty", value: product.warranty },
-                      { label: "Colors Available", value: product.colors?.join(", ") },
-                      { label: "Stock Status", value: product.inStock ? "In Stock" : "Out of Stock" },
+                      { label: "Brand", value: product.brand_name },
+                      { label: "Category", value: product.main_category_name },
+                      { label: "Sub-Category", value: product.sub_category_name },
+                      { label: "SKU", value: product.sku },
+                      { label: "Weight", value: product.weight ? `${product.weight}g` : "N/A" },
+                      { label: "Stock Status", value: product.stock_quantity > 0 ? `In Stock (${product.stock_quantity})` : "Out of Stock" },
                     ].map((spec, idx) => (
                       <div
                         key={idx}

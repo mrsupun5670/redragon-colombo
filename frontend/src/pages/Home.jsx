@@ -174,7 +174,7 @@ const HomePage = () => {
       {/* Featured Products Section */}
       <div className="py-16 bg-gray-900">
         <div className="container mx-auto px-4">
-          {console.log(featuredProducts)  }
+          {console.log(featuredProducts) }
           <h2 className="text-3xl font-bold text-white text-center mb-8 uppercase">Featured Products</h2>
           {featuredProducts.length > 0 ? (
             <AutoScrollProducts products={featuredProducts} bg_color="from-gray-900" />

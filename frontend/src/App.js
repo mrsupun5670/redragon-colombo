@@ -4,6 +4,7 @@ import { AuthProvider } from "./context/AuthContext";
 import { CartProvider } from "./context/CartContext";
 import { AdminAuthProvider } from "./context/AdminAuthContext";
 import AdminProtectedRoute from "./components/admin/AdminProtectedRoute";
+import CartSyncHandler from "./components/common/CartSyncHandler";
 
 import Home from "./pages/Home";
 import Products from "./pages/Products";
@@ -25,6 +26,7 @@ function App() {
   return (
     <AuthProvider>
       <CartProvider>
+        <CartSyncHandler />
         <AdminAuthProvider>
           <Router>
             <Routes>
