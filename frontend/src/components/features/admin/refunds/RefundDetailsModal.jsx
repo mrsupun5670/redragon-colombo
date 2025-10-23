@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import ErrorPopup from '../../../common/ErrorPopup';
+import SuccessPopup from '../../../common/SuccessPopup';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   X,
@@ -19,10 +21,12 @@ const RefundDetailsModal = ({ refund, onClose, onUpdateStatus }) => {
   const [adminNotes, setAdminNotes] = useState(refund.admin_notes || '');
   const [selectedImage, setSelectedImage] = useState(null);
   const [processing, setProcessing] = useState(false);
+  const [success, setSuccess] = useState(null);
+  const [error, setError] = useState(null);
 
   const handleApprove = async () => {
     if (!adminNotes.trim()) {
-      alert('Please add admin notes before approving');
+      setError('Please add admin notes before approving');
       return;
     }
     setProcessing(true);
@@ -34,7 +38,7 @@ const RefundDetailsModal = ({ refund, onClose, onUpdateStatus }) => {
 
   const handleReject = async () => {
     if (!adminNotes.trim()) {
-      alert('Please add admin notes explaining the rejection');
+      setError('Please add admin notes explaining the rejection');
       return;
     }
     setProcessing(true);
@@ -293,6 +297,8 @@ const RefundDetailsModal = ({ refund, onClose, onUpdateStatus }) => {
           </motion.div>
         )}
       </motion.div>
+      <ErrorPopup message={error} onClose={() => setError(null)} />
+      <SuccessPopup message={success} onClose={() => setSuccess(null)} />
     </AnimatePresence>
   );
 };

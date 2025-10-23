@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Plus, Trash2, Upload, X } from 'lucide-react';
 import { adminApi } from '../../../../utils/adminApi';
+import ErrorPopup from '../../../common/ErrorPopup';
+import SuccessPopup from '../../../common/SuccessPopup';
 
 const AddProduct = () => {
   const [activeTab, setActiveTab] = useState('details');
@@ -27,6 +29,8 @@ const AddProduct = () => {
   const [subCategories, setSubCategories] = useState([]);
   const [loading, setLoading] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [success, setSuccess] = useState(null);
+  const [error, setError] = useState(null);
 
   // Load brands and categories on component mount
   useEffect(() => {
@@ -360,7 +364,7 @@ const AddProduct = () => {
     
     // Basic validation
     if (!product.title || !product.brand || !product.category || !product.price || !product.stock) {
-      alert('Please fill in all required fields');
+      setError('Please fill in all required fields');
       return;
     }
 
@@ -376,7 +380,7 @@ const AddProduct = () => {
       const selectedSubCategory = subCategories.find(c => c.name === product.subcategory);
       
       if (!selectedBrand || !selectedMainCategory) {
-        alert('Invalid brand or category selected');
+        setError('Invalid brand or category selected');
         return;
       }
 
@@ -433,7 +437,7 @@ const AddProduct = () => {
       const data = await adminApi.postFormData('/products', formData);
 
       if (data.success) {
-        alert('Product created successfully!');
+        setSuccess('Product created successfully!');
         // Reset form
         setProduct({
           title: '',
@@ -453,11 +457,11 @@ const AddProduct = () => {
         });
         setActiveTab('details');
       } else {
-        alert(data.message || 'Error creating product');
+        setError(data.message || 'Error creating product');
       }
     } catch (error) {
       console.error('Error creating product:', error);
-      alert('Error creating product. Please try again.');
+      setError('Error creating product. Please try again.');
     } finally {
       setIsSubmitting(false);
     }
@@ -521,6 +525,8 @@ const AddProduct = () => {
           </motion.button>
         </div>
       </form>
+      <ErrorPopup message={error} onClose={() => setError(null)} />
+      <SuccessPopup message={success} onClose={() => setSuccess(null)} />
     </motion.div>
   );
 };

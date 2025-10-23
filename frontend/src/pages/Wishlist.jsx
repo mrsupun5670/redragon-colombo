@@ -15,6 +15,8 @@ import WhatsAppButton from "../components/common/WhatsAppButton";
 import ParticleEffect from "../components/common/ParticleEffect";
 import DevelopmentWatermark from "../components/common/DevelopmentWatermark";
 import FuturisticProductCard from "../components/common/FuturisticProductCard";
+import ErrorPopup from "../components/common/ErrorPopup";
+import SuccessPopup from "../components/common/SuccessPopup";
 import { featuredProducts } from "../data/products";
 
 const Wishlist = () => {
@@ -22,6 +24,8 @@ const Wishlist = () => {
   const [wishlistItems, setWishlistItems] = useState(
     featuredProducts.slice(0, 4)
   );
+  const [success, setSuccess] = useState(null);
+  const [error, setError] = useState(null);
 
   // Remove from wishlist
   const removeFromWishlist = (id) => {
@@ -30,12 +34,12 @@ const Wishlist = () => {
 
   // Add to cart (placeholder)
   const addToCart = (product) => {
-    alert(`${product.name} added to cart!`);
+    setSuccess(`${product.name} added to cart!`);
   };
 
   // Share wishlist (placeholder)
   const shareWishlist = () => {
-    alert("Wishlist sharing feature coming soon!");
+    setError("Wishlist sharing feature coming soon!");
   };
 
   return (
@@ -304,6 +308,8 @@ const Wishlist = () => {
 
       <Footer />
       <WhatsAppButton />
+      <ErrorPopup message={error} onClose={() => setError(null)} />
+      <SuccessPopup message={success} onClose={() => setSuccess(null)} />
     </div>
   );
 };

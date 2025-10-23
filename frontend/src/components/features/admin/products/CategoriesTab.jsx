@@ -3,6 +3,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Edit, Plus, ChevronDown, X, Upload, Trash2 } from 'lucide-react';
 import AddCategoryModal from './AddCategoryModal';
 import { adminApi } from '../../../../utils/adminApi';
+import ErrorPopup from '../../../common/ErrorPopup';
+import SuccessPopup from '../../../common/SuccessPopup';
 
 const CategoriesTab = () => {
   const [mainCategories, setMainCategories] = useState([]);
@@ -18,6 +20,8 @@ const CategoriesTab = () => {
   const [editDescription, setEditDescription] = useState('');
   const [editMainCategoryId, setEditMainCategoryId] = useState('');
   const [updating, setUpdating] = useState(false);
+  const [success, setSuccess] = useState(null);
+  const [error, setError] = useState(null);
 
   // Fetch main categories
   const fetchMainCategories = async () => {
@@ -88,7 +92,7 @@ const CategoriesTab = () => {
 
   const handleSaveCategoryEdit = async () => {
     if (!editName.trim()) {
-      alert('Category name is required');
+      setError('Category name is required');
       return;
     }
 
@@ -104,12 +108,13 @@ const CategoriesTab = () => {
         setEditingCategory(null);
         setEditName('');
         setEditDescription('');
+        setSuccess('Category updated successfully!');
       } else {
-        alert(data.message || 'Failed to update category');
+        setError(data.message || 'Failed to update category');
       }
     } catch (error) {
       console.error('Error updating category:', error);
-      alert('Failed to update category');
+      setError('Failed to update category');
     } finally {
       setUpdating(false);
     }
@@ -117,12 +122,12 @@ const CategoriesTab = () => {
 
   const handleSaveSubcategoryEdit = async () => {
     if (!editName.trim()) {
-      alert('Sub category name is required');
+      setError('Sub category name is required');
       return;
     }
 
     if (!editMainCategoryId) {
-      alert('Main category is required');
+      setError('Main category is required');
       return;
     }
 
@@ -140,12 +145,13 @@ const CategoriesTab = () => {
         setEditName('');
         setEditDescription('');
         setEditMainCategoryId('');
+        setSuccess('Sub category updated successfully!');
       } else {
-        alert(data.message || 'Failed to update sub category');
+        setError(data.message || 'Failed to update sub category');
       }
     } catch (error) {
       console.error('Error updating sub category:', error);
-      alert('Failed to update sub category');
+      setError('Failed to update sub category');
     } finally {
       setUpdating(false);
     }
@@ -161,12 +167,13 @@ const CategoriesTab = () => {
       
       if (data.success) {
         await fetchCategories();
+        setSuccess('Category deleted successfully!');
       } else {
-        alert(data.message || 'Failed to delete category');
+        setError(data.message || 'Failed to delete category');
       }
     } catch (error) {
       console.error('Error deleting category:', error);
-      alert('Failed to delete category');
+      setError('Failed to delete category');
     }
   };
 
@@ -180,12 +187,13 @@ const CategoriesTab = () => {
       
       if (data.success) {
         await fetchCategories();
+        setSuccess('Sub category deleted successfully!');
       } else {
-        alert(data.message || 'Failed to delete sub category');
+        setError(data.message || 'Failed to delete sub category');
       }
     } catch (error) {
       console.error('Error deleting sub category:', error);
-      alert('Failed to delete sub category');
+      setError('Failed to delete sub category');
     }
   };
 
@@ -500,6 +508,8 @@ const CategoriesTab = () => {
           onCategoryAdded={fetchCategories}
         />
       )}
+      <ErrorPopup message={error} onClose={() => setError(null)} />
+      <SuccessPopup message={success} onClose={() => setSuccess(null)} />
     </div>
   );
 };
