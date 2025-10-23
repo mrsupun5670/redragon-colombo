@@ -95,6 +95,30 @@ export const brandAPI = {
   getAll: () => api.get('/brands'),
 };
 
+// Cart API functions
+export const cartAPI = {
+  // Get user's cart items
+  getCart: () => api.get('/cart'),
+  
+  // Add item to cart
+  addToCart: (data) => api.post('/cart', data),
+  
+  // Update cart item quantity
+  updateCartItem: (data) => api.put('/cart', data),
+  
+  // Remove item from cart
+  removeFromCart: (productId) => api.delete(`/cart/${productId}`),
+  
+  // Clear entire cart
+  clearCart: () => api.delete('/cart'),
+  
+  // Sync guest cart to user cart
+  syncCart: (data) => api.post('/cart/sync', data),
+  
+  // Calculate shipping (public endpoint)
+  calculateShipping: (data) => api.post('/cart/calculate-shipping', data),
+};
+
 // User management utilities
 export const userUtils = {
   setAuthData: (token, user) => {

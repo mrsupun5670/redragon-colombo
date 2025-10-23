@@ -81,6 +81,7 @@ const refundRoutes = require('./routes/refunds');
 const deliveryRoutes = require('./routes/delivery');
 const brandRoutes = require('./routes/brands');
 const categoryRoutes = require('./routes/categories');
+const cartRoutes = require('./routes/cart');
 
 
 app.use('/api/auth', authRoutes);
@@ -90,6 +91,7 @@ app.use('/api/refunds', refundRoutes);
 app.use('/api/delivery', deliveryRoutes);
 app.use('/api/brands', brandRoutes);
 app.use('/api/categories', categoryRoutes);
+app.use('/api/cart', cartRoutes);
 
 app.get('/', (req, res) => {
   res.json({ message: 'Welcome to Redragon Shop API' });

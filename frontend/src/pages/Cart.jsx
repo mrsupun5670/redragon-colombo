@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -15,43 +15,50 @@ import {
 import Navbar from "../components/layout/Navbar";
 import Footer from "../components/layout/Footer";
 import WhatsAppButton from "../components/common/WhatsAppButton";
-import DevelopmentWatermark from "../components/common/DevelopmentWatermark";
-import { cartSampleProducts } from "../data/products";
+import CartContext from "../context/CartContext";
+import { getOptimizedImageUrl } from "../utils/imageUtils";
 
 const Cart = () => {
   const navigate = useNavigate();
-  const [cartItems, setCartItems] = useState(cartSampleProducts);
+  const {
+    cartItems,
+    loading,
+    error,
+    cartSubtotal,
+    shippingCost,
+    cartTotal,
+    cartItemCount,
+    isFreeShippingEligible,
+    amountForFreeShipping,
+    updateQuantity,
+    removeFromCart,
+    clearCart
+  } = useContext(CartContext);
+  
   const [promoCode, setPromoCode] = useState("");
   const [discount, setDiscount] = useState(0);
 
-  // Calculate totals
-  const subtotal = cartItems.reduce(
-    (sum, item) => sum + item.price * item.quantity,
-    0
-  );
-  const shipping = subtotal > 15000 ? 0 : 500; // Free shipping over Rs. 15,000
-  const total = subtotal + shipping - discount;
+  // Calculate final total with discount
+  const finalTotal = cartTotal - discount;
 
-  // Update quantity
-  const updateQuantity = (id, change) => {
-    setCartItems((items) =>
-      items.map((item) =>
-        item.id === id
-          ? { ...item, quantity: Math.max(1, item.quantity + change) }
-          : item
-      )
-    );
+  // Handle quantity updates
+  const handleUpdateQuantity = async (productId, change) => {
+    const item = cartItems.find(item => item.id === productId);
+    if (item) {
+      const newQuantity = Math.max(1, item.quantity + change);
+      await updateQuantity(productId, newQuantity);
+    }
   };
 
-  // Remove item
-  const removeItem = (id) => {
-    setCartItems((items) => items.filter((item) => item.id !== id));
+  // Handle item removal
+  const handleRemoveItem = async (productId) => {
+    await removeFromCart(productId);
   };
 
   // Apply promo code
   const applyPromo = () => {
     if (promoCode.toUpperCase() === "REDRAGON10") {
-      setDiscount(subtotal * 0.1);
+      setDiscount(cartSubtotal * 0.1);
       alert("Promo code applied! 10% discount");
     } else if (promoCode) {
       alert("Invalid promo code");
@@ -147,7 +154,7 @@ const Cart = () => {
                           className="w-full sm:w-32 h-32 bg-gradient-to-br from-gray-50 to-white rounded-xl overflow-hidden border-2 border-gray-200 cursor-pointer hover:border-red-500 transition-colors"
                         >
                           <img
-                            src={item.image}
+                            src={item.primary_image ? item.primary_image : "/image_not_there.avif"}
                             alt={item.name}
                             className="w-full h-full object-contain p-3"
                           />
@@ -163,14 +170,21 @@ const Cart = () => {
                           >
                             {item.name}
                           </h3>
-                          <div className="flex items-center gap-2 mb-3">
-                            <Shield className="w-4 h-4 text-red-500" />
-                            <span className="text-xs text-gray-600 font-semibold">
-                              {item.warranty} Warranty
-                            </span>
-                          </div>
+                          {item.brand_name && (
+                            <div className="flex items-center gap-2 mb-3">
+                              <Shield className="w-4 h-4 text-red-500" />
+                              <span className="text-xs text-gray-600 font-semibold">
+                                {item.brand_name} • 1 Year Warranty
+                              </span>
+                            </div>
+                          )}
                           <div className="text-xl sm:text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-red-600 to-orange-600">
-                            Rs. {item.price.toLocaleString()}
+                            Rs. {parseFloat(item.sale_price || item.price).toLocaleString()}
+                            {item.sale_price && parseFloat(item.sale_price) < parseFloat(item.price) && (
+                              <span className="text-sm text-gray-500 line-through ml-2">
+                                Rs. {parseFloat(item.price).toLocaleString()}
+                              </span>
+                            )}
                           </div>
                         </div>
 
@@ -181,7 +195,7 @@ const Cart = () => {
                             <motion.button
                               whileHover={{ scale: 1.1 }}
                               whileTap={{ scale: 0.9 }}
-                              onClick={() => updateQuantity(item.id, -1)}
+                              onClick={() => handleUpdateQuantity(item.id, -1)}
                               className="w-8 h-8 bg-gray-100 hover:bg-red-500 text-gray-700 hover:text-white rounded-lg flex items-center justify-center transition-colors"
                             >
                               <Minus className="w-4 h-4" />
@@ -192,7 +206,7 @@ const Cart = () => {
                             <motion.button
                               whileHover={{ scale: 1.1 }}
                               whileTap={{ scale: 0.9 }}
-                              onClick={() => updateQuantity(item.id, 1)}
+                              onClick={() => handleUpdateQuantity(item.id, 1)}
                               className="w-8 h-8 bg-gray-100 hover:bg-red-500 text-gray-700 hover:text-white rounded-lg flex items-center justify-center transition-colors"
                             >
                               <Plus className="w-4 h-4" />
@@ -203,7 +217,7 @@ const Cart = () => {
                           <motion.button
                             whileHover={{ scale: 1.1, rotate: 5 }}
                             whileTap={{ scale: 0.9 }}
-                            onClick={() => removeItem(item.id)}
+                            onClick={() => handleRemoveItem(item.id)}
                             className="flex items-center gap-2 text-red-500 hover:text-red-700 font-bold text-sm"
                           >
                             <Trash2 className="w-4 h-4" />
@@ -220,7 +234,7 @@ const Cart = () => {
                           Item Total
                         </span>
                         <span className="text-lg font-black text-gray-900">
-                          Rs. {(item.price * item.quantity).toLocaleString()}
+                          Rs. {(parseFloat(item.sale_price || item.price) * item.quantity).toLocaleString()}
                         </span>
                       </div>
                     </div>
@@ -270,21 +284,39 @@ const Cart = () => {
                   Order Summary
                 </h2>
 
+                {/* Free Shipping Progress */}
+                {!isFreeShippingEligible && amountForFreeShipping > 0 && (
+                  <div className="mb-6 p-4 bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl border-2 border-green-200">
+                    <div className="flex items-center gap-2 mb-2">
+                      <Truck className="w-4 h-4 text-green-600" />
+                      <span className="text-sm font-bold text-green-700">
+                        Add Rs. {amountForFreeShipping.toLocaleString()} more for FREE shipping!
+                      </span>
+                    </div>
+                    <div className="w-full bg-green-200 rounded-full h-2">
+                      <div 
+                        className="bg-gradient-to-r from-green-500 to-green-600 h-2 rounded-full transition-all"
+                        style={{ width: `${Math.min((cartSubtotal / 15000) * 100, 100)}%` }}
+                      />
+                    </div>
+                  </div>
+                )}
+
                 {/* Summary Details */}
                 <div className="space-y-4 mb-6">
                   <div className="flex justify-between items-center">
                     <span className="text-gray-600 font-semibold">Subtotal</span>
                     <span className="font-black text-gray-900">
-                      Rs. {subtotal.toLocaleString()}
+                      Rs. {cartSubtotal.toLocaleString()}
                     </span>
                   </div>
                   <div className="flex justify-between items-center">
                     <span className="text-gray-600 font-semibold">Shipping</span>
                     <span className="font-black text-gray-900">
-                      {shipping === 0 ? (
+                      {shippingCost === 0 ? (
                         <span className="text-green-600">FREE</span>
                       ) : (
-                        `Rs. ${shipping.toLocaleString()}`
+                        `Rs. ${shippingCost.toLocaleString()}`
                       )}
                     </span>
                   </div>
@@ -300,7 +332,7 @@ const Cart = () => {
                   <div className="flex justify-between items-center text-xl">
                     <span className="font-black text-gray-900">Total</span>
                     <span className="font-black text-transparent bg-clip-text bg-gradient-to-r from-red-600 to-orange-600">
-                      Rs. {total.toLocaleString()}
+                      Rs. {finalTotal.toLocaleString()}
                     </span>
                   </div>
                 </div>
