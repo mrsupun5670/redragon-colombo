@@ -9,6 +9,8 @@ import Navbar from "../components/layout/Navbar";
 import Footer from "../components/layout/Footer";
 import WhatsAppButton from "../components/common/WhatsAppButton";
 import ParticleEffect from "../components/common/ParticleEffect";
+import ErrorPopup from "../components/common/ErrorPopup";
+import SuccessPopup from "../components/common/SuccessPopup";
 import CartContext from "../context/CartContext";
 import api from "../services/api";
 
@@ -25,6 +27,8 @@ const Checkout = () => {
   const [deliveryCharge, setDeliveryCharge] = useState(0);
   const [paymentFee, setPaymentFee] = useState(0);
   const [loading, setLoading] = useState(false);
+  const [success, setSuccess] = useState(null);
+  const [error, setError] = useState(null);
 
   // Form data
   const [shippingInfo, setShippingInfo] = useState({
@@ -136,7 +140,7 @@ const Checkout = () => {
   };
 
   const handleFinalSubmit = () => {
-    alert("Order placed successfully! Thank you for your purchase.");
+    setSuccess("Order placed successfully! Thank you for your purchase.");
     // Here you would typically send the order to your backend
   };
 
@@ -678,7 +682,7 @@ const Checkout = () => {
                   cartItems.map((item) => (
                     <div key={item.id} className="flex gap-4">
                       <img
-                        src={item.image}
+                        src={item.primary_image || item.image || '/placeholder-product.jpg'}
                         alt={item.name}
                         onClick={() => navigate(`/product/${item.id}`)}
                         className="w-16 h-16 object-cover rounded-lg cursor-pointer hover:opacity-80 transition-opacity"
@@ -691,9 +695,11 @@ const Checkout = () => {
                           {item.name}
                         </h3>
                         <p className="text-sm text-gray-600">Qty: {item.quantity}</p>
-                        <p className="text-xs text-gray-500">{(item.weight * item.quantity).toFixed(2)} kg</p>
+                        <p className="text-xs text-gray-500">
+                          {((item.weight || 1000) * item.quantity / 1000).toFixed(2)} kg
+                        </p>
                         <p className="font-bold text-red-500">
-                          Rs. {(item.price * item.quantity).toLocaleString()}
+                          Rs. {((item.sale_price || item.price) * item.quantity).toLocaleString()}
                         </p>
                       </div>
                     </div>
@@ -744,6 +750,8 @@ const Checkout = () => {
 
       <Footer />
       <WhatsAppButton />
+      <ErrorPopup message={error} onClose={() => setError(null)} />
+      <SuccessPopup message={success} onClose={() => setSuccess(null)} />
     </div>
   );
 };

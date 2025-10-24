@@ -24,6 +24,8 @@ import Navbar from "../components/layout/Navbar";
 import Footer from "../components/layout/Footer";
 import WhatsAppButton from "../components/common/WhatsAppButton";
 import ParticleEffect from "../components/common/ParticleEffect";
+import ErrorPopup from "../components/common/ErrorPopup";
+import SuccessPopup from "../components/common/SuccessPopup";
 import { productAPI } from "../services/api";
 import CartContext from "../context/CartContext";
 
@@ -42,6 +44,8 @@ const SingleProductView = () => {
   const [isWishlisted, setIsWishlisted] = useState(false);
   const [activeTab, setActiveTab] = useState("description");
   const [showImageModal, setShowImageModal] = useState(false);
+  const [success, setSuccess] = useState(null);
+  const [popupError, setPopupError] = useState(null);
 
   // Fetch product data on component mount
   useEffect(() => {
@@ -105,10 +109,10 @@ const SingleProductView = () => {
       try {
         await addToCart(product, quantity);
         // Show success notification (you can add a toast here)
-        alert(`Added ${quantity} ${product.name} to cart!`);
+        setSuccess(`Added ${quantity} ${product.name} to cart!`);
       } catch (error) {
         console.error('Error adding to cart:', error);
-        alert('Failed to add item to cart. Please try again.');
+        setPopupError('Failed to add item to cart. Please try again.');
       }
     }
   };
@@ -121,7 +125,7 @@ const SingleProductView = () => {
         navigate("/cart");
       } catch (error) {
         console.error('Error adding to cart:', error);
-        alert('Failed to add item to cart. Please try again.');
+        setPopupError('Failed to add item to cart. Please try again.');
       }
     }
   };
@@ -137,7 +141,7 @@ const SingleProductView = () => {
     } else {
       // Fallback: copy to clipboard
       navigator.clipboard.writeText(window.location.href);
-      alert("Link copied to clipboard!");
+      setSuccess("Link copied to clipboard!");
     }
   };
 
@@ -784,6 +788,8 @@ const SingleProductView = () => {
 
       <Footer />
       <WhatsAppButton />
+      <ErrorPopup message={popupError} onClose={() => setPopupError(null)} />
+      <SuccessPopup message={success} onClose={() => setSuccess(null)} />
     </div>
   );
 };

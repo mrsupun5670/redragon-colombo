@@ -2,11 +2,15 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Upload } from 'lucide-react';
 import { adminApi } from '../../../../utils/adminApi';
+import ErrorPopup from '../../../common/ErrorPopup';
+import SuccessPopup from '../../../common/SuccessPopup';
 
 const AddBrandModal = ({ onClose, onBrandAdded }) => {
   const [brandName, setBrandName] = useState('');
   const [brandImage, setBrandImage] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [success, setSuccess] = useState(null);
+  const [error, setError] = useState(null);
 
   const handleImageUpload = (file) => {
     if (file) {
@@ -22,7 +26,7 @@ const AddBrandModal = ({ onClose, onBrandAdded }) => {
     e.preventDefault();
     
     if (!brandName.trim()) {
-      alert('Brand name is required');
+      setError('Brand name is required');
       return;
     }
 
@@ -42,14 +46,15 @@ const AddBrandModal = ({ onClose, onBrandAdded }) => {
       if (data.success) {
         setBrandName('');
         setBrandImage(null);
+        setSuccess('Brand created successfully!');
         onBrandAdded && onBrandAdded(); // Callback to refresh brands list
-        onClose();
+        setTimeout(() => onClose(), 2000); // Close after showing success
       } else {
-        alert(data.message || 'Failed to create brand');
+        setError(data.message || 'Failed to create brand');
       }
     } catch (error) {
       console.error('Error creating brand:', error);
-      alert('Failed to create brand');
+      setError('Failed to create brand');
     } finally {
       setIsSubmitting(false);
     }
@@ -141,6 +146,8 @@ const AddBrandModal = ({ onClose, onBrandAdded }) => {
           </form>
         </motion.div>
       </motion.div>
+      <ErrorPopup message={error} onClose={() => setError(null)} />
+      <SuccessPopup message={success} onClose={() => setSuccess(null)} />
     </AnimatePresence>
   );
 };

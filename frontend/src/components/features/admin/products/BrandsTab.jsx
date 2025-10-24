@@ -3,6 +3,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Edit, Plus, X, Upload, Trash2 } from 'lucide-react';
 import AddBrandModal from './AddBrandModal';
 import { adminApi } from '../../../../utils/adminApi';
+import ErrorPopup from '../../../common/ErrorPopup';
+import SuccessPopup from '../../../common/SuccessPopup';
 
 const BrandsTab = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -12,6 +14,8 @@ const BrandsTab = () => {
   const [editName, setEditName] = useState('');
   const [editImage, setEditImage] = useState(null);
   const [updating, setUpdating] = useState(false);
+  const [success, setSuccess] = useState(null);
+  const [error, setError] = useState(null);
 
   // Fetch brands from API
   const fetchBrands = async () => {
@@ -42,7 +46,7 @@ const BrandsTab = () => {
 
   const handleSaveEdit = async () => {
     if (!editName.trim()) {
-      alert('Brand name is required');
+      setError('Brand name is required');
       return;
     }
 
@@ -63,12 +67,13 @@ const BrandsTab = () => {
         setEditingBrand(null);
         setEditName('');
         setEditImage(null);
+        setSuccess('Brand updated successfully!');
       } else {
-        alert(data.message || 'Failed to update brand');
+        setError(data.message || 'Failed to update brand');
       }
     } catch (error) {
       console.error('Error updating brand:', error);
-      alert('Failed to update brand');
+      setError('Failed to update brand');
     } finally {
       setUpdating(false);
     }
@@ -100,12 +105,13 @@ const BrandsTab = () => {
       
       if (data.success) {
         await fetchBrands(); // Refresh the list
+        setSuccess('Brand deleted successfully!');
       } else {
-        alert(data.message || 'Failed to delete brand');
+        setError(data.message || 'Failed to delete brand');
       }
     } catch (error) {
       console.error('Error deleting brand:', error);
-      alert('Failed to delete brand');
+      setError('Failed to delete brand');
     }
   };
 
@@ -284,6 +290,8 @@ const BrandsTab = () => {
           onBrandAdded={fetchBrands}
         />
       )}
+      <ErrorPopup message={error} onClose={() => setError(null)} />
+      <SuccessPopup message={success} onClose={() => setSuccess(null)} />
     </div>
   );
 };

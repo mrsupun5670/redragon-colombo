@@ -131,6 +131,7 @@ const Products = () => {
     priceRange,
     inStockOnly,
     sortBy,
+    redragonOnly,
   ]);
 
   // Filter handlers
@@ -502,7 +503,7 @@ const Products = () => {
                   onChange={(e) => setSortBy(e.target.value)}
                   className="px-4 py-2 bg-gray-50 border-2 border-gray-200 rounded-lg font-semibold text-sm focus:border-red-500 focus:outline-none"
                 >
-                  <option value="featured">Featured</option>
+                
                   <option value="price-low">Price: Low to High</option>
                   <option value="price-high">Price: High to Low</option>
                   <option value="name">Name: A to Z</option>

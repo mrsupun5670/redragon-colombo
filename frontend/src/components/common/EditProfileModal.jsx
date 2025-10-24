@@ -7,12 +7,12 @@ import {
   Phone,
   MapPin,
   Save,
-  Camera,
   CheckCircle,
   AlertCircle,
   Building,
   Navigation
 } from 'lucide-react';
+import { locationAPI, authAPI, addressAPI } from '../../services/api';
 
 const EditProfileModal = ({ userData, onClose, onSave }) => {
   const [formData, setFormData] = useState({
@@ -20,16 +20,25 @@ const EditProfileModal = ({ userData, onClose, onSave }) => {
     lastName: '',
     email: '',
     phone: '',
-    address: '',
+    addressLine1: '',
+    addressLine2: '',
+    province: '',
+    district: '',
     city: '',
-    postalCode: '',
-    profileImage: null
+    postalCode: ''
   });
-  const [imagePreview, setImagePreview] = useState(null);
   const [errors, setErrors] = useState({});
   const [isSaving, setIsSaving] = useState(false);
   const [success, setSuccess] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
+  
+  // Location data states
+  const [provinces, setProvinces] = useState([]);
+  const [districts, setDistricts] = useState([]);
+  const [cities, setCities] = useState([]);
+  const [loadingProvinces, setLoadingProvinces] = useState(false);
+  const [loadingDistricts, setLoadingDistricts] = useState(false);
+  const [loadingCities, setLoadingCities] = useState(false);
 
   useEffect(() => {
     if (userData) {
@@ -38,13 +47,66 @@ const EditProfileModal = ({ userData, onClose, onSave }) => {
         lastName: userData.lastName || '',
         email: userData.email || '',
         phone: userData.phone || '',
-        address: userData.address || '',
+        addressLine1: userData.addressLine1 || '',
+        addressLine2: userData.addressLine2 || '',
+        province: '',
+        district: '',
         city: userData.city || '',
-        postalCode: userData.postalCode || '',
-        profileImage: null
+        postalCode: userData.postalCode || ''
       });
     }
+    // Load provinces when modal opens
+    loadProvinces();
   }, [userData]);
+
+  // Load provinces
+  const loadProvinces = async () => {
+    try {
+      setLoadingProvinces(true);
+      const response = await locationAPI.getProvinces();
+      setProvinces(response.data.data || []);
+    } catch (error) {
+      console.error('Error loading provinces:', error);
+      setErrorMessage('Failed to load provinces');
+    } finally {
+      setLoadingProvinces(false);
+    }
+  };
+
+  // Load districts when province changes
+  const loadDistricts = async (provinceId) => {
+    try {
+      setLoadingDistricts(true);
+      setDistricts([]);
+      setCities([]);
+      setFormData(prev => ({ ...prev, district: '', city: '' }));
+      
+      const response = await locationAPI.getDistrictsByProvince(provinceId);
+      setDistricts(response.data.data || []);
+    } catch (error) {
+      console.error('Error loading districts:', error);
+      setErrorMessage('Failed to load districts');
+    } finally {
+      setLoadingDistricts(false);
+    }
+  };
+
+  // Load cities when district changes
+  const loadCities = async (districtId) => {
+    try {
+      setLoadingCities(true);
+      setCities([]);
+      setFormData(prev => ({ ...prev, city: '' }));
+      
+      const response = await locationAPI.getCitiesByDistrict(districtId);
+      setCities(response.data.data || []);
+    } catch (error) {
+      console.error('Error loading cities:', error);
+      setErrorMessage('Failed to load cities');
+    } finally {
+      setLoadingCities(false);
+    }
+  };
 
   const validateForm = () => {
     const newErrors = {};
@@ -79,15 +141,30 @@ const EditProfileModal = ({ userData, onClose, onSave }) => {
       newErrors.phone = 'Please enter a valid Sri Lankan phone number (10 digits starting with 0)';
     }
 
-    // Address validation
-    if (!formData.address.trim()) {
-      newErrors.address = 'Address is required';
-    } else if (formData.address.trim().length < 5) {
-      newErrors.address = 'Address must be at least 5 characters';
+    // Address Line 1 validation
+    if (!formData.addressLine1.trim()) {
+      newErrors.addressLine1 = 'Address Line 1 is required';
+    } else if (formData.addressLine1.trim().length < 5) {
+      newErrors.addressLine1 = 'Address Line 1 must be at least 5 characters';
+    }
+
+    // Address Line 2 validation (optional)
+    if (formData.addressLine2.trim() && formData.addressLine2.trim().length < 3) {
+      newErrors.addressLine2 = 'Address Line 2 must be at least 3 characters';
+    }
+
+    // Province validation
+    if (!formData.province) {
+      newErrors.province = 'Province is required';
+    }
+
+    // District validation
+    if (!formData.district) {
+      newErrors.district = 'District is required';
     }
 
     // City validation
-    if (!formData.city.trim()) {
+    if (!formData.city) {
       newErrors.city = 'City is required';
     }
 
@@ -109,42 +186,20 @@ const EditProfileModal = ({ userData, onClose, onSave }) => {
       ...prev,
       [name]: value
     }));
+    
+    // Handle cascading dropdowns
+    if (name === 'province') {
+      loadDistricts(value);
+    } else if (name === 'district') {
+      loadCities(value);
+    }
+    
     // Clear error for this field when user starts typing
     if (errors[name]) {
       setErrors(prev => ({
         ...prev,
         [name]: ''
       }));
-    }
-  };
-
-  const handleImageUpload = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      // Validate file size (max 5MB)
-      if (file.size > 5 * 1024 * 1024) {
-        setErrorMessage('Image size must be less than 5MB');
-        return;
-      }
-
-      // Validate file type
-      if (!file.type.startsWith('image/')) {
-        setErrorMessage('Please upload an image file');
-        return;
-      }
-
-      setFormData(prev => ({
-        ...prev,
-        profileImage: file
-      }));
-
-      // Create preview
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setImagePreview(reader.result);
-      };
-      reader.readAsDataURL(file);
-      setErrorMessage('');
     }
   };
 
@@ -160,23 +215,52 @@ const EditProfileModal = ({ userData, onClose, onSave }) => {
     setIsSaving(true);
 
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      // Separate customer data and address data
+      const customerData = {
+        firstName: formData.firstName,
+        lastName: formData.lastName,
+        email: formData.email,
+        phone: formData.phone
+      };
 
-      await onSave(formData);
+      const addressData = {
+        phone: formData.phone,
+        addressLine1: formData.addressLine1,
+        addressLine2: formData.addressLine2,
+        cityName: formData.city,
+        districtName: districts.find(d => d.id == formData.district)?.name || '',
+        provinceName: provinces.find(p => p.id == formData.province)?.name || '',
+        postalCode: formData.postalCode
+      };
+
+      // Update customer profile
+      const profileResponse = await authAPI.updateProfile(customerData);
+      
+      // Update shipping address if address fields are provided
+      if (formData.addressLine1 && formData.city && formData.province && formData.district) {
+        await addressAPI.updateDefaultAddress(addressData);
+      }
+
+      // Call parent onSave with updated user data
+      await onSave({
+        ...customerData,
+        ...addressData
+      });
+
       setSuccess(true);
 
       setTimeout(() => {
         onClose();
       }, 1500);
     } catch (error) {
-      setErrorMessage(error.message || 'Failed to update profile. Please try again.');
+      console.error('Profile update error:', error);
+      setErrorMessage(error.response?.data?.message || error.message || 'Failed to update profile. Please try again.');
       setIsSaving(false);
     }
   };
 
   const getInitials = () => {
-    return `${formData.firstName.charAt(0)}${formData.lastName.charAt(0)}`.toUpperCase();
+    return `${formData.firstName.charAt(0) || ''}${formData.lastName.charAt(0) || ''}`.toUpperCase();
   };
 
   return (
@@ -245,29 +329,13 @@ const EditProfileModal = ({ userData, onClose, onSave }) => {
 
           {/* Form */}
           <form onSubmit={handleSubmit} className="p-6 space-y-6">
-            {/* Profile Picture Section */}
+            {/* Profile Avatar Section */}
             <div className="flex flex-col items-center mb-6">
-              <div className="relative">
-                <div className="w-32 h-32 bg-gradient-to-br from-red-500 to-orange-500 rounded-full flex items-center justify-center text-white text-3xl font-bold overflow-hidden border-4 border-white shadow-xl">
-                  {imagePreview ? (
-                    <img src={imagePreview} alt="Profile" className="w-full h-full object-cover" />
-                  ) : (
-                    getInitials()
-                  )}
-                </div>
-                <label className="absolute bottom-0 right-0 bg-white p-2 rounded-full shadow-lg cursor-pointer hover:bg-gray-100 transition-colors border-2 border-gray-200">
-                  <Camera className="w-5 h-5 text-gray-700" />
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={handleImageUpload}
-                    className="hidden"
-                    disabled={isSaving}
-                  />
-                </label>
+              <div className="w-32 h-32 bg-gradient-to-br from-red-500 to-orange-500 rounded-full flex items-center justify-center text-white text-3xl font-bold border-4 border-white shadow-xl">
+                {getInitials()}
               </div>
-              <p className="text-sm text-gray-500 mt-3">Click the camera icon to upload a new photo</p>
-              <p className="text-xs text-gray-400">Max size: 5MB</p>
+              <p className="text-sm text-gray-500 mt-3">{formData.firstName} {formData.lastName}</p>
+              <p className="text-xs text-gray-400">Profile Avatar</p>
             </div>
 
             {/* Personal Information */}
@@ -396,20 +464,20 @@ const EditProfileModal = ({ userData, onClose, onSave }) => {
                 Address Information
               </h3>
 
-              {/* Street Address */}
+              {/* Address Line 1 */}
               <div>
                 <label className="block text-sm font-bold text-gray-700 mb-2">
-                  Street Address *
+                  Address Line 1 *
                 </label>
                 <div className="relative">
-                  <MapPin className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
-                  <textarea
-                    name="address"
-                    value={formData.address}
+                  <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                  <input
+                    type="text"
+                    name="addressLine1"
+                    value={formData.addressLine1}
                     onChange={handleInputChange}
-                    rows="2"
-                    className={`w-full pl-11 pr-4 py-3 border-2 rounded-lg focus:outline-none transition-colors resize-none ${
-                      errors.address
+                    className={`w-full pl-11 pr-4 py-3 border-2 rounded-lg focus:outline-none transition-colors ${
+                      errors.addressLine1
                         ? 'border-red-500 focus:border-red-600'
                         : 'border-gray-200 focus:border-red-500'
                     }`}
@@ -417,36 +485,129 @@ const EditProfileModal = ({ userData, onClose, onSave }) => {
                     disabled={isSaving}
                   />
                 </div>
-                {errors.address && (
+                {errors.addressLine1 && (
                   <p className="mt-1 text-sm text-red-600 flex items-center gap-1">
                     <AlertCircle className="w-4 h-4" />
-                    {errors.address}
+                    {errors.addressLine1}
+                  </p>
+                )}
+              </div>
+
+              {/* Address Line 2 */}
+              <div>
+                <label className="block text-sm font-bold text-gray-700 mb-2">
+                  Address Line 2 <span className="text-gray-400">(Optional)</span>
+                </label>
+                <div className="relative">
+                  <Building className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                  <input
+                    type="text"
+                    name="addressLine2"
+                    value={formData.addressLine2}
+                    onChange={handleInputChange}
+                    className={`w-full pl-11 pr-4 py-3 border-2 rounded-lg focus:outline-none transition-colors ${
+                      errors.addressLine2
+                        ? 'border-red-500 focus:border-red-600'
+                        : 'border-gray-200 focus:border-red-500'
+                    }`}
+                    placeholder="Apartment, suite, floor, etc."
+                    disabled={isSaving}
+                  />
+                </div>
+                {errors.addressLine2 && (
+                  <p className="mt-1 text-sm text-red-600 flex items-center gap-1">
+                    <AlertCircle className="w-4 h-4" />
+                    {errors.addressLine2}
+                  </p>
+                )}
+              </div>
+
+              {/* Province */}
+              <div>
+                <label className="block text-sm font-bold text-gray-700 mb-2">
+                  Province *
+                </label>
+                <select
+                  name="province"
+                  value={formData.province}
+                  onChange={handleInputChange}
+                  className={`w-full px-4 py-3 border-2 rounded-lg focus:outline-none transition-colors ${
+                    errors.province
+                      ? 'border-red-500 focus:border-red-600'
+                      : 'border-gray-200 focus:border-red-500'
+                  }`}
+                  disabled={isSaving || loadingProvinces}
+                >
+                  <option value="">Select Province</option>
+                  {provinces.map((province) => (
+                    <option key={province.id} value={province.id}>
+                      {province.name}
+                    </option>
+                  ))}
+                </select>
+                {errors.province && (
+                  <p className="mt-1 text-sm text-red-600 flex items-center gap-1">
+                    <AlertCircle className="w-4 h-4" />
+                    {errors.province}
                   </p>
                 )}
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* District */}
+                <div>
+                  <label className="block text-sm font-bold text-gray-700 mb-2">
+                    District *
+                  </label>
+                  <select
+                    name="district"
+                    value={formData.district}
+                    onChange={handleInputChange}
+                    className={`w-full px-4 py-3 border-2 rounded-lg focus:outline-none transition-colors ${
+                      errors.district
+                        ? 'border-red-500 focus:border-red-600'
+                        : 'border-gray-200 focus:border-red-500'
+                    }`}
+                    disabled={isSaving || loadingDistricts || !formData.province}
+                  >
+                    <option value="">Select District</option>
+                    {districts.map((district) => (
+                      <option key={district.id} value={district.id}>
+                        {district.name}
+                      </option>
+                    ))}
+                  </select>
+                  {errors.district && (
+                    <p className="mt-1 text-sm text-red-600 flex items-center gap-1">
+                      <AlertCircle className="w-4 h-4" />
+                      {errors.district}
+                    </p>
+                  )}
+                </div>
+
                 {/* City */}
                 <div>
                   <label className="block text-sm font-bold text-gray-700 mb-2">
                     City *
                   </label>
-                  <div className="relative">
-                    <Building className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-                    <input
-                      type="text"
-                      name="city"
-                      value={formData.city}
-                      onChange={handleInputChange}
-                      className={`w-full pl-11 pr-4 py-3 border-2 rounded-lg focus:outline-none transition-colors ${
-                        errors.city
-                          ? 'border-red-500 focus:border-red-600'
-                          : 'border-gray-200 focus:border-red-500'
-                      }`}
-                      placeholder="Colombo"
-                      disabled={isSaving}
-                    />
-                  </div>
+                  <select
+                    name="city"
+                    value={formData.city}
+                    onChange={handleInputChange}
+                    className={`w-full px-4 py-3 border-2 rounded-lg focus:outline-none transition-colors ${
+                      errors.city
+                        ? 'border-red-500 focus:border-red-600'
+                        : 'border-gray-200 focus:border-red-500'
+                    }`}
+                    disabled={isSaving || loadingCities || !formData.district}
+                  >
+                    <option value="">Select City</option>
+                    {cities.map((city) => (
+                      <option key={city.city_id} value={city.city_name}>
+                        {city.city_name}
+                      </option>
+                    ))}
+                  </select>
                   {errors.city && (
                     <p className="mt-1 text-sm text-red-600 flex items-center gap-1">
                       <AlertCircle className="w-4 h-4" />
@@ -454,33 +615,33 @@ const EditProfileModal = ({ userData, onClose, onSave }) => {
                     </p>
                   )}
                 </div>
+              </div>
 
-                {/* Postal Code */}
-                <div>
-                  <label className="block text-sm font-bold text-gray-700 mb-2">
-                    Postal Code *
-                  </label>
-                  <input
-                    type="text"
-                    name="postalCode"
-                    value={formData.postalCode}
-                    onChange={handleInputChange}
-                    className={`w-full px-4 py-3 border-2 rounded-lg focus:outline-none transition-colors ${
-                      errors.postalCode
-                        ? 'border-red-500 focus:border-red-600'
-                        : 'border-gray-200 focus:border-red-500'
-                    }`}
-                    placeholder="00600"
-                    maxLength="5"
-                    disabled={isSaving}
-                  />
-                  {errors.postalCode && (
-                    <p className="mt-1 text-sm text-red-600 flex items-center gap-1">
-                      <AlertCircle className="w-4 h-4" />
-                      {errors.postalCode}
-                    </p>
-                  )}
-                </div>
+              {/* Postal Code */}
+              <div>
+                <label className="block text-sm font-bold text-gray-700 mb-2">
+                  Postal Code *
+                </label>
+                <input
+                  type="text"
+                  name="postalCode"
+                  value={formData.postalCode}
+                  onChange={handleInputChange}
+                  className={`w-full px-4 py-3 border-2 rounded-lg focus:outline-none transition-colors ${
+                    errors.postalCode
+                      ? 'border-red-500 focus:border-red-600'
+                      : 'border-gray-200 focus:border-red-500'
+                  }`}
+                  placeholder="00600"
+                  maxLength="5"
+                  disabled={isSaving}
+                />
+                {errors.postalCode && (
+                  <p className="mt-1 text-sm text-red-600 flex items-center gap-1">
+                    <AlertCircle className="w-4 h-4" />
+                    {errors.postalCode}
+                  </p>
+                )}
               </div>
             </div>
 

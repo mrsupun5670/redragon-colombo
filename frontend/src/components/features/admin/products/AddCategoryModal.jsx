@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Upload, Image } from 'lucide-react';
+import ErrorPopup from '../../../common/ErrorPopup';
+import SuccessPopup from '../../../common/SuccessPopup';
 import { adminApi } from '../../../../utils/adminApi';
 
 const AddCategoryModal = ({ type = 'main', mainCategory, mainCategories, onClose, onCategoryAdded }) => {
@@ -10,6 +12,8 @@ const AddCategoryModal = ({ type = 'main', mainCategory, mainCategories, onClose
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [selectedImage, setSelectedImage] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
+  const [success, setSuccess] = useState(null);
+  const [error, setError] = useState(null);
 
   const handleImageSelect = (e) => {
     const file = e.target.files[0];
@@ -34,12 +38,12 @@ const AddCategoryModal = ({ type = 'main', mainCategory, mainCategories, onClose
     e.preventDefault();
     
     if (!categoryName.trim()) {
-      alert('Category name is required');
+      setError('Category name is required');
       return;
     }
 
     if (type === 'sub' && !selectedMainCategoryId) {
-      alert('Main category is required');
+      setError('Main category is required');
       return;
     }
 
@@ -82,11 +86,11 @@ const AddCategoryModal = ({ type = 'main', mainCategory, mainCategories, onClose
         onCategoryAdded && onCategoryAdded();
         onClose();
       } else {
-        alert(data.message || `Failed to create ${type} category`);
+        setError(data.message || `Failed to create ${type} category`);
       }
     } catch (error) {
       console.error(`Error creating ${type} category:`, error);
-      alert(error.response?.data?.message || `Failed to create ${type} category`);
+      setError(error.response?.data?.message || `Failed to create ${type} category`);
     } finally {
       setIsSubmitting(false);
     }
@@ -223,6 +227,8 @@ const AddCategoryModal = ({ type = 'main', mainCategory, mainCategories, onClose
           </form>
         </motion.div>
       </motion.div>
+      <ErrorPopup message={error} onClose={() => setError(null)} />
+      <SuccessPopup message={success} onClose={() => setSuccess(null)} />
     </AnimatePresence>
   );
 };

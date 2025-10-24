@@ -19,7 +19,6 @@ export const CartProvider = ({ children }) => {
   // Save guest cart to localStorage
   const saveGuestCart = useCallback((items) => {
     try {
-      console.log('Saving guest cart:', items);
       localStorage.setItem(GUEST_CART_KEY, JSON.stringify(items));
     } catch (error) {
       console.error('Error saving guest cart:', error);
@@ -30,7 +29,6 @@ export const CartProvider = ({ children }) => {
   const loadGuestCart = useCallback(() => {
     try {
       const storedCart = localStorage.getItem(GUEST_CART_KEY);
-      console.log('Loading guest cart:', storedCart);
       return storedCart ? JSON.parse(storedCart) : [];
     } catch (error) {
       console.error('Error loading guest cart:', error);
@@ -55,7 +53,6 @@ export const CartProvider = ({ children }) => {
       setLoading(true);
       setError(null);
       const response = await cartAPI.getCart();
-      console.log('Database cart loaded:', response.data);
       setCartItems(response.data.data?.items || response.data.items || []);
     } catch (err) {
       console.error('Error loading database cart:', err);
@@ -74,7 +71,7 @@ export const CartProvider = ({ children }) => {
       setError(null);
       
       if (isAuthenticated()) {
-        console.log('Adding to database cart:', { product, quantity });
+       
         // Add to database cart
         const response = await cartAPI.addToCart({ product_id: product.id, quantity });
         
@@ -118,7 +115,7 @@ export const CartProvider = ({ children }) => {
       setError(null);
       
       if (isAuthenticated()) {
-        console.log('Removing from database cart:', productId);
+       
         // Remove from database cart
         await cartAPI.removeFromCart(productId);
         await loadDatabaseCart();
@@ -146,7 +143,6 @@ export const CartProvider = ({ children }) => {
       }
       
       if (isAuthenticated()) {
-        console.log('Updating database cart:', { productId, quantity });
         // Update database cart
         const response = await cartAPI.updateCartItem({ product_id: productId, quantity });
         
@@ -180,7 +176,7 @@ export const CartProvider = ({ children }) => {
       setError(null);
       
       if (isAuthenticated()) {
-        console.log('Clearing database cart...');
+       
         // Clear database cart
         await cartAPI.clearCart();
       }
@@ -201,7 +197,6 @@ export const CartProvider = ({ children }) => {
       const guestItems = loadGuestCart();
       if (guestItems.length > 0) {
         try {
-          console.log('Syncing guest cart to database:', guestItems);
           // Sync with backend
           const response = await cartAPI.syncCart({ cart_items: guestItems });
           
@@ -254,24 +249,21 @@ export const CartProvider = ({ children }) => {
     }, 0);
   }, [cartItems]);
 
-  // Calculate total weight (in grams)
+  // Calculate total weight (in kg)
   const totalWeight = useMemo(() => {
     return cartItems.reduce((sum, item) => {
-      const weight = parseFloat(item.weight) || 1000; // Default to 1kg (1000g) if not specified
+      const weight = parseFloat(item.weight) || 1000; // Default to 1000g if not specified
       const quantity = parseInt(item.quantity) || 0;
-      return sum + (weight * quantity);
+      return sum + ((weight / 1000) * quantity); // Convert grams to kg
     }, 0);
   }, [cartItems]);
 
   // Calculate shipping using the same logic as backend
-  const calculateShipping = useCallback((subtotal, weightInGrams) => {
+  const calculateShipping = useCallback((subtotal, weightInKg) => {
     // Free shipping for orders over Rs. 15,000
     if (subtotal >= 15000) {
       return 0;
     }
-    
-    // Convert weight to kg for calculation
-    const weightInKg = weightInGrams / 1000;
     
     // Weight-based shipping calculation
     const baseShipping = 300;
