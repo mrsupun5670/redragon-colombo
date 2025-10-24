@@ -54,6 +54,9 @@ export const authAPI = {
   // Admin authentication
   adminLogin: (credentials) => api.post('/auth/admin/login', credentials),
   
+  // Profile management
+  updateProfile: (profileData) => api.put('/auth/profile', profileData),
+  
   // Common
   getCurrentUser: () => api.get('/auth/me'),
   logout: () => api.post('/auth/logout'),
@@ -117,6 +120,39 @@ export const cartAPI = {
   
   // Calculate shipping (public endpoint)
   calculateShipping: (data) => api.post('/cart/calculate-shipping', data),
+};
+
+// Location API functions
+export const locationAPI = {
+  // Get all provinces
+  getProvinces: () => api.get('/locations/provinces'),
+  
+  // Get districts by province ID
+  getDistrictsByProvince: (provinceId) => api.get(`/locations/districts/${provinceId}`),
+  
+  // Get all districts
+  getAllDistricts: () => api.get('/locations/districts'),
+  
+  // Get cities by district ID
+  getCitiesByDistrict: (districtId) => api.get(`/locations/cities/${districtId}`),
+  
+  // Get all cities
+  getAllCities: () => api.get('/locations/cities'),
+};
+
+// Address API functions
+export const addressAPI = {
+  // Update default shipping address
+  updateDefaultAddress: (addressData) => api.put('/addresses/default', addressData),
+  
+  // Get default shipping address
+  getDefaultAddress: () => api.get('/addresses/default'),
+  
+  // Get all customer addresses
+  getAllAddresses: () => api.get('/addresses'),
+  
+  // Delete address
+  deleteAddress: (addressId) => api.delete(`/addresses/${addressId}`),
 };
 
 // User management utilities

@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { login, register, getMe, logout, adminLogin } = require('../controllers/authController');
+const { login, register, getMe, logout, adminLogin, updateProfile } = require('../controllers/authController');
 const { registerValidation, loginValidation, adminLoginValidation, handleValidationErrors } = require('../middleware/validation');
 const { auth, adminAuth } = require('../middleware/auth');
 
@@ -18,6 +18,11 @@ router.post('/login', loginValidation, handleValidationErrors, login);
 // @desc    Get current user
 // @access  Private
 router.get('/me', auth, getMe);
+
+// @route   PUT /api/auth/profile
+// @desc    Update user profile
+// @access  Private
+router.put('/profile', auth, updateProfile);
 
 // @route   POST /api/auth/logout
 // @desc    Logout user

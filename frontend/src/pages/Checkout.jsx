@@ -682,7 +682,7 @@ const Checkout = () => {
                   cartItems.map((item) => (
                     <div key={item.id} className="flex gap-4">
                       <img
-                        src={item.image}
+                        src={item.primary_image || item.image || '/placeholder-product.jpg'}
                         alt={item.name}
                         onClick={() => navigate(`/product/${item.id}`)}
                         className="w-16 h-16 object-cover rounded-lg cursor-pointer hover:opacity-80 transition-opacity"
@@ -695,9 +695,11 @@ const Checkout = () => {
                           {item.name}
                         </h3>
                         <p className="text-sm text-gray-600">Qty: {item.quantity}</p>
-                        <p className="text-xs text-gray-500">{(item.weight * item.quantity).toFixed(2)} kg</p>
+                        <p className="text-xs text-gray-500">
+                          {((item.weight || 1000) * item.quantity / 1000).toFixed(2)} kg
+                        </p>
                         <p className="font-bold text-red-500">
-                          Rs. {(item.price * item.quantity).toLocaleString()}
+                          Rs. {((item.sale_price || item.price) * item.quantity).toLocaleString()}
                         </p>
                       </div>
                     </div>

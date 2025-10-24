@@ -64,6 +64,90 @@ exports.getMe = async (req, res) => {
   }
 };
 
+exports.updateProfile = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const userType = req.user.type;
+
+    if (userType !== 'customer') {
+      return res.status(403).json({
+        success: false,
+        message: 'Only customers can update profile'
+      });
+    }
+
+    const { firstName, lastName, email, phone } = req.body;
+
+    // Validate input
+    if (!firstName || !lastName || !email || !phone) {
+      return res.status(400).json({
+        success: false,
+        message: 'All fields are required'
+      });
+    }
+
+    // Check if email is already taken by another customer
+    const existingCustomer = await Customer.findByEmail(email.toLowerCase());
+    if (existingCustomer.length > 0 && existingCustomer[0].customer_id !== userId) {
+      return res.status(400).json({
+        success: false,
+        message: 'Email is already taken by another account'
+      });
+    }
+
+    // Check if phone is already taken by another customer
+    const existingPhone = await Customer.findByPhone(phone);
+    if (existingPhone.length > 0 && existingPhone[0].customer_id !== userId) {
+      return res.status(400).json({
+        success: false,
+        message: 'Phone number is already taken by another account'
+      });
+    }
+
+    // Update customer data
+    const updateData = {
+      first_name: firstName,
+      last_name: lastName,
+      email: email.toLowerCase(),
+      phone: phone
+    };
+
+    await Customer.update(userId, updateData);
+
+    // Get updated user data
+    const updatedCustomer = await Customer.findById(userId);
+    if (updatedCustomer.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: 'Customer not found'
+      });
+    }
+
+    const customer = updatedCustomer[0];
+    const userData = {
+      id: customer.customer_id,
+      firstName: customer.first_name,
+      lastName: customer.last_name,
+      email: customer.email,
+      phone: customer.phone,
+      type: 'customer',
+      isActive: customer.is_active
+    };
+
+    res.json({
+      success: true,
+      message: 'Profile updated successfully',
+      user: userData
+    });
+  } catch (err) {
+    console.error('Update profile error:', err);
+    res.status(500).json({
+      success: false,
+      message: 'Server error'
+    });
+  }
+};
+
 exports.logout = async (req, res) => {
   try {
     // For token-based auth, we just send success response

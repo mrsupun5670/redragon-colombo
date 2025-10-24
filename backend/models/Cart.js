@@ -18,7 +18,7 @@ const Cart = {
        FROM cart_items ci 
        JOIN products p ON ci.product_id = p.id 
        JOIN brands b ON p.brand_id = b.id
-       LEFT JOIN product_image_uploads iu ON p.id = iu.product_id
+       LEFT JOIN product_image_uploads iu ON p.id = iu.product_id AND iu.is_primary = 1
        WHERE ci.cart_id = ? AND p.is_active = 1`,
       [cartId]
     );

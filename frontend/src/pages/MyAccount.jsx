@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   User,
@@ -28,38 +28,125 @@ import Footer from '../components/layout/Footer';
 import ParticleEffect from '../components/common/ParticleEffect';
 import RefundRequestModal from '../components/common/RefundRequestModal';
 import EditProfileModal from '../components/common/EditProfileModal';
+import { authAPI, userUtils } from '../services/api';
 
 const MyAccount = () => {
   const [activeTab, setActiveTab] = useState('overview');
   const [showEditProfile, setShowEditProfile] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  // Mock user data (replace with actual data from context/API)
+  // User data state
   const [userData, setUserData] = useState({
-    firstName: 'Nimal',
-    lastName: 'Perera',
-    email: 'nimal.perera@gmail.com',
-    phone: '0771234567',
-    address: 'No. 45/2, Dutugemunu Street, Colombo 06',
-    city: 'Colombo',
-    postalCode: '00600',
-    joinedDate: '2023-05-15',
-    totalOrders: 12,
-    totalSpent: 285000,
-    memberSince: '8 months'
+    firstName: '',
+    lastName: '',
+    email: '',
+    phone: '',
+    address: '',
+    city: '',
+    postalCode: '',
+    joinedDate: '',
+    totalOrders: 0,
+    totalSpent: 0,
+    memberSince: ''
   });
+
+  // Fetch user data on component mount
+  useEffect(() => {
+    fetchUserData();
+  }, []);
+
+  const fetchUserData = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      
+      // Check if user is authenticated
+      const isAuth = userUtils.isAuthenticated();
+      
+      if (!isAuth) {
+        setError('User not authenticated');
+        return;
+      }
+
+      // Get current user info from API
+      const response = await authAPI.getCurrentUser();
+      const user = response.data.user || response.data;
+      
+      if (!user) {
+        setError('No user data received');
+        return;
+      }
+      
+      // Calculate member duration
+      let memberSince = 'New member';
+      if (user.created_at) {
+        const joinedDate = new Date(user.created_at);
+        const now = new Date();
+        
+        // Check if the date is valid
+        if (!isNaN(joinedDate.getTime())) {
+          const diffTime = Math.abs(now - joinedDate);
+          const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+          const diffMonths = Math.floor(diffDays / 30);
+          const diffYears = Math.floor(diffMonths / 12);
+          
+          if (diffYears > 0) {
+            memberSince = `${diffYears} year${diffYears > 1 ? 's' : ''}`;
+          } else if (diffMonths > 0) {
+            memberSince = `${diffMonths} month${diffMonths > 1 ? 's' : ''}`;
+          } else if (diffDays > 0) {
+            memberSince = `${diffDays} day${diffDays > 1 ? 's' : ''}`;
+          } else {
+            memberSince = 'Today';
+          }
+        }
+      }
+
+      const newUserData = {
+        firstName: user.first_name || user.firstName || '',
+        lastName: user.last_name || user.lastName || '',
+        email: user.email || '',
+        phone: user.phone || '',
+        address: user.address || '',
+        city: user.city || '',
+        postalCode: user.postal_code || user.postalCode || '',
+        joinedDate: user.created_at,
+        totalOrders: 0, // Will be fetched from orders API later
+        totalSpent: 0, // Will be calculated from orders
+        memberSince: memberSince
+      };
+
+      setUserData(newUserData);
+      
+    } catch (err) {
+      setError(`Failed to load user data: ${err.message}`);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   // Handle profile update
   const handleSaveProfile = async (updatedData) => {
-    // Here you would typically make an API call to update the user data
-    // For now, we'll just update the state
-    setUserData(prev => ({
-      ...prev,
-      ...updatedData
-    }));
-
-    // In a real app, you would do something like:
-    // const response = await api.updateUserProfile(updatedData);
-    // setUserData(response.data);
+    try {
+      // Update local state with new data
+      setUserData(prev => ({
+        ...prev,
+        firstName: updatedData.firstName || prev.firstName,
+        lastName: updatedData.lastName || prev.lastName,
+        email: updatedData.email || prev.email,
+        phone: updatedData.phone || prev.phone,
+        addressLine1: updatedData.addressLine1 || prev.addressLine1,
+        addressLine2: updatedData.addressLine2 || prev.addressLine2,
+        city: updatedData.cityName || prev.city,
+        postalCode: updatedData.postalCode || prev.postalCode
+      }));
+      
+      // Optionally refresh user data from server
+      await fetchUserData();
+    } catch (error) {
+      console.error('Error updating profile:', error);
+    }
   };
 
   // Mock orders data
@@ -600,8 +687,7 @@ const MyAccount = () => {
               setShowRefundModal(false);
               setSelectedOrderForRefund(null);
             }}
-            onSubmit={(refundData) => {
-              console.log('Refund submitted:', refundData);
+            onSubmit={() => {
               // Handle refund submission
               setShowRefundModal(false);
               setSelectedOrderForRefund(null);
@@ -747,6 +833,54 @@ const MyAccount = () => {
         return <OverviewSection />;
     }
   };
+
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <ParticleEffect />
+        <Navbar />
+        <div className="pt-20 sm:pt-24 pb-8 sm:pb-16">
+          <div className="container mx-auto px-4">
+            <div className="flex items-center justify-center min-h-96">
+              <div className="text-center">
+                <div className="w-16 h-16 border-4 border-red-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+                <p className="text-lg font-semibold text-gray-700">Loading your account...</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <Footer />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <ParticleEffect />
+        <Navbar />
+        <div className="pt-20 sm:pt-24 pb-8 sm:pb-16">
+          <div className="container mx-auto px-4">
+            <div className="flex items-center justify-center min-h-96">
+              <div className="text-center">
+                <AlertCircle className="w-16 h-16 text-red-500 mx-auto mb-4" />
+                <h2 className="text-xl font-bold text-gray-900 mb-2">Error Loading Account</h2>
+                <p className="text-gray-600 mb-4">{error}</p>
+                <button 
+                  onClick={fetchUserData}
+                  className="bg-red-500 hover:bg-red-600 text-white px-6 py-3 rounded-lg font-semibold transition-colors"
+                >
+                  Try Again
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <Footer />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">
