@@ -29,6 +29,7 @@ const Products = () => {
   const [subCategories, setSubCategories] = useState([]);
   const [brands, setBrands] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   // Filter states
   const [selectedCategories, setSelectedCategories] = useState([]);
@@ -61,8 +62,10 @@ const Products = () => {
         setSubCategories(subCategoriesRes.data.data);
         setBrands(brandsRes.data.data);
         console.log('Products:', productsRes.data.data);
+        setError(null);
       } catch (error) {
         console.error("Error fetching data:", error);
+        setError("Failed to fetch products. Please try again later.");
       } finally {
         setLoading(false);
       }
@@ -158,6 +161,7 @@ const Products = () => {
     inStockOnly,
     sortBy,
     redragonOnly,
+    products,
   ]);
 
   // Filter handlers
@@ -563,7 +567,11 @@ const Products = () => {
             </div>
 
             {/* Products */}
-            {filteredProducts.length === 0 ? (
+            {loading ? (
+              <div className="text-center py-20"><p>Loading...</p></div>
+            ) : error ? (
+              <div className="text-center py-20 text-red-500"><p>{error}</p></div>
+            ) : products.length === 0 ? (
               <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
@@ -591,7 +599,7 @@ const Products = () => {
                 className="grid gap-4 grid-cols-2 sm:grid-cols-3 lg:grid-cols-4"
               >
                 <AnimatePresence>
-                  {filteredProducts.map((product) => (
+                  {products.map((product) => (
                     <motion.div
                       key={product.id}
                       layout
@@ -599,16 +607,16 @@ const Products = () => {
                       animate={{ opacity: 1, scale: 1 }}
                       exit={{ opacity: 0, scale: 0.9 }}
                       transition={{ duration: 0.3 }}
-                      onClick={() => navigate(`/product/${product.id}`)}
+                      onClick={() => navigate(`/product/${product.slug}`)}
                       className="bg-white rounded-xl shadow-md hover:shadow-xl transition-all overflow-hidden group cursor-pointer"
                     >
                       <div className="relative aspect-square overflow-hidden">
                         <img
-                          src={product.image}
+                          src={product.primary_image || '/image_not_there.avif'}
                           alt={product.name}
                           className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
                         />
-                        {!product.inStock && (
+                        {product.stock_quantity === 0 && (
                           <div className="absolute inset-0 bg-black/60 flex items-center justify-center">
                             <span className="bg-red-500 text-white px-3 py-1 rounded-full text-xs font-bold">
                               Out of Stock
@@ -618,7 +626,7 @@ const Products = () => {
                       </div>
                       <div className="p-3">
                         <p className="text-xs font-bold text-red-500 mb-1">
-                          {product.brand}
+                          {product.brand_name}
                         </p>
                         <h3 className="font-bold text-gray-900 text-sm line-clamp-2 mb-2 leading-tight">
                           {product.name}
@@ -627,12 +635,7 @@ const Products = () => {
                           <span className="text-lg font-black text-red-500">
                             Rs. {product.price.toLocaleString()}
                           </span>
-                          <div className="flex items-center gap-1">
-                            <span className="text-yellow-500 text-sm">★</span>
-                            <span className="text-xs font-semibold text-gray-600">
-                              {product.rating}
-                            </span>
-                          </div>
+                          {/* Add rating later */}
                         </div>
                       </div>
                     </motion.div>
@@ -642,7 +645,7 @@ const Products = () => {
             ) : (
               <motion.div layout className="space-y-3">
                 <AnimatePresence>
-                  {filteredProducts.map((product) => (
+                  {products.map((product) => (
                     <motion.div
                       key={product.id}
                       layout
@@ -650,16 +653,16 @@ const Products = () => {
                       animate={{ opacity: 1, x: 0 }}
                       exit={{ opacity: 0, x: -20 }}
                       transition={{ duration: 0.3 }}
-                      onClick={() => navigate(`/product/${product.id}`)}
+                      onClick={() => navigate(`/product/${product.slug}`)}
                       className="bg-white rounded-xl shadow-md hover:shadow-lg transition-all overflow-hidden flex group cursor-pointer"
                     >
                       <div className="relative w-32 h-32 flex-shrink-0 overflow-hidden">
                         <img
-                          src={product.image}
+                           src={product.primary_image || '/image_not_there.avif'}
                           alt={product.name}
                           className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
                         />
-                        {!product.inStock && (
+                        {product.stock_quantity === 0 && (
                           <div className="absolute inset-0 bg-black/60 flex items-center justify-center">
                             <span className="bg-red-500 text-white px-2 py-1 rounded-full text-xs font-bold">
                               Out of Stock
@@ -672,7 +675,7 @@ const Products = () => {
                           <div className="flex items-start justify-between mb-2">
                             <div className="flex-1">
                               <p className="text-xs font-bold text-red-500 mb-1">
-                                {product.brand}
+                                {product.brand_name}
                               </p>
                               <h3 className="font-bold text-gray-900 text-sm mb-1 line-clamp-2">
                                 {product.name}
@@ -681,12 +684,6 @@ const Products = () => {
                                 {product.description}
                               </p>
                             </div>
-                            <div className="flex items-center gap-1 ml-3">
-                              <span className="text-yellow-500 text-sm">★</span>
-                              <span className="text-xs font-semibold text-gray-600">
-                                {product.rating}
-                              </span>
-                            </div>
                           </div>
                         </div>
                         <div className="flex items-center justify-between">
@@ -694,7 +691,7 @@ const Products = () => {
                             Rs. {product.price.toLocaleString()}
                           </span>
                           <span className="text-xs text-gray-500">
-                            {product.category}
+                            {product.main_category_name}
                           </span>
                         </div>
                       </div>
