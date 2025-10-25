@@ -8,8 +8,6 @@ exports.getCart = async (req, res) => {
     }
     
     const items = await Cart.getCartItems(cart.id);
-    console.log(items);
-    
     
     const summary = {
       item_count: items.length,
