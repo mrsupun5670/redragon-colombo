@@ -148,6 +148,83 @@ exports.updateProfile = async (req, res) => {
   }
 };
 
+exports.changePassword = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const userType = req.user.type;
+    const { currentPassword, newPassword, confirmPassword } = req.body;
+
+    // Validate user type
+    if (userType !== 'customer') {
+      return res.status(403).json({
+        success: false,
+        message: 'Only customers can change password'
+      });
+    }
+
+    // Validate input
+    if (!currentPassword || !newPassword || !confirmPassword) {
+      return res.status(400).json({
+        success: false,
+        message: 'All fields are required'
+      });
+    }
+
+    // Check if new passwords match
+    if (newPassword !== confirmPassword) {
+      return res.status(400).json({
+        success: false,
+        message: 'New password and confirm password do not match'
+      });
+    }
+
+    // Validate password strength
+    if (newPassword.length < 6) {
+      return res.status(400).json({
+        success: false,
+        message: 'New password must be at least 6 characters long'
+      });
+    }
+
+    // Get current customer data
+    const customers = await Customer.findById(userId);
+    if (customers.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: 'Customer not found'
+      });
+    }
+
+    const customer = customers[0];
+
+    // Verify current password
+    const isCurrentPasswordValid = await comparePassword(currentPassword, customer.password_hash);
+    if (!isCurrentPasswordValid) {
+      return res.status(400).json({
+        success: false,
+        message: 'Current password is incorrect'
+      });
+    }
+
+    // Hash new password
+    const newPasswordHash = await hashPassword(newPassword);
+
+    // Update password in database
+    await Customer.update(userId, { password_hash: newPasswordHash });
+
+    res.json({
+      success: true,
+      message: 'Password changed successfully'
+    });
+  } catch (err) {
+    console.error('Change password error:', err);
+    res.status(500).json({
+      success: false,
+      message: 'Server error'
+    });
+  }
+};
+
 exports.logout = async (req, res) => {
   try {
     // For token-based auth, we just send success response

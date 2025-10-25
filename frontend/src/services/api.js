@@ -56,6 +56,7 @@ export const authAPI = {
   
   // Profile management
   updateProfile: (profileData) => api.put('/auth/profile', profileData),
+  changePassword: (passwordData) => api.put('/auth/change-password', passwordData),
   
   // Common
   getCurrentUser: () => api.get('/auth/me'),
@@ -142,14 +143,17 @@ export const locationAPI = {
 
 // Address API functions
 export const addressAPI = {
-  // Update default shipping address
+  // Update default shipping address (creates new row)
   updateDefaultAddress: (addressData) => api.put('/addresses/default', addressData),
   
-  // Get default shipping address
+  // Get default shipping address (most recent)
   getDefaultAddress: () => api.get('/addresses/default'),
   
   // Get all customer addresses
   getAllAddresses: () => api.get('/addresses'),
+  
+  // Get customer's address history
+  getAddressHistory: (limit = 10) => api.get(`/addresses/history?limit=${limit}`),
   
   // Delete address
   deleteAddress: (addressId) => api.delete(`/addresses/${addressId}`),
@@ -180,6 +184,23 @@ export const userUtils = {
     const user = userUtils.getCurrentUser();
     return user && user.type === 'admin';
   }
+};
+
+// PayHere API functions
+export const payhereAPI = {
+  generateHash: (paymentData) => api.post('/payhere/generate-hash', paymentData),
+};
+
+// Order API functions
+export const orderAPI = {
+  // Create a new order
+  createOrder: (orderData) => api.post('/orders', orderData),
+  
+  // Get user's orders
+  getUserOrders: () => api.get('/orders'),
+  
+  // Get order by ID
+  getOrderById: (id) => api.get(`/orders/${id}`),
 };
 
 export default api;

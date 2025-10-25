@@ -79,6 +79,8 @@ const categoryRoutes = require('./routes/categories');
 const cartRoutes = require('./routes/cart');
 const locationRoutes = require('./routes/locations');
 const addressRoutes = require('./routes/addresses');
+const payhereRoutes = require('./routes/payhere');
+const orderRoutes = require('./routes/orders');
 
 
 app.use('/api/auth', authRoutes);
@@ -91,6 +93,8 @@ app.use('/api/categories', categoryRoutes);
 app.use('/api/cart', cartRoutes);
 app.use('/api/locations', locationRoutes);
 app.use('/api/addresses', addressRoutes);
+app.use('/api/payhere', payhereRoutes);
+app.use('/api/orders', orderRoutes);
 
 app.get('/', (req, res) => {
   res.json({ message: 'Welcome to Redragon Shop API' });

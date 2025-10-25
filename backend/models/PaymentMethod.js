@@ -4,7 +4,7 @@ class PaymentMethod {
   // Get all active payment methods
   static async findAll() {
     const [rows] = await db.query(
-      'SELECT * FROM payment_methods WHERE is_active = 1 ORDER BY id ASC'
+      'SELECT id, name as display_name, slug as method_name, percentage, is_active FROM payment_methods WHERE is_active = 1 ORDER BY id ASC'
     );
     return rows;
   }
@@ -29,8 +29,8 @@ class PaymentMethod {
   // Get payment method by method name
   static async findByName(method_name) {
     const [rows] = await db.query(
-      'SELECT * FROM payment_methods WHERE method_name = ? AND is_active = 1',
-      [method_name]
+      'SELECT id, name, slug, percentage, is_active FROM payment_methods WHERE (name = ? OR slug = ?) AND is_active = 1',
+      [method_name, method_name]
     );
     return rows[0];
   }
@@ -38,7 +38,7 @@ class PaymentMethod {
   // Create new payment method
   static async create({ method_name, display_name, fee_type, fee_value, description }) {
     const [result] = await db.query(
-      `INSERT INTO payment_methods (method_name, display_name, fee_type, fee_value, description)
+      `INSERT INTO payment_methods (name, display_name, fee_type, fee_value, description)
        VALUES (?, ?, ?, ?, ?)`,
       [method_name, display_name, fee_type || 'percentage', fee_value || 0, description]
     );
@@ -51,7 +51,7 @@ class PaymentMethod {
     const values = [];
 
     if (method_name !== undefined) {
-      updates.push('method_name = ?');
+      updates.push('name = ?');
       values.push(method_name);
     }
     if (display_name !== undefined) {
@@ -98,11 +98,14 @@ class PaymentMethod {
     return result.affectedRows > 0;
   }
 
-  // Calculate payment fee
-  static async calculateFee(methodName, subtotal) {
+  // Calculate payment fee based on percentage of product subtotal
+  static async calculateFee(methodName, productSubtotal) {
     const method = await this.findByName(methodName);
 
     if (!method) {
+      // Log the attempted method name for debugging
+      console.log('Payment method not found:', methodName);
+      console.log('Available methods should be checked in database');
       throw new Error('Payment method not found');
     }
 
@@ -110,12 +113,12 @@ class PaymentMethod {
       throw new Error('Payment method is not active');
     }
 
+    // Calculate fee based on percentage column
     let fee = 0;
-
-    if (method.fee_type === 'percentage') {
-      fee = (subtotal * parseFloat(method.fee_value)) / 100;
-    } else if (method.fee_type === 'fixed') {
-      fee = parseFloat(method.fee_value);
+    
+    if (method.percentage && method.percentage > 0) {
+      // Apply percentage to product subtotal (before shipping)
+      fee = (productSubtotal * parseFloat(method.percentage)) / 100;
     }
 
     // Round to 2 decimal places

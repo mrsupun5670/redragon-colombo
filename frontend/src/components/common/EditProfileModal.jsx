@@ -55,12 +55,90 @@ const EditProfileModal = ({ userData, onClose, onSave }) => {
         postalCode: userData.postalCode || ''
       });
     }
-    // Load provinces when modal opens
+    // Load provinces and address data when modal opens
     loadProvinces();
+    loadDefaultAddress();
   }, [userData]);
 
-  // Load provinces
+  // Load customer's default address
+  const loadDefaultAddress = async () => {
+    try {
+      const response = await addressAPI.getDefaultAddress();
+      const address = response.data.data;
+      
+      if (address) {
+        // Update form data with address information
+        setFormData(prev => ({
+          ...prev,
+          phone: address.phone || prev.phone,
+          addressLine1: address.address_line1 || '',
+          addressLine2: address.address_line2 || '',
+          city: address.city_name || '',
+          postalCode: address.postal_code || ''
+        }));
+
+        // Load provinces and then find matching province/district
+        await loadProvincesAndSetAddress(address);
+      }
+    } catch (error) {
+      console.error('Error loading default address:', error);
+      // Don't show error message as address might not exist yet
+    }
+  };
+
+  // Load provinces and set address location data
+  const loadProvincesAndSetAddress = async (address) => {
+    try {
+      // Load all provinces
+      const provincesResponse = await locationAPI.getProvinces();
+      const allProvinces = provincesResponse.data.data || [];
+      setProvinces(allProvinces);
+
+      // Find matching province
+      const matchingProvince = allProvinces.find(p => 
+        p.name.toLowerCase() === address.province_name?.toLowerCase()
+      );
+
+      if (matchingProvince) {
+        setFormData(prev => ({ ...prev, province: matchingProvince.id }));
+        
+        // Load districts for this province
+        const districtsResponse = await locationAPI.getDistrictsByProvince(matchingProvince.id);
+        const allDistricts = districtsResponse.data.data || [];
+        setDistricts(allDistricts);
+
+        // Find matching district
+        const matchingDistrict = allDistricts.find(d => 
+          d.name.toLowerCase() === address.district_name?.toLowerCase()
+        );
+
+        if (matchingDistrict) {
+          setFormData(prev => ({ ...prev, district: matchingDistrict.id }));
+          
+          // Load cities for this district
+          const citiesResponse = await locationAPI.getCitiesByDistrict(matchingDistrict.id);
+          const allCities = citiesResponse.data.data || [];
+          setCities(allCities);
+
+          // Find matching city and set it
+          const matchingCity = allCities.find(c => 
+            c.city_name.toLowerCase() === address.city_name?.toLowerCase()
+          );
+
+          if (matchingCity) {
+            setFormData(prev => ({ ...prev, city: matchingCity.city_name }));
+          }
+        }
+      }
+    } catch (error) {
+      console.error('Error loading address location data:', error);
+    }
+  };
+
+  // Load provinces (only if not already loaded)
   const loadProvinces = async () => {
+    if (provinces.length > 0) return; // Already loaded
+    
     try {
       setLoadingProvinces(true);
       const response = await locationAPI.getProvinces();

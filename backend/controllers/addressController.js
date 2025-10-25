@@ -94,6 +94,29 @@ const addressController = {
     }
   },
 
+  // Get customer's address history
+  async getAddressHistory(req, res) {
+    try {
+      const customerId = req.user.id;
+      const limit = parseInt(req.query.limit) || 10;
+      
+      const addressHistory = await ShippingAddress.getAddressHistory(customerId, limit);
+      
+      res.json({
+        success: true,
+        message: 'Address history retrieved successfully',
+        data: addressHistory
+      });
+    } catch (error) {
+      console.error('Get address history error:', error);
+      res.status(500).json({
+        success: false,
+        message: 'Server error',
+        error: error.message
+      });
+    }
+  },
+
   // Delete address
   async deleteAddress(req, res) {
     try {

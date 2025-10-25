@@ -4,6 +4,8 @@ import { AuthProvider } from "./context/AuthContext";
 import { CartProvider } from "./context/CartContext";
 import { AdminAuthProvider } from "./context/AdminAuthContext";
 import AdminProtectedRoute from "./components/admin/AdminProtectedRoute";
+import AdminGuestRoute from "./components/admin/AdminGuestRoute";
+import GuestRoute from "./components/common/GuestRoute";
 import CartSyncHandler from "./components/common/CartSyncHandler";
 
 import Home from "./pages/Home";
@@ -21,6 +23,8 @@ import Wishlist from "./pages/Wishlist";
 import CategoriesPage from "./pages/Categories.jsx";
 import AdminLogin from "./pages/AdminLogin.jsx";
 import MyAccount from "./pages/MyAccount.jsx";
+import PaymentSuccess from "./pages/PaymentSuccess.jsx";
+import PaymentCancel from "./pages/PaymentCancel.jsx";
 
 // Error Pages
 import NotFound404 from "./pages/NotFound404.jsx";
@@ -48,15 +52,33 @@ function App() {
               <Route path="/product/:id" element={<SingleProductView />} />
               <Route path="/cart" element={<Cart />} />
               <Route path="/checkout" element={<Checkout />} />
-              <Route path="/login" element={<LoginPage />} />
-              <Route path="/register" element={<RegisterPage />} />
-              <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+              <Route path="/payment/success" element={<PaymentSuccess />} />
+              <Route path="/payment/cancel" element={<PaymentCancel />} />
+              <Route path="/login" element={
+                <GuestRoute>
+                  <LoginPage />
+                </GuestRoute>
+              } />
+              <Route path="/register" element={
+                <GuestRoute>
+                  <RegisterPage />
+                </GuestRoute>
+              } />
+              <Route path="/forgot-password" element={
+                <GuestRoute>
+                  <ForgotPasswordPage />
+                </GuestRoute>
+              } />
               <Route path="/admin" element={
                 <AdminProtectedRoute>
                   <AdminDashboard />
                 </AdminProtectedRoute>
               } />
-              <Route path="/admin/login" element={<AdminLogin />} />
+              <Route path="/admin/login" element={
+                <AdminGuestRoute>
+                  <AdminLogin />
+                </AdminGuestRoute>
+              } />
               <Route path="/about" element={<About />} />
               <Route path="/wishlist" element={<Wishlist />} />
               <Route path="/categories" element={<CategoriesPage />} />

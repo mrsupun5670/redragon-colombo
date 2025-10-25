@@ -76,7 +76,7 @@ exports.createDeliveryZone = async (req, res) => {
 // Update delivery zone
 exports.updateDeliveryZone = async (req, res) => {
   try {
-    const { zone_name, base_charge, extra_charge, min_weight, is_active } = req.body;
+    const { zone_name, base_charge, extra_charge, min_weight } = req.body;
 
     // Validation
     if (base_charge !== undefined && base_charge < 0) {
@@ -95,8 +95,7 @@ exports.updateDeliveryZone = async (req, res) => {
       zone_name,
       base_charge,
       extra_charge,
-      min_weight,
-      is_active
+      min_weight
     });
 
     if (!updated) {
@@ -156,7 +155,7 @@ exports.calculateDeliveryCharge = async (req, res) => {
   } catch (error) {
     console.error('Error calculating delivery charge:', error);
 
-    if (error.message === 'Delivery zone not found' || error.message === 'Delivery zone is not active') {
+    if (error.message === 'Delivery zone not found') {
       return res.status(400).json({ msg: error.message });
     }
 
@@ -238,20 +237,20 @@ exports.calculateOrderTotal = async (req, res) => {
     // Calculate delivery charge
     const deliveryCharge = await DeliveryZone.calculateCharge(zone_id, total_weight);
 
-    // Calculate payment fee (based on subtotal + delivery)
-    const orderSubtotal = parseFloat(subtotal) + deliveryCharge;
-    const paymentFee = await PaymentMethod.calculateFee(payment_method, orderSubtotal);
+    // Calculate payment fee (based on product subtotal only, not including delivery)
+    const productSubtotal = parseFloat(subtotal);
+    const paymentFee = await PaymentMethod.calculateFee(payment_method, productSubtotal);
 
-    // Calculate total
-    const total = orderSubtotal + paymentFee;
+    // Calculate total (product subtotal + delivery + payment fee)
+    const total = productSubtotal + deliveryCharge + paymentFee;
 
     res.json({
-      subtotal: parseFloat(subtotal),
+      subtotal: productSubtotal,
       delivery_charge: deliveryCharge,
       payment_fee: paymentFee,
       total: Math.round(total * 100) / 100,
       breakdown: {
-        items_total: parseFloat(subtotal),
+        items_total: productSubtotal,
         delivery: deliveryCharge,
         payment_processing: paymentFee
       }
@@ -259,7 +258,7 @@ exports.calculateOrderTotal = async (req, res) => {
   } catch (error) {
     console.error('Error calculating order total:', error);
 
-    if (error.message.includes('not found') || error.message.includes('not active')) {
+    if (error.message.includes('not found')) {
       return res.status(400).json({ msg: error.message });
     }
 

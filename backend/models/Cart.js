@@ -22,7 +22,6 @@ const Cart = {
        WHERE ci.cart_id = ? AND p.is_active = 1`,
       [cartId]
     );
-    console.log(rows);
     
     return rows;
   },
