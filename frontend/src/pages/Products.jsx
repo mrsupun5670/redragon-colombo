@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -14,7 +14,7 @@ import Navbar from "../components/layout/Navbar";
 import Footer from "../components/layout/Footer";
 import WhatsAppButton from "../components/common/WhatsAppButton";
 import ParticleEffect from "../components/common/ParticleEffect";
-import { allProducts } from "../data/products";
+import { productAPI, categoryAPI, brandAPI } from "../services/api";
 
 const Products = () => {
   const navigate = useNavigate();
@@ -24,6 +24,11 @@ const Products = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [showFilters, setShowFilters] = useState(true);
   const [sortBy, setSortBy] = useState("featured");
+  const [products, setProducts] = useState([]);
+  const [mainCategories, setMainCategories] = useState([]);
+  const [subCategories, setSubCategories] = useState([]);
+  const [brands, setBrands] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   // Filter states
   const [selectedCategories, setSelectedCategories] = useState([]);
@@ -40,23 +45,44 @@ const Products = () => {
   const [brandOpen, setBrandOpen] = useState(true);
   const [colorOpen, setColorOpen] = useState(true);
 
+  // Data fetching
+  useEffect(() => {
+    const fetchData = async () => {
+      setLoading(true);
+      try {
+        const [productsRes, categoriesRes, subCategoriesRes, brandsRes] = await Promise.all([
+          productAPI.getAll(),
+          categoryAPI.getMainCategories(),
+          categoryAPI.getSubCategories(),
+          brandAPI.getAll(),
+        ]);
+        setProducts(productsRes.data.data);
+        setMainCategories(categoriesRes.data.data);
+        setSubCategories(subCategoriesRes.data.data);
+        setBrands(brandsRes.data.data);
+        console.log('Products:', productsRes.data.data);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchData();
+  }, []);
+
   // Extract unique filter options from products
   const filterOptions = useMemo(() => {
-    const categories = [...new Set(allProducts.map((p) => p.category))];
-    const subCategories = [
-      ...new Set(allProducts.map((p) => p.subCategory).filter(Boolean)),
-    ];
-    const brands = [
-      ...new Set(allProducts.map((p) => p.brand).filter(Boolean)),
-    ].sort();
-    const colors = [...new Set(allProducts.flatMap((p) => p.colors || []))];
+    const categoryNames = mainCategories.map(c => c.name);
+    const subCategoryNames = subCategories.map(sc => sc.name);
+    const brandNames = brands.map(b => b.name);
+    const colors = [...new Set(products.flatMap((p) => p.colors || []))];
 
-    return { categories, subCategories, brands, colors };
-  }, []);
+    return { categories: categoryNames, subCategories: subCategoryNames, brands: brandNames, colors };
+  }, [mainCategories, subCategories, brands, products]);
 
   // Filter and sort products
   const filteredProducts = useMemo(() => {
-    let filtered = allProducts.filter((product) => {
+    let filtered = products.filter((product) => {
       // Search filter
       const matchesSearch =
         product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -65,16 +91,16 @@ const Products = () => {
       // Category filter
       const matchesCategory =
         selectedCategories.length === 0 ||
-        selectedCategories.includes(product.category);
+        selectedCategories.includes(product.main_category_name);
 
       // SubCategory filter
       const matchesSubCategory =
         selectedSubCategories.length === 0 ||
-        selectedSubCategories.includes(product.subCategory);
+        selectedSubCategories.includes(product.sub_category_name);
 
       // Brand filter
       const matchesBrand =
-        selectedBrands.length === 0 || selectedBrands.includes(product.brand);
+        selectedBrands.length === 0 || selectedBrands.includes(product.brand_name);
 
       // Color filter
       const matchesColor =
@@ -86,9 +112,9 @@ const Products = () => {
         product.price >= priceRange[0] && product.price <= priceRange[1];
 
       // Stock filter
-      const matchesStock = !inStockOnly || product.inStock;
+      const matchesStock = !inStockOnly || product.stock_quantity > 0;
 
-      const matchesRedragon = !redragonOnly || product.brand === "Redragon";
+      const matchesRedragon = !redragonOnly || product.brand_name === "Redragon";
 
       return (
         matchesSearch &&
