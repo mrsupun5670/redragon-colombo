@@ -161,7 +161,7 @@ const Cart = () => {
                           className="w-full sm:w-32 h-32 bg-gradient-to-br from-gray-50 to-white rounded-xl overflow-hidden border-2 border-gray-200 cursor-pointer hover:border-red-500 transition-colors"
                         >
                           <img
-                            src={item.primary_image ? item.primary_image : "/image_not_there.avif"}
+                            src={item.images[0].image_path ? item.images[0].image_path : "/image_not_there.avif"}
                             alt={item.name}
                             className="w-full h-full object-contain p-3"
                           />
@@ -317,15 +317,7 @@ const Cart = () => {
                       Rs. {cartSubtotal.toLocaleString()}
                     </span>
                   </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-gray-600 font-semibold">Shipping</span>
-                    <span className="font-black text-gray-900">
-                      {shippingCost === 0 ? (
-                        <span className="text-green-600">FREE</span>
-                      ) : (
-                        `Rs. ${shippingCost.toLocaleString()}`
-                      )}
-                    </span>
+                  <div className="flex justify-between items-center">                   
                   </div>
                   {discount > 0 && (
                     <div className="flex justify-between items-center">

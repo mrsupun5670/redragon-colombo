@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { TruckIcon, Plus, Edit, Trash2, X, Save, MapPin, DollarSign, Package, CreditCard, Wallet, Eye, EyeOff } from 'lucide-react';
+import { TruckIcon, Plus, Edit, Trash2, X, MapPin, Package, CreditCard, Wallet, Eye, EyeOff } from 'lucide-react';
 import api from '../../../../services/api';
 import ErrorPopup from '../../../common/ErrorPopup';
 import SuccessPopup from '../../../common/SuccessPopup';

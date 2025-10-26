@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Upload, Image } from 'lucide-react';
+import { X, Upload } from 'lucide-react';
 import ErrorPopup from '../../../common/ErrorPopup';
 import SuccessPopup from '../../../common/SuccessPopup';
 import { adminApi } from '../../../../utils/adminApi';

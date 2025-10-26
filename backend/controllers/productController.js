@@ -86,6 +86,33 @@ exports.getAllProducts = async (req, res) => {
   }
 };
 
+exports.getAllProductsForAdmin = async (req, res) => {
+  try {
+    const limit = parseInt(req.query.limit) || 20;
+    const page = parseInt(req.query.page) || 1;
+    const offset = (page - 1) * limit;
+    
+    const products = await Product.getAllForAdmin(limit, offset);
+    
+    res.json({
+      success: true,
+      message: 'Products retrieved successfully',
+      data: products,
+      pagination: {
+        page,
+        limit,
+        total: products.length
+      }
+    });
+  } catch (err) {
+    console.error('Get all products error:', err);
+    res.status(500).json({
+      success: false,
+      message: 'Server error. Please try again later.'
+    });
+  }
+};
+
 // Get product by ID
 exports.getProductById = async (req, res) => {
   try {
@@ -119,7 +146,7 @@ exports.createProduct = async (req, res) => {
     const {
       name, description, specifications, brand_id, main_category_id,
       sub_category_id, price, sale_price, cost_price, stock_quantity,
-      color_id, weight, sku, is_featured
+      weight, sku, is_featured
     } = req.body;
 
     // Validate required fields
@@ -157,14 +184,12 @@ exports.createProduct = async (req, res) => {
       sale_price: sale_price ? parseFloat(sale_price) : null,
       cost_price: cost_price ? parseFloat(cost_price) : null,
       stock_quantity: parseInt(stock_quantity),
-      color_id: color_id ? parseInt(color_id) : null,
       weight: weight ? parseInt(weight) : 0,
       is_active: 1,
       is_featured: parseInt(is_featured) || 0
     };
 
     // Debug: Log the product data being created
-    console.log('Creating product with data:', productData);
     
     // Create product
     const result = await Product.create(productData);
@@ -223,7 +248,7 @@ exports.updateProduct = async (req, res) => {
     const {
       name, description, specifications, brand_id, main_category_id,
       sub_category_id, price, sale_price, cost_price, stock_quantity,
-      color_id, weight, sku, is_active, is_featured
+      weight, sku, is_active, is_featured
     } = req.body;
 
     // Check if product exists
@@ -263,7 +288,6 @@ exports.updateProduct = async (req, res) => {
       sale_price: sale_price ? parseFloat(sale_price) : existingProduct.sale_price,
       cost_price: cost_price ? parseFloat(cost_price) : existingProduct.cost_price,
       stock_quantity: stock_quantity !== undefined ? parseInt(stock_quantity) : existingProduct.stock_quantity,
-      color_id: color_id ? parseInt(color_id) : existingProduct.color_id,
       weight: weight !== undefined ? parseInt(weight) : (existingProduct.weight || 0),
       is_active: is_active !== undefined ? parseInt(is_active) : existingProduct.is_active,
       is_featured: is_featured !== undefined ? parseInt(is_featured) : (existingProduct.is_featured || 0)

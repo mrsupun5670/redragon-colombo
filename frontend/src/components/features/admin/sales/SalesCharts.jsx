@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { TrendingUp, TrendingDown, DollarSign, ShoppingBag, RotateCcw, Package, ArrowUpRight } from 'lucide-react';
+import { TrendingUp, TrendingDown, DollarSign, ShoppingBag, RotateCcw } from 'lucide-react';
 
 const SalesCharts = () => {
   // Revenue & Profit data (last 12 months)
@@ -18,7 +18,6 @@ const SalesCharts = () => {
   ];
 
   const maxRevenue = Math.max(...revenueData.map(d => d.revenue));
-  const maxProfit = Math.max(...revenueData.map(d => d.profit));
 
   // Key metrics
   const metrics = [

@@ -70,15 +70,34 @@ class Product {
     try {
       const query = `
         SELECT p.*, b.name as brand_name, mc.name as main_category_name, sc.name as sub_category_name,
-               pi.image_path as primary_image, GROUP_CONCAT(c.name) as colors
+               pi.image_path as primary_image
         FROM products p
         LEFT JOIN brands b ON p.brand_id = b.id
         LEFT JOIN main_categories mc ON p.main_category_id = mc.id
         LEFT JOIN sub_categories sc ON p.sub_category_id = sc.id
         LEFT JOIN product_image_uploads pi ON p.id = pi.product_id AND pi.is_primary = 1
-        LEFT JOIN product_colors pc ON p.id = pc.product_id
-        LEFT JOIN colors c ON pc.color_id = c.id
         WHERE p.is_active = 1
+        GROUP BY p.id
+        ORDER BY p.created_at DESC
+        LIMIT ? OFFSET ?
+      `;
+      const [rows] = await db.execute(query, [limit, offset]);
+      return rows;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  static async getAllForAdmin(limit = 20, offset = 0) {
+    try {
+      const query = `
+        SELECT p.*, b.name as brand_name, mc.name as main_category_name, sc.name as sub_category_name,
+               pi.image_path as primary_image
+        FROM products p
+        LEFT JOIN brands b ON p.brand_id = b.id
+        LEFT JOIN main_categories mc ON p.main_category_id = mc.id
+        LEFT JOIN sub_categories sc ON p.sub_category_id = sc.id
+        LEFT JOIN product_image_uploads pi ON p.id = pi.product_id AND pi.is_primary = 1
         GROUP BY p.id
         ORDER BY p.created_at DESC
         LIMIT ? OFFSET ?
@@ -131,8 +150,8 @@ class Product {
         INSERT INTO products (
           name, slug, sku, description, specifications, brand_id, main_category_id, 
           sub_category_id, price, sale_price, cost_price, stock_quantity, 
-          color_id, weight, is_active, is_featured
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+          weight, is_active, is_featured
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       `;
       
       const values = [
@@ -148,7 +167,6 @@ class Product {
         productData.sale_price || productData.price,
         productData.cost_price,
         productData.stock_quantity,
-        productData.color_id,
         productData.weight || 0,
         productData.is_active !== undefined ? productData.is_active : 1,
         productData.is_featured || 0
@@ -169,7 +187,7 @@ class Product {
           name = ?, slug = ?, sku = ?, description = ?, specifications = ?,
           brand_id = ?, main_category_id = ?, sub_category_id = ?, price = ?,
           sale_price = ?, cost_price = ?, stock_quantity = ?,
-          color_id = ?, weight = ?, is_active = ?, is_featured = ?,
+          weight = ?, is_active = ?, is_featured = ?,
           updated_at = CURRENT_TIMESTAMP
         WHERE id = ?
       `;
@@ -184,10 +202,9 @@ class Product {
         productData.main_category_id,
         productData.sub_category_id,
         productData.price,
-        productData.sale_price,
+        productData.sale_price || productData.price,
         productData.cost_price,
         productData.stock_quantity,
-        productData.color_id,
         productData.weight || 0,
         productData.is_active !== undefined ? productData.is_active : 1,
         productData.is_featured || 0,
@@ -243,31 +260,7 @@ class Product {
     }
   }
 
-  // Legacy methods for backward compatibility
-  static getAll_old(callback) {
-    const query = 'SELECT * FROM products';
-    db.query(query, callback);
-  }
-  
-  static getById_old(id, callback) {
-    const query = 'SELECT * FROM products WHERE id = ?';
-    db.query(query, [id], callback);
-  }
-  
-  static create_old(product, callback) {
-    const query = 'INSERT INTO products SET ?';
-    db.query(query, product, callback);
-  }
-  
-  static update_old(id, product, callback) {
-    const query = 'UPDATE products SET ? WHERE id = ?';
-    db.query(query, [product, id], callback);
-  }
-  
-  static delete_old(id, callback) {
-    const query = 'DELETE FROM products WHERE id = ?';
-    db.query(query, [id], callback);
-  }
+
 }
 
 module.exports = Product;

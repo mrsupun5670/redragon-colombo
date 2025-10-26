@@ -27,7 +27,6 @@ const AddProduct = () => {
   const [brands, setBrands] = useState([]);
   const [mainCategories, setMainCategories] = useState([]);
   const [subCategories, setSubCategories] = useState([]);
-  const [loading, setLoading] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [success, setSuccess] = useState(null);
   const [error, setError] = useState(null);
@@ -35,7 +34,6 @@ const AddProduct = () => {
   // Load brands and categories on component mount
   useEffect(() => {
     const loadData = async () => {
-      setLoading(true);
       try {
         const [brandsData, mainCategoriesData, subCategoriesData] = await Promise.all([
           adminApi.get('/brands'),
@@ -48,8 +46,6 @@ const AddProduct = () => {
         if (subCategoriesData.success) setSubCategories(subCategoriesData.data);
       } catch (error) {
         console.error('Error loading data:', error);
-      } finally {
-        setLoading(false);
       }
     };
 

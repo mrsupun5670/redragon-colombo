@@ -45,7 +45,6 @@ const Products = () => {
   const [categoryOpen, setCategoryOpen] = useState(false);
   const [subCategoryOpen, setSubCategoryOpen] = useState(false);
   const [brandOpen, setBrandOpen] = useState(false);
-  const [colorOpen, setColorOpen] = useState(false);
 
   // Data fetching
   useEffect(() => {

@@ -17,7 +17,6 @@ import DevelopmentWatermark from "../components/common/DevelopmentWatermark";
 import FuturisticProductCard from "../components/common/FuturisticProductCard";
 import ErrorPopup from "../components/common/ErrorPopup";
 import SuccessPopup from "../components/common/SuccessPopup";
-import { featuredProducts } from "../data/products";
 import { useAuth } from "../context/AuthContext";
 import { wishlistAPI } from "../services/api";
 
@@ -325,17 +324,7 @@ const Wishlist = () => {
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                {featuredProducts.slice(4, 8).map((product, index) => (
-                  <motion.div
-                    key={product.id}
-                    initial={{ opacity: 0, y: 30 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ delay: index * 0.1 }}
-                  >
-                    <FuturisticProductCard product={product} showCategory />
-                  </motion.div>
-                ))}
+                
               </div>
             </motion.div>
           </>

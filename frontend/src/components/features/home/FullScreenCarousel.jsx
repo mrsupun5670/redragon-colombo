@@ -6,7 +6,7 @@ import 'swiper/css/navigation';
 import { EffectFade, Autoplay, Navigation } from 'swiper/modules';
 import { motion, AnimatePresence } from 'framer-motion';
 import CustomPagination from './CustomPagination';
-import useWindowDimensions from '../../../hooks/useWindowDimensions';
+
 
 const slides = [
   {

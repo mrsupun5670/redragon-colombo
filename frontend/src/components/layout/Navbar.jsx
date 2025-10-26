@@ -16,19 +16,9 @@ import { wishlistAPI } from "../../services/api";
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [isScrolled, setIsScrolled] = useState(false);
-  const [showUserMenu, setShowUserMenu] = useState(false);
   const [wishlistItemCount, setWishlistItemCount] = useState(0);
   const { user, isAuthenticated, loading, logout } = useAuth();
   const { cartItemCount } = useContext(CartContext);
-
-  useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 100);
-    };
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
 
   // Load wishlist count
   useEffect(() => {
@@ -93,7 +83,6 @@ const Navbar = () => {
 
   const handleLogout = async () => {
     await logout();
-    setShowUserMenu(false);
   };
 
   return (
