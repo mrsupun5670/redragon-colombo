@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Mail, Key, ArrowRight, Lock, RefreshCw } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { authAPI } from "../services/api";
 import Navbar from "../components/layout/Navbar";
 import Footer from "../components/layout/Footer";
 import ParticleEffect from "../components/common/ParticleEffect";
@@ -10,22 +12,81 @@ import SuccessPopup from "../components/common/SuccessPopup";
 const ForgotPasswordPage = () => {
   const [step, setStep] = useState(1);
   const [email, setEmail] = useState("");
+  const [code, setCode] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(null);
   const [error, setError] = useState(null);
+  const navigate = useNavigate();
 
-  const handleEmailSubmit = (e) => {
+  const handleEmailSubmit = async (e) => {
     e.preventDefault();
-    // Here you would typically send a password reset email
-    console.log(`Password reset request for ${email}`);
-    setStep(2);
+    setLoading(true);
+    setError(null);
+
+    try {
+      const response = await authAPI.forgotPassword(email.trim());
+
+      if (response.data && response.data.success) {
+        setSuccess("6-digit verification code has been sent to your email!");
+        setStep(2);
+      } else {
+        setError(response.data?.message || "Failed to send reset code. Please try again.");
+      }
+    } catch (err) {
+      setError(err.response?.data?.message || "Network error. Please check your connection and try again.");
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleResetSubmit = (e) => {
+  const handleResetSubmit = async (e) => {
     e.preventDefault();
-    // Here you would typically verify the code and reset the password
-    console.log("Password has been reset.");
-    setSuccess("Password has been reset successfully!");
-    // Redirect to login or home
+    setLoading(true);
+    setError(null);
+
+    // Validate passwords match
+    if (newPassword !== confirmPassword) {
+      setError("Passwords do not match!");
+      setLoading(false);
+      return;
+    }
+
+    // Validate password length
+    if (newPassword.length < 6) {
+      setError("Password must be at least 6 characters long!");
+      setLoading(false);
+      return;
+    }
+
+    // Validate code format
+    if (!/^\d{6}$/.test(code)) {
+      setError("Please enter a valid 6-digit code!");
+      setLoading(false);
+      return;
+    }
+
+    try {
+      const response = await authAPI.resetPassword({
+        code: code.trim(),
+        newPassword,
+        confirmPassword,
+      });
+
+      if (response.data && response.data.success) {
+        setSuccess("Password has been reset successfully! Redirecting to login...");
+        setTimeout(() => {
+          navigate("/login");
+        }, 2000);
+      } else {
+        setError(response.data?.message || "Failed to reset password. Please try again.");
+      }
+    } catch (err) {
+      setError(err.response?.data?.message || "Network error. Please check your connection and try again.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -91,9 +152,10 @@ const ForgotPasswordPage = () => {
                       >
                         <button
                           type="submit"
-                          className="w-full bg-gradient-to-r from-red-500 to-orange-500 hover:from-red-600 hover:to-orange-600 text-white py-4 rounded-xl font-black uppercase tracking-wider shadow-xl shadow-red-500/30 hover:shadow-2xl transition-all flex items-center justify-center gap-2"
+                          disabled={loading}
+                          className="w-full bg-gradient-to-r from-red-500 to-orange-500 hover:from-red-600 hover:to-orange-600 disabled:opacity-50 disabled:cursor-not-allowed text-white py-4 rounded-xl font-black uppercase tracking-wider shadow-xl shadow-red-500/30 hover:shadow-2xl transition-all flex items-center justify-center gap-2"
                         >
-                          Send Code <ArrowRight className="w-5 h-5" />
+                          {loading ? "Sending..." : "Send Code"} <ArrowRight className="w-5 h-5" />
                         </button>
                       </motion.div>
                     </form>
@@ -136,15 +198,18 @@ const ForgotPasswordPage = () => {
                         transition={{ delay: 0.4, duration: 0.5 }}
                       >
                         <label className="block text-sm font-bold text-gray-700 mb-2 uppercase">
-                          Verification Code
+                          Verification Code (6 digits)
                         </label>
                         <div className="relative">
                           <Key className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                           <input
                             type="text"
-                            placeholder="Enter code"
+                            value={code}
+                            onChange={(e) => setCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                            placeholder="123456"
+                            maxLength="6"
                             required
-                            className="w-full pl-12 pr-4 py-3 bg-white/80 border-2 border-gray-300 rounded-xl focus:border-red-500 focus:outline-none focus:ring-2 focus:ring-red-500/20 transition-all"
+                            className="w-full pl-12 pr-4 py-3 bg-white/80 border-2 border-gray-300 rounded-xl focus:border-red-500 focus:outline-none focus:ring-2 focus:ring-red-500/20 transition-all text-center text-lg font-bold tracking-widest"
                           />
                         </div>
                       </motion.div>
@@ -161,7 +226,32 @@ const ForgotPasswordPage = () => {
                           <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                           <input
                             type="password"
+                            value={newPassword}
+                            onChange={(e) => setNewPassword(e.target.value)}
                             placeholder="••••••••"
+                            minLength="6"
+                            required
+                            className="w-full pl-12 pr-4 py-3 bg-white/80 border-2 border-gray-300 rounded-xl focus:border-red-500 focus:outline-none focus:ring-2 focus:ring-red-500/20 transition-all"
+                          />
+                        </div>
+                      </motion.div>
+
+                      <motion.div
+                        initial={{ opacity: 0, x: 30 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: 0.6, duration: 0.5 }}
+                      >
+                        <label className="block text-sm font-bold text-gray-700 mb-2 uppercase">
+                          Confirm New Password
+                        </label>
+                        <div className="relative">
+                          <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                          <input
+                            type="password"
+                            value={confirmPassword}
+                            onChange={(e) => setConfirmPassword(e.target.value)}
+                            placeholder="••••••••"
+                            minLength="6"
                             required
                             className="w-full pl-12 pr-4 py-3 bg-white/80 border-2 border-gray-300 rounded-xl focus:border-red-500 focus:outline-none focus:ring-2 focus:ring-red-500/20 transition-all"
                           />
@@ -171,13 +261,14 @@ const ForgotPasswordPage = () => {
                       <motion.div
                         initial={{ scale: 0.8 }}
                         animate={{ scale: 1 }}
-                        transition={{ delay: 0.6, type: "spring" }}
+                        transition={{ delay: 0.8, type: "spring" }}
                       >
                         <button
                           type="submit"
-                          className="w-full bg-gradient-to-r from-red-500 to-orange-500 hover:from-red-600 hover:to-orange-600 text-white py-4 rounded-xl font-black uppercase tracking-wider shadow-xl shadow-red-500/30 hover:shadow-2xl transition-all flex items-center justify-center gap-2"
+                          disabled={loading}
+                          className="w-full bg-gradient-to-r from-red-500 to-orange-500 hover:from-red-600 hover:to-orange-600 disabled:opacity-50 disabled:cursor-not-allowed text-white py-4 rounded-xl font-black uppercase tracking-wider shadow-xl shadow-red-500/30 hover:shadow-2xl transition-all flex items-center justify-center gap-2"
                         >
-                          Reset Password <RefreshCw className="w-5 h-5" />
+                          {loading ? "Resetting..." : "Reset Password"} <RefreshCw className="w-5 h-5" />
                         </button>
                       </motion.div>
                     </form>

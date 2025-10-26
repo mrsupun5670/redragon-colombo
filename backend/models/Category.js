@@ -32,8 +32,8 @@ class Category {
         LEFT JOIN main_categories mc ON sc.main_category_id = mc.id
         ORDER BY mc.name ASC, sc.name ASC
       `;
-      const result = await db.execute(query);
-      return result || [];
+      const [rows] = await db.execute(query);
+      return rows || [];
       
     } catch (error) {
       console.error('Error in getAllSubCategories:', error);

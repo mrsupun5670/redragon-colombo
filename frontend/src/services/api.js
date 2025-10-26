@@ -58,6 +58,10 @@ export const authAPI = {
   updateProfile: (profileData) => api.put('/auth/profile', profileData),
   changePassword: (passwordData) => api.put('/auth/change-password', passwordData),
   
+  // Password reset
+  forgotPassword: (email) => api.post('/auth/forget-password', { email }),
+  resetPassword: (resetData) => api.post('/auth/reset-password', resetData),
+  
   // Common
   getCurrentUser: () => api.get('/auth/me'),
   logout: () => api.post('/auth/logout'),

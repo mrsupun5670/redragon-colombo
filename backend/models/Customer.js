@@ -47,6 +47,42 @@ const Customer = {
       values
     );
     return result;
+  },
+
+  // Set password reset code
+  setPasswordResetCode: async (email, resetCode, expiresAt) => {
+    const [result] = await pool.query(
+      'UPDATE customers SET reset_code = ?, reset_code_expires = ? WHERE email = ?',
+      [resetCode, expiresAt, email]
+    );
+    return result;
+  },
+
+  // Find customer by reset code
+  findByResetCode: async (code) => {
+    const [rows] = await pool.query(
+      'SELECT * FROM customers WHERE reset_code = ? AND reset_code_expires > NOW()',
+      [code]
+    );
+    return rows;
+  },
+
+  // Clear password reset code
+  clearPasswordResetCode: async (id) => {
+    const [result] = await pool.query(
+      'UPDATE customers SET reset_code = NULL, reset_code_expires = NULL WHERE customer_id = ?',
+      [id]
+    );
+    return result;
+  },
+
+  // Update password
+  updatePassword: async (id, newPasswordHash) => {
+    const [result] = await pool.query(
+      'UPDATE customers SET password_hash = ?, updated_at = CURRENT_TIMESTAMP WHERE customer_id = ?',
+      [newPasswordHash, id]
+    );
+    return result;
   }
 };
 
