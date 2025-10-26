@@ -12,6 +12,7 @@ class Product {
         LEFT JOIN main_categories mc ON p.main_category_id = mc.id
         LEFT JOIN sub_categories sc ON p.sub_category_id = sc.id
         LEFT JOIN product_image_uploads pi ON p.id = pi.product_id AND pi.is_primary = 1
+        WHERE p.is_active = 1 AND p.is_featured = 1
         GROUP BY p.id
       `;
       const [rows] = await db.execute(query);
