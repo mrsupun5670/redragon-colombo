@@ -12,8 +12,7 @@ class Product {
         LEFT JOIN main_categories mc ON p.main_category_id = mc.id
         LEFT JOIN sub_categories sc ON p.sub_category_id = sc.id
         LEFT JOIN product_image_uploads pi ON p.id = pi.product_id AND pi.is_primary = 1
-        WHERE p.is_featured = 1 AND p.is_active = 1
-        ORDER BY p.created_at DESC
+        GROUP BY p.id
       `;
       const [rows] = await db.execute(query);
       return rows;
@@ -71,13 +70,16 @@ class Product {
     try {
       const query = `
         SELECT p.*, b.name as brand_name, mc.name as main_category_name, sc.name as sub_category_name,
-               pi.image_path as primary_image
+               pi.image_path as primary_image, GROUP_CONCAT(c.name) as colors
         FROM products p
         LEFT JOIN brands b ON p.brand_id = b.id
         LEFT JOIN main_categories mc ON p.main_category_id = mc.id
         LEFT JOIN sub_categories sc ON p.sub_category_id = sc.id
         LEFT JOIN product_image_uploads pi ON p.id = pi.product_id AND pi.is_primary = 1
+        LEFT JOIN product_colors pc ON p.id = pc.product_id
+        LEFT JOIN colors c ON pc.color_id = c.id
         WHERE p.is_active = 1
+        GROUP BY p.id
         ORDER BY p.created_at DESC
         LIMIT ? OFFSET ?
       `;

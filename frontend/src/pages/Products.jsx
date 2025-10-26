@@ -7,6 +7,7 @@ import {
   SlidersHorizontal,
   Filter,
   ChevronDown,
+  ChevronUp,
   Grid as GridIcon,
   List as ListIcon,
 } from "lucide-react";
@@ -36,15 +37,15 @@ const Products = () => {
   const [selectedSubCategories, setSelectedSubCategories] = useState([]);
   const [selectedBrands, setSelectedBrands] = useState([]);
   const [selectedColors, setSelectedColors] = useState([]);
-  const [priceRange, setPriceRange] = useState([0, 25000]);
+  const [priceRange, setPriceRange] = useState([0, 1000000]);
   const [inStockOnly, setInStockOnly] = useState(false);
   const [redragonOnly, setRedragonOnly] = useState(false);
 
   // Expandable filter sections - all open by default
-  const [categoryOpen, setCategoryOpen] = useState(true);
-  const [subCategoryOpen, setSubCategoryOpen] = useState(true);
-  const [brandOpen, setBrandOpen] = useState(true);
-  const [colorOpen, setColorOpen] = useState(true);
+  const [categoryOpen, setCategoryOpen] = useState(false);
+  const [subCategoryOpen, setSubCategoryOpen] = useState(false);
+  const [brandOpen, setBrandOpen] = useState(false);
+  const [colorOpen, setColorOpen] = useState(false);
 
   // Data fetching
   useEffect(() => {
@@ -59,6 +60,8 @@ const Products = () => {
             brandAPI.getAll(),
           ]);
         setProducts(productsRes.data.data);
+        const maxPrice = Math.max(...productsRes.data.data.map((p) => p.price));
+        setPriceRange([0, maxPrice]);
         setMainCategories(categoriesRes.data.data);
         setSubCategories(subCategoriesRes.data.data);
         setBrands(brandsRes.data.data);
@@ -329,20 +332,21 @@ const Products = () => {
                       Price Range
                     </label>
                     <div className="space-y-3">
-                      <input
-                        type="range"
-                        min="0"
-                        max="10000000"
-                        step="500"
-                        value={priceRange[1]}
-                        onChange={(e) =>
-                          setPriceRange([
-                            priceRange[0],
-                            parseInt(e.target.value),
-                          ])
-                        }
-                        className="w-full"
-                      />
+                        <input
+                          type="range"
+                          min="0"
+                          max={Math.max(...products.map((p) => p.price))}
+                          step="1000"
+                          value={priceRange[1]}
+                          onChange={(e) =>
+                            setPriceRange([
+                              priceRange[0],
+                              parseInt(e.target.value),
+                            ])
+                          }
+                          className="w-full"
+                          disabled={loading}
+                        />
                       <div className="flex justify-between text-sm font-semibold text-gray-600">
                         <span>Rs. {priceRange[0].toLocaleString()}</span>
                         <span>Rs. {priceRange[1].toLocaleString()}</span>
@@ -352,18 +356,17 @@ const Products = () => {
 
                   {/* Category Filter */}
                   <div className="mb-6">
-                    <button
-                      onClick={() => setCategoryOpen(!categoryOpen)}
-                      className="flex items-center justify-between w-full text-sm font-bold text-gray-700 mb-2 uppercase hover:text-red-500 transition-colors"
-                    >
-                      <span>Category</span>
-                      <ChevronDown
-                        className={`w-4 h-4 transition-transform ${
-                          categoryOpen ? "rotate-180" : ""
-                        }`}
-                      />
-                    </button>
-                    {categoryOpen && (
+                                                                <button
+                                                                  onClick={() => setCategoryOpen(!categoryOpen)}
+                                                                  className="flex items-center justify-between w-full text-sm font-bold text-gray-700 mb-2 uppercase hover:text-red-500 transition-colors"
+                                                                >
+                                                                  <span>Category</span>
+                                                                  {categoryOpen ? (
+                                                                    <ChevronDown className="w-4 h-4" />
+                                                                  ) : (
+                                                                    <ChevronUp className="w-4 h-4" />
+                                                                  )}
+                                                                </button>                    {categoryOpen && (
                       <div className="space-y-2">
                         {filterOptions.categories.map((category) => (
                           <label
@@ -393,11 +396,11 @@ const Products = () => {
                         className="flex items-center justify-between w-full text-sm font-bold text-gray-700 mb-2 uppercase hover:text-red-500 transition-colors"
                       >
                         <span>Sub-Category</span>
-                        <ChevronDown
-                          className={`w-4 h-4 transition-transform ${
-                            subCategoryOpen ? "rotate-180" : ""
-                          }`}
-                        />
+                        {subCategoryOpen ? (
+                          <ChevronDown className="w-4 h-4" />
+                        ) : (
+                          <ChevronUp className="w-4 h-4" />
+                        )}
                       </button>
                       {subCategoryOpen && (
                         <div className="space-y-2">
@@ -431,11 +434,11 @@ const Products = () => {
                         className="flex items-center justify-between w-full text-sm font-bold text-gray-700 mb-2 uppercase hover:text-red-500 transition-colors"
                       >
                         <span>Brand</span>
-                        <ChevronDown
-                          className={`w-4 h-4 transition-transform ${
-                            brandOpen ? "rotate-180" : ""
-                          }`}
-                        />
+                        {brandOpen ? (
+                          <ChevronDown className="w-4 h-4" />
+                        ) : (
+                          <ChevronUp className="w-4 h-4" />
+                        )}
                       </button>
                       {brandOpen && (
                         <div className="space-y-2">
@@ -460,37 +463,7 @@ const Products = () => {
                     </div>
                   )}
 
-                  {/* Color Filter */}
-                  <div className="mb-6">
-                    <button
-                      onClick={() => setColorOpen(!colorOpen)}
-                      className="flex items-center justify-between w-full text-sm font-bold text-gray-700 mb-2 uppercase hover:text-red-500 transition-colors"
-                    >
-                      <span>Color</span>
-                      <ChevronDown
-                        className={`w-4 h-4 transition-transform ${
-                          colorOpen ? "rotate-180" : ""
-                        }`}
-                      />
-                    </button>
-                    {colorOpen && (
-                      <div className="flex flex-wrap gap-2">
-                        {filterOptions.colors.map((color) => (
-                          <button
-                            key={color}
-                            onClick={() => toggleColor(color)}
-                            className={`px-3 py-1 rounded-full text-sm font-semibold transition-all ${
-                              selectedColors.includes(color)
-                                ? "bg-red-500 text-white"
-                                : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                            }`}
-                          >
-                            {color}
-                          </button>
-                        ))}
-                      </div>
-                    )}
-                  </div>
+                 
 
                   {/* In Stock Only */}
                   <div className="mb-4">
@@ -539,9 +512,9 @@ const Products = () => {
                   onChange={(e) => setSortBy(e.target.value)}
                   className="px-4 py-2 bg-gray-50 border-2 border-gray-200 rounded-lg font-semibold text-sm focus:border-red-500 focus:outline-none"
                 >
-                  <option value="featured">Featured</option>
+                 <option value="price-high">Price: High to Low</option>
                   <option value="price-low">Price: Low to High</option>
-                  <option value="price-high">Price: High to Low</option>
+                
                   <option value="name">Name: A to Z</option>
                   <option value="rating">Highest Rated</option>
                 </select>
