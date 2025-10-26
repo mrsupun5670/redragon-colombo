@@ -1,4 +1,5 @@
 const pool = require('../config/db');
+const { getSriLankanTimestamp } = require('../utils/timezone');
 
 const Customer = {
   // Create new customer with parameterized queries (SQL injection protection)

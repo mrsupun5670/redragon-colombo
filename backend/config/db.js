@@ -7,7 +7,12 @@ const pool = mysql.createPool({
   database: process.env.DB_NAME,
   waitForConnections: true,
   connectionLimit: 10,
-  queueLimit: 0
+  queueLimit: 0,
+  timezone: '+05:30', // Sri Lanka timezone (UTC+5:30)
+  charset: 'utf8mb4',
+  acquireTimeout: 60000,
+  timeout: 60000,
+  reconnect: true
 });
 
 module.exports = pool;
