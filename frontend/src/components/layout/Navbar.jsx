@@ -12,11 +12,13 @@ import {
 } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
 import CartContext from "../../context/CartContext";
+import { wishlistAPI } from "../../services/api";
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
+  const [wishlistItemCount, setWishlistItemCount] = useState(0);
   const { user, isAuthenticated, loading, logout } = useAuth();
   const { cartItemCount } = useContext(CartContext);
 
@@ -27,6 +29,63 @@ const Navbar = () => {
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
+
+  // Load wishlist count
+  useEffect(() => {
+    const loadWishlistCount = async () => {
+      try {
+        if (isAuthenticated) {
+          // Authenticated user - get count from database
+          const response = await wishlistAPI.getWishlistCount();
+          if (response.data.success) {
+            setWishlistItemCount(response.data.data.count);
+          }
+        } else {
+          // Guest user - get count from localStorage
+          const guestWishlist = JSON.parse(localStorage.getItem('guest_wishlist')) || [];
+          setWishlistItemCount(guestWishlist.length);
+        }
+      } catch (error) {
+        console.error('Error loading wishlist count:', error);
+        if (!isAuthenticated) {
+          // Fallback to localStorage for guests
+          try {
+            const guestWishlist = JSON.parse(localStorage.getItem('guest_wishlist')) || [];
+            setWishlistItemCount(guestWishlist.length);
+          } catch (localError) {
+            setWishlistItemCount(0);
+          }
+        } else {
+          setWishlistItemCount(0);
+        }
+      }
+    };
+
+    // Only load count if not in loading state
+    if (!loading) {
+      loadWishlistCount();
+    }
+
+    // Listen for localStorage changes (for guest users)
+    const handleStorageChange = () => {
+      if (!isAuthenticated) {
+        loadWishlistCount();
+      }
+    };
+
+    // Listen for custom wishlist update events
+    const handleWishlistUpdate = () => {
+      loadWishlistCount();
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+    window.addEventListener('wishlistUpdated', handleWishlistUpdate);
+
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+      window.removeEventListener('wishlistUpdated', handleWishlistUpdate);
+    };
+  }, [isAuthenticated, loading]);
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
@@ -102,9 +161,18 @@ const Navbar = () => {
               href="/wishlist"
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.95 }}
-              className="hidden md:flex items-center justify-center w-10 h-10 rounded-xl transition-all bg-gray-100 hover:bg-red-50 text-gray-700 hover:text-red-500 border border-gray-200"
+              className="hidden md:flex items-center justify-center w-10 h-10 rounded-xl transition-all bg-gray-100 hover:bg-red-50 text-gray-700 hover:text-red-500 border border-gray-200 relative"
             >
-              <Heart className="w-5 h-5" />
+              <Heart className={`w-5 h-5 ${wishlistItemCount > 0 ? 'fill-red-500 text-red-500' : ''}`} />
+              {wishlistItemCount > 0 && (
+                <motion.span
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  className="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-black rounded-full h-5 w-5 flex items-center justify-center shadow-lg border-2 border-white"
+                >
+                  {wishlistItemCount}
+                </motion.span>
+              )}
             </motion.a>
 
             {/* Shopping Cart */}

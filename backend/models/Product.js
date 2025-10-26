@@ -143,7 +143,7 @@ class Product {
         productData.main_category_id,
         productData.sub_category_id,
         productData.price,
-        productData.sale_price,
+        productData.sale_price || productData.price,
         productData.cost_price,
         productData.stock_quantity,
         productData.color_id,

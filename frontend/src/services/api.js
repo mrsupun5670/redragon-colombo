@@ -203,4 +203,23 @@ export const orderAPI = {
   getOrderById: (id) => api.get(`/orders/${id}`),
 };
 
+// Wishlist API functions
+export const wishlistAPI = {
+  // Get customer's wishlist with items
+  getWishlist: () => api.get('/wishlist'),
+  
+  // Get wishlist item count
+  getWishlistCount: () => api.get('/wishlist/count'),
+  
+  // Check if product is in wishlist
+  checkWishlistStatus: (productId) => api.get(`/wishlist/check/${productId}`),
+  
+  // Add item to wishlist
+  addToWishlist: (productId) => api.post('/wishlist/add', { product_id: productId }),
+  
+  // Remove item from wishlist
+  removeFromWishlist: (productId) => api.delete(`/wishlist/remove/${productId}`),
+};
+
+
 export default api;
