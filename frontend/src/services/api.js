@@ -73,7 +73,7 @@ export const productAPI = {
   // Get Redragon products for homepage
   getRedragonProducts: () => api.get('/products/redragon'),
   
-  // Get all products with pagination
+  // Get all products with pagination and filtering
   getAll: (params = {}) => api.get('/products', { params }),
   
   // Get product by ID

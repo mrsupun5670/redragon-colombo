@@ -51,17 +51,17 @@ const Products = () => {
     const fetchData = async () => {
       setLoading(true);
       try {
-        const [productsRes, categoriesRes, subCategoriesRes, brandsRes] = await Promise.all([
-          productAPI.getAll(),
-          categoryAPI.getMainCategories(),
-          categoryAPI.getSubCategories(),
-          brandAPI.getAll(),
-        ]);
+        const [productsRes, categoriesRes, subCategoriesRes, brandsRes] =
+          await Promise.all([
+            productAPI.getAll(),
+            categoryAPI.getMainCategories(),
+            categoryAPI.getSubCategories(),
+            brandAPI.getAll(),
+          ]);
         setProducts(productsRes.data.data);
         setMainCategories(categoriesRes.data.data);
         setSubCategories(subCategoriesRes.data.data);
         setBrands(brandsRes.data.data);
-        console.log('Products:', productsRes.data.data);
         setError(null);
       } catch (error) {
         console.error("Error fetching data:", error);
@@ -75,12 +75,17 @@ const Products = () => {
 
   // Extract unique filter options from products
   const filterOptions = useMemo(() => {
-    const categoryNames = mainCategories.map(c => c.name);
-    const subCategoryNames = subCategories.map(sc => sc.name);
-    const brandNames = brands.map(b => b.name);
+    const categoryNames = mainCategories.map((c) => c.name);
+    const subCategoryNames = subCategories.map((sc) => sc.name);
+    const brandNames = brands.map((b) => b.name);
     const colors = [...new Set(products.flatMap((p) => p.colors || []))];
 
-    return { categories: categoryNames, subCategories: subCategoryNames, brands: brandNames, colors };
+    return {
+      categories: categoryNames,
+      subCategories: subCategoryNames,
+      brands: brandNames,
+      colors,
+    };
   }, [mainCategories, subCategories, brands, products]);
 
   // Filter and sort products
@@ -103,7 +108,8 @@ const Products = () => {
 
       // Brand filter
       const matchesBrand =
-        selectedBrands.length === 0 || selectedBrands.includes(product.brand_name);
+        selectedBrands.length === 0 ||
+        selectedBrands.includes(product.brand_name);
 
       // Color filter
       const matchesColor =
@@ -117,7 +123,8 @@ const Products = () => {
       // Stock filter
       const matchesStock = !inStockOnly || product.stock_quantity > 0;
 
-      const matchesRedragon = !redragonOnly || product.brand_name === "Redragon";
+      const matchesRedragon =
+        !redragonOnly || product.brand_name === "Redragon";
 
       return (
         matchesSearch &&
@@ -325,7 +332,7 @@ const Products = () => {
                       <input
                         type="range"
                         min="0"
-                        max="25000"
+                        max="10000000"
                         step="500"
                         value={priceRange[1]}
                         onChange={(e) =>
@@ -410,8 +417,7 @@ const Products = () => {
                               <span className="ml-2 text-sm text-gray-700 group-hover:text-red-500 transition-colors">
                                 {subCategory}
                               </span>
-                            </label>
-                          ))}
+                            </label>))}
                         </div>
                       )}
                     </div>
@@ -533,7 +539,7 @@ const Products = () => {
                   onChange={(e) => setSortBy(e.target.value)}
                   className="px-4 py-2 bg-gray-50 border-2 border-gray-200 rounded-lg font-semibold text-sm focus:border-red-500 focus:outline-none"
                 >
-                
+                  <option value="featured">Featured</option>
                   <option value="price-low">Price: Low to High</option>
                   <option value="price-high">Price: High to Low</option>
                   <option value="name">Name: A to Z</option>
@@ -568,10 +574,14 @@ const Products = () => {
 
             {/* Products */}
             {loading ? (
-              <div className="text-center py-20"><p>Loading...</p></div>
+              <div className="text-center py-20">
+                <p>Loading...</p>
+              </div>
             ) : error ? (
-              <div className="text-center py-20 text-red-500"><p>{error}</p></div>
-            ) : products.length === 0 ? (
+              <div className="text-center py-20 text-red-500">
+                <p>{error}</p>
+              </div>
+            ) : filteredProducts.length === 0 ? (
               <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
@@ -599,7 +609,7 @@ const Products = () => {
                 className="grid gap-4 grid-cols-2 sm:grid-cols-3 lg:grid-cols-4"
               >
                 <AnimatePresence>
-                  {products.map((product) => (
+                  {filteredProducts.map((product) => (
                     <motion.div
                       key={product.id}
                       layout
@@ -612,7 +622,9 @@ const Products = () => {
                     >
                       <div className="relative aspect-square overflow-hidden">
                         <img
-                          src={product.primary_image || '/image_not_there.avif'}
+                          src={
+                            product.primary_image || "/image_not_there.avif"
+                          }
                           alt={product.name}
                           className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
                         />
@@ -645,7 +657,7 @@ const Products = () => {
             ) : (
               <motion.div layout className="space-y-3">
                 <AnimatePresence>
-                  {products.map((product) => (
+                  {filteredProducts.map((product) => (
                     <motion.div
                       key={product.id}
                       layout
@@ -658,7 +670,9 @@ const Products = () => {
                     >
                       <div className="relative w-32 h-32 flex-shrink-0 overflow-hidden">
                         <img
-                           src={product.primary_image || '/image_not_there.avif'}
+                          src={
+                            product.primary_image || "/image_not_there.avif"
+                          }
                           alt={product.name}
                           className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
                         />
