@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -7,6 +7,7 @@ import {
   SlidersHorizontal,
   Filter,
   ChevronDown,
+  ChevronUp,
   Grid as GridIcon,
   List as ListIcon,
 } from "lucide-react";
@@ -14,7 +15,7 @@ import Navbar from "../components/layout/Navbar";
 import Footer from "../components/layout/Footer";
 import WhatsAppButton from "../components/common/WhatsAppButton";
 import ParticleEffect from "../components/common/ParticleEffect";
-import { allProducts } from "../data/products";
+import { productAPI, categoryAPI, brandAPI } from "../services/api";
 
 const Products = () => {
   const navigate = useNavigate();
@@ -24,39 +25,75 @@ const Products = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [showFilters, setShowFilters] = useState(true);
   const [sortBy, setSortBy] = useState("featured");
+  const [products, setProducts] = useState([]);
+  const [mainCategories, setMainCategories] = useState([]);
+  const [subCategories, setSubCategories] = useState([]);
+  const [brands, setBrands] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   // Filter states
   const [selectedCategories, setSelectedCategories] = useState([]);
   const [selectedSubCategories, setSelectedSubCategories] = useState([]);
   const [selectedBrands, setSelectedBrands] = useState([]);
   const [selectedColors, setSelectedColors] = useState([]);
-  const [priceRange, setPriceRange] = useState([0, 25000]);
+  const [priceRange, setPriceRange] = useState([0, 1000000]);
   const [inStockOnly, setInStockOnly] = useState(false);
   const [redragonOnly, setRedragonOnly] = useState(false);
 
   // Expandable filter sections - all open by default
-  const [categoryOpen, setCategoryOpen] = useState(true);
-  const [subCategoryOpen, setSubCategoryOpen] = useState(true);
-  const [brandOpen, setBrandOpen] = useState(true);
-  const [colorOpen, setColorOpen] = useState(true);
+  const [categoryOpen, setCategoryOpen] = useState(false);
+  const [subCategoryOpen, setSubCategoryOpen] = useState(false);
+  const [brandOpen, setBrandOpen] = useState(false);
+  const [colorOpen, setColorOpen] = useState(false);
+
+  // Data fetching
+  useEffect(() => {
+    const fetchData = async () => {
+      setLoading(true);
+      try {
+        const [productsRes, categoriesRes, subCategoriesRes, brandsRes] =
+          await Promise.all([
+            productAPI.getAll(),
+            categoryAPI.getMainCategories(),
+            categoryAPI.getSubCategories(),
+            brandAPI.getAll(),
+          ]);
+        setProducts(productsRes.data.data);
+        const maxPrice = Math.max(...productsRes.data.data.map((p) => p.price));
+        setPriceRange([0, maxPrice]);
+        setMainCategories(categoriesRes.data.data);
+        setSubCategories(subCategoriesRes.data.data);
+        setBrands(brandsRes.data.data);
+        setError(null);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+        setError("Failed to fetch products. Please try again later.");
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchData();
+  }, []);
 
   // Extract unique filter options from products
   const filterOptions = useMemo(() => {
-    const categories = [...new Set(allProducts.map((p) => p.category))];
-    const subCategories = [
-      ...new Set(allProducts.map((p) => p.subCategory).filter(Boolean)),
-    ];
-    const brands = [
-      ...new Set(allProducts.map((p) => p.brand).filter(Boolean)),
-    ].sort();
-    const colors = [...new Set(allProducts.flatMap((p) => p.colors || []))];
+    const categoryNames = mainCategories.map((c) => c.name);
+    const subCategoryNames = subCategories.map((sc) => sc.name);
+    const brandNames = brands.map((b) => b.name);
+    const colors = [...new Set(products.flatMap((p) => p.colors || []))];
 
-    return { categories, subCategories, brands, colors };
-  }, []);
+    return {
+      categories: categoryNames,
+      subCategories: subCategoryNames,
+      brands: brandNames,
+      colors,
+    };
+  }, [mainCategories, subCategories, brands, products]);
 
   // Filter and sort products
   const filteredProducts = useMemo(() => {
-    let filtered = allProducts.filter((product) => {
+    let filtered = products.filter((product) => {
       // Search filter
       const matchesSearch =
         product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -65,16 +102,17 @@ const Products = () => {
       // Category filter
       const matchesCategory =
         selectedCategories.length === 0 ||
-        selectedCategories.includes(product.category);
+        selectedCategories.includes(product.main_category_name);
 
       // SubCategory filter
       const matchesSubCategory =
         selectedSubCategories.length === 0 ||
-        selectedSubCategories.includes(product.subCategory);
+        selectedSubCategories.includes(product.sub_category_name);
 
       // Brand filter
       const matchesBrand =
-        selectedBrands.length === 0 || selectedBrands.includes(product.brand);
+        selectedBrands.length === 0 ||
+        selectedBrands.includes(product.brand_name);
 
       // Color filter
       const matchesColor =
@@ -86,9 +124,10 @@ const Products = () => {
         product.price >= priceRange[0] && product.price <= priceRange[1];
 
       // Stock filter
-      const matchesStock = !inStockOnly || product.inStock;
+      const matchesStock = !inStockOnly || product.stock_quantity > 0;
 
-      const matchesRedragon = !redragonOnly || product.brand === "Redragon";
+      const matchesRedragon =
+        !redragonOnly || product.brand_name === "Redragon";
 
       return (
         matchesSearch &&
@@ -132,6 +171,7 @@ const Products = () => {
     inStockOnly,
     sortBy,
     redragonOnly,
+    products,
   ]);
 
   // Filter handlers
@@ -292,20 +332,21 @@ const Products = () => {
                       Price Range
                     </label>
                     <div className="space-y-3">
-                      <input
-                        type="range"
-                        min="0"
-                        max="25000"
-                        step="500"
-                        value={priceRange[1]}
-                        onChange={(e) =>
-                          setPriceRange([
-                            priceRange[0],
-                            parseInt(e.target.value),
-                          ])
-                        }
-                        className="w-full"
-                      />
+                        <input
+                          type="range"
+                          min="0"
+                          max={Math.max(...products.map((p) => p.price))}
+                          step="1000"
+                          value={priceRange[1]}
+                          onChange={(e) =>
+                            setPriceRange([
+                              priceRange[0],
+                              parseInt(e.target.value),
+                            ])
+                          }
+                          className="w-full"
+                          disabled={loading}
+                        />
                       <div className="flex justify-between text-sm font-semibold text-gray-600">
                         <span>Rs. {priceRange[0].toLocaleString()}</span>
                         <span>Rs. {priceRange[1].toLocaleString()}</span>
@@ -315,18 +356,17 @@ const Products = () => {
 
                   {/* Category Filter */}
                   <div className="mb-6">
-                    <button
-                      onClick={() => setCategoryOpen(!categoryOpen)}
-                      className="flex items-center justify-between w-full text-sm font-bold text-gray-700 mb-2 uppercase hover:text-red-500 transition-colors"
-                    >
-                      <span>Category</span>
-                      <ChevronDown
-                        className={`w-4 h-4 transition-transform ${
-                          categoryOpen ? "rotate-180" : ""
-                        }`}
-                      />
-                    </button>
-                    {categoryOpen && (
+                                                                <button
+                                                                  onClick={() => setCategoryOpen(!categoryOpen)}
+                                                                  className="flex items-center justify-between w-full text-sm font-bold text-gray-700 mb-2 uppercase hover:text-red-500 transition-colors"
+                                                                >
+                                                                  <span>Category</span>
+                                                                  {categoryOpen ? (
+                                                                    <ChevronDown className="w-4 h-4" />
+                                                                  ) : (
+                                                                    <ChevronUp className="w-4 h-4" />
+                                                                  )}
+                                                                </button>                    {categoryOpen && (
                       <div className="space-y-2">
                         {filterOptions.categories.map((category) => (
                           <label
@@ -356,11 +396,11 @@ const Products = () => {
                         className="flex items-center justify-between w-full text-sm font-bold text-gray-700 mb-2 uppercase hover:text-red-500 transition-colors"
                       >
                         <span>Sub-Category</span>
-                        <ChevronDown
-                          className={`w-4 h-4 transition-transform ${
-                            subCategoryOpen ? "rotate-180" : ""
-                          }`}
-                        />
+                        {subCategoryOpen ? (
+                          <ChevronDown className="w-4 h-4" />
+                        ) : (
+                          <ChevronUp className="w-4 h-4" />
+                        )}
                       </button>
                       {subCategoryOpen && (
                         <div className="space-y-2">
@@ -380,8 +420,7 @@ const Products = () => {
                               <span className="ml-2 text-sm text-gray-700 group-hover:text-red-500 transition-colors">
                                 {subCategory}
                               </span>
-                            </label>
-                          ))}
+                            </label>))}
                         </div>
                       )}
                     </div>
@@ -395,11 +434,11 @@ const Products = () => {
                         className="flex items-center justify-between w-full text-sm font-bold text-gray-700 mb-2 uppercase hover:text-red-500 transition-colors"
                       >
                         <span>Brand</span>
-                        <ChevronDown
-                          className={`w-4 h-4 transition-transform ${
-                            brandOpen ? "rotate-180" : ""
-                          }`}
-                        />
+                        {brandOpen ? (
+                          <ChevronDown className="w-4 h-4" />
+                        ) : (
+                          <ChevronUp className="w-4 h-4" />
+                        )}
                       </button>
                       {brandOpen && (
                         <div className="space-y-2">
@@ -424,37 +463,7 @@ const Products = () => {
                     </div>
                   )}
 
-                  {/* Color Filter */}
-                  <div className="mb-6">
-                    <button
-                      onClick={() => setColorOpen(!colorOpen)}
-                      className="flex items-center justify-between w-full text-sm font-bold text-gray-700 mb-2 uppercase hover:text-red-500 transition-colors"
-                    >
-                      <span>Color</span>
-                      <ChevronDown
-                        className={`w-4 h-4 transition-transform ${
-                          colorOpen ? "rotate-180" : ""
-                        }`}
-                      />
-                    </button>
-                    {colorOpen && (
-                      <div className="flex flex-wrap gap-2">
-                        {filterOptions.colors.map((color) => (
-                          <button
-                            key={color}
-                            onClick={() => toggleColor(color)}
-                            className={`px-3 py-1 rounded-full text-sm font-semibold transition-all ${
-                              selectedColors.includes(color)
-                                ? "bg-red-500 text-white"
-                                : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                            }`}
-                          >
-                            {color}
-                          </button>
-                        ))}
-                      </div>
-                    )}
-                  </div>
+                 
 
                   {/* In Stock Only */}
                   <div className="mb-4">
@@ -503,9 +512,9 @@ const Products = () => {
                   onChange={(e) => setSortBy(e.target.value)}
                   className="px-4 py-2 bg-gray-50 border-2 border-gray-200 rounded-lg font-semibold text-sm focus:border-red-500 focus:outline-none"
                 >
-                
+                 <option value="price-high">Price: High to Low</option>
                   <option value="price-low">Price: Low to High</option>
-                  <option value="price-high">Price: High to Low</option>
+                
                   <option value="name">Name: A to Z</option>
                   <option value="rating">Highest Rated</option>
                 </select>
@@ -537,7 +546,15 @@ const Products = () => {
             </div>
 
             {/* Products */}
-            {filteredProducts.length === 0 ? (
+            {loading ? (
+              <div className="text-center py-20">
+                <p>Loading...</p>
+              </div>
+            ) : error ? (
+              <div className="text-center py-20 text-red-500">
+                <p>{error}</p>
+              </div>
+            ) : filteredProducts.length === 0 ? (
               <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
@@ -573,16 +590,18 @@ const Products = () => {
                       animate={{ opacity: 1, scale: 1 }}
                       exit={{ opacity: 0, scale: 0.9 }}
                       transition={{ duration: 0.3 }}
-                      onClick={() => navigate(`/product/${product.id}`)}
+                      onClick={() => navigate(`/product/${product.slug}`)}
                       className="bg-white rounded-xl shadow-md hover:shadow-xl transition-all overflow-hidden group cursor-pointer"
                     >
                       <div className="relative aspect-square overflow-hidden">
                         <img
-                          src={product.image}
+                          src={
+                            product.primary_image || "/image_not_there.avif"
+                          }
                           alt={product.name}
                           className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
                         />
-                        {!product.inStock && (
+                        {product.stock_quantity === 0 && (
                           <div className="absolute inset-0 bg-black/60 flex items-center justify-center">
                             <span className="bg-red-500 text-white px-3 py-1 rounded-full text-xs font-bold">
                               Out of Stock
@@ -592,7 +611,7 @@ const Products = () => {
                       </div>
                       <div className="p-3">
                         <p className="text-xs font-bold text-red-500 mb-1">
-                          {product.brand}
+                          {product.brand_name}
                         </p>
                         <h3 className="font-bold text-gray-900 text-sm line-clamp-2 mb-2 leading-tight">
                           {product.name}
@@ -601,12 +620,7 @@ const Products = () => {
                           <span className="text-lg font-black text-red-500">
                             Rs. {product.price.toLocaleString()}
                           </span>
-                          <div className="flex items-center gap-1">
-                            <span className="text-yellow-500 text-sm">★</span>
-                            <span className="text-xs font-semibold text-gray-600">
-                              {product.rating}
-                            </span>
-                          </div>
+                          {/* Add rating later */}
                         </div>
                       </div>
                     </motion.div>
@@ -624,16 +638,18 @@ const Products = () => {
                       animate={{ opacity: 1, x: 0 }}
                       exit={{ opacity: 0, x: -20 }}
                       transition={{ duration: 0.3 }}
-                      onClick={() => navigate(`/product/${product.id}`)}
+                      onClick={() => navigate(`/product/${product.slug}`)}
                       className="bg-white rounded-xl shadow-md hover:shadow-lg transition-all overflow-hidden flex group cursor-pointer"
                     >
                       <div className="relative w-32 h-32 flex-shrink-0 overflow-hidden">
                         <img
-                          src={product.image}
+                          src={
+                            product.primary_image || "/image_not_there.avif"
+                          }
                           alt={product.name}
                           className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
                         />
-                        {!product.inStock && (
+                        {product.stock_quantity === 0 && (
                           <div className="absolute inset-0 bg-black/60 flex items-center justify-center">
                             <span className="bg-red-500 text-white px-2 py-1 rounded-full text-xs font-bold">
                               Out of Stock
@@ -646,7 +662,7 @@ const Products = () => {
                           <div className="flex items-start justify-between mb-2">
                             <div className="flex-1">
                               <p className="text-xs font-bold text-red-500 mb-1">
-                                {product.brand}
+                                {product.brand_name}
                               </p>
                               <h3 className="font-bold text-gray-900 text-sm mb-1 line-clamp-2">
                                 {product.name}
@@ -655,12 +671,6 @@ const Products = () => {
                                 {product.description}
                               </p>
                             </div>
-                            <div className="flex items-center gap-1 ml-3">
-                              <span className="text-yellow-500 text-sm">★</span>
-                              <span className="text-xs font-semibold text-gray-600">
-                                {product.rating}
-                              </span>
-                            </div>
                           </div>
                         </div>
                         <div className="flex items-center justify-between">
@@ -668,7 +678,7 @@ const Products = () => {
                             Rs. {product.price.toLocaleString()}
                           </span>
                           <span className="text-xs text-gray-500">
-                            {product.category}
+                            {product.main_category_name}
                           </span>
                         </div>
                       </div>
