@@ -29,8 +29,6 @@ const auth = (req, res, next) => {
 
     // Verify token
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    console.log('✅ Token verified for user:', decoded.username || decoded.email, 'Type:', decoded.type);
-
     // Add user from payload to request object
     req.user = decoded;
     next();

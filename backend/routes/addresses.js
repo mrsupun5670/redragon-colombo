@@ -21,6 +21,11 @@ router.get('/default', addressController.getDefaultAddress);
 // @access  Private (Customer)
 router.get('/', addressController.getAllAddresses);
 
+// @route   GET /api/addresses/history
+// @desc    Get customer's address history
+// @access  Private (Customer)
+router.get('/history', addressController.getAddressHistory);
+
 // @route   DELETE /api/addresses/:addressId
 // @desc    Delete customer address
 // @access  Private (Customer)

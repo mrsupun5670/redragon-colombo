@@ -28,13 +28,20 @@ import Footer from '../components/layout/Footer';
 import ParticleEffect from '../components/common/ParticleEffect';
 import RefundRequestModal from '../components/common/RefundRequestModal';
 import EditProfileModal from '../components/common/EditProfileModal';
-import { authAPI, userUtils } from '../services/api';
+import { authAPI, userUtils, orderAPI } from '../services/api';
+import { useNavigate } from 'react-router-dom';
+
 
 const MyAccount = () => {
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('overview');
   const [showEditProfile, setShowEditProfile] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [orders, setOrders] = useState([]);
+  const [ordersLoading, setOrdersLoading] = useState(false);
+
+  // Change password states
 
   // User data state
   const [userData, setUserData] = useState({
@@ -53,7 +60,20 @@ const MyAccount = () => {
 
   // Fetch user data on component mount
   useEffect(() => {
-    fetchUserData();
+    let isMounted = true;
+    
+    const loadData = async () => {
+      if (isMounted) {
+        await fetchUserData();
+        await fetchOrders();
+      }
+    };
+    
+    loadData();
+    
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   const fetchUserData = async () => {
@@ -149,8 +169,59 @@ const MyAccount = () => {
     }
   };
 
-  // Mock orders data
-  const orders = [
+
+  // Fetch orders from API
+  const fetchOrders = async () => {
+    try {
+      setOrdersLoading(true);
+      console.log('Fetching orders...');
+      const response = await orderAPI.getUserOrders();
+      console.log('Orders API response:', response);
+      console.log('Orders data:', response.data);
+      if (response.data.success) {
+        console.log('Orders array:', response.data.data);
+        const ordersData = response.data.data || [];
+        setOrders(ordersData);
+        
+        // Update user stats with real order data
+        const totalSpent = ordersData.reduce((sum, order) => sum + parseFloat(order.total || 0), 0);
+        setUserData(prev => ({
+          ...prev,
+          totalOrders: ordersData.length,
+          totalSpent: totalSpent
+        }));
+      } else {
+        console.log('API call unsuccessful:', response.data);
+        setOrders([]);
+      }
+    } catch (error) {
+      console.error('Error fetching orders:', error);
+      console.error('Error details:', error.response?.data);
+      setOrders([]);
+    } finally {
+      setOrdersLoading(false);
+    }
+  };
+
+  // Logout function
+  const handleLogout = async () => {
+    try {
+      // Call logout API
+      await authAPI.logout();
+      // Clear local storage
+      userUtils.clearAuthData();
+      // Redirect to login
+      navigate('/login');
+    } catch (error) {
+      console.error('Logout error:', error);
+      // Even if API call fails, clear local data and redirect
+      userUtils.clearAuthData();
+      navigate('/login');
+    }
+  };
+
+  // Mock orders data (fallback)
+  const mockOrders = [
     {
       id: '#1248',
       date: '2024-01-15',
@@ -416,15 +487,15 @@ const MyAccount = () => {
             <div key={index} className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-3 sm:p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors gap-2 sm:gap-0">
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
-                  <span className="font-bold text-gray-900 text-sm sm:text-base">{order.id}</span>
-                  <span className={`px-2 sm:px-3 py-1 rounded-full text-xs font-semibold ${getStatusColor(order.status)}`}>
-                    {order.status}
+                  <span className="font-bold text-gray-900 text-sm sm:text-base">{order.order_number}</span>
+                  <span className={`px-2 sm:px-3 py-1 rounded-full text-xs font-semibold ${getStatusColor(order.order_status)}`}>
+                    {order.order_status}
                   </span>
                 </div>
-                <p className="text-xs sm:text-sm text-gray-600 mt-1">{order.items} items • {order.date}</p>
+                <p className="text-xs sm:text-sm text-gray-600 mt-1">{order.items?.length || 0} items • {new Date(order.created_at).toLocaleDateString()}</p>
               </div>
               <div className="text-left sm:text-right">
-                <p className="font-bold text-gray-900 text-base sm:text-lg">Rs. {order.total.toLocaleString()}</p>
+                <p className="font-bold text-gray-900 text-base sm:text-lg">Rs. {parseFloat(order.total).toLocaleString()}</p>
               </div>
             </div>
           ))}
@@ -453,7 +524,19 @@ const MyAccount = () => {
       <div className="space-y-3 sm:space-y-4">
         <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-4 sm:mb-6 px-1">My Orders</h2>
 
-        {orders.map((order, index) => (
+        {ordersLoading ? (
+          <div className="text-center py-8">
+            <div className="w-12 h-12 border-4 border-red-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+            <p className="text-gray-600">Loading your orders...</p>
+          </div>
+        ) : orders.length === 0 ? (
+          <div className="text-center py-12">
+            <Package className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+            <h3 className="text-xl font-semibold text-gray-600 mb-2">No Orders Yet</h3>
+            <p className="text-gray-500">When you place your first order, it will appear here.</p>
+          </div>
+        ) : (
+          orders.map((order, index) => (
           <motion.div
             key={index}
             initial={{ opacity: 0, y: 20 }}
@@ -470,13 +553,13 @@ const MyAccount = () => {
                 <div className="flex items-start justify-between gap-2">
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-2 flex-wrap">
-                      <h3 className="text-base sm:text-lg md:text-xl font-bold text-gray-900">Order {order.id}</h3>
-                      <span className={`px-2 sm:px-3 py-1 rounded-full text-xs font-semibold ${getStatusColor(order.status)} whitespace-nowrap`}>
-                        {order.status}
+                      <h3 className="text-base sm:text-lg md:text-xl font-bold text-gray-900">Order {order.order_number}</h3>
+                      <span className={`px-2 sm:px-3 py-1 rounded-full text-xs font-semibold ${getStatusColor(order.order_status)} whitespace-nowrap`}>
+                        {order.order_status}
                       </span>
                     </div>
-                    <p className="text-gray-600 text-xs sm:text-sm">Placed on {new Date(order.date).toLocaleDateString()}</p>
-                    <p className="text-xs sm:text-sm text-gray-500 mt-1">{order.items} items • {order.deliveryZone}</p>
+                    <p className="text-gray-600 text-xs sm:text-sm">Placed on {new Date(order.created_at).toLocaleDateString()}</p>
+                    <p className="text-xs sm:text-sm text-gray-500 mt-1">{order.items?.length || 0} items • {order.payment_method}</p>
                   </div>
                   <div className="flex items-center justify-center w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-gray-100 hover:bg-gray-200 transition-colors flex-shrink-0">
                     {expandedOrder === order.id ? (
@@ -488,10 +571,10 @@ const MyAccount = () => {
                 </div>
                 <div className="flex items-center justify-between pt-2 border-t border-gray-100">
                   <div>
-                    <p className="text-lg sm:text-xl md:text-2xl font-bold text-red-600">Rs. {(order.total + order.deliveryCharge + order.paymentFee).toLocaleString()}</p>
-                    {order.trackingNumber && (
+                    <p className="text-lg sm:text-xl md:text-2xl font-bold text-red-600">Rs. {parseFloat(order.total).toLocaleString()}</p>
+                    {order.tracking_number && (
                       <p className="text-xs text-blue-600 mt-1 font-medium">
-                        Track: {order.trackingNumber}
+                        Track: {order.tracking_number}
                       </p>
                     )}
                   </div>
@@ -524,19 +607,17 @@ const MyAccount = () => {
               <div className="flex items-start gap-2 sm:gap-3 p-2.5 sm:p-3 bg-blue-50 rounded-lg">
                 <TruckIcon className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600 mt-0.5 flex-shrink-0" />
                 <div className="flex-1 min-w-0">
-                  <p className="text-xs font-medium text-gray-500">Delivery Address</p>
-                  <p className="text-xs sm:text-sm font-semibold text-gray-900 mt-1 break-words">{order.deliveryAddress}</p>
+                  <p className="text-xs font-medium text-gray-500">Order Status</p>
+                  <p className="text-xs sm:text-sm font-semibold text-gray-900 mt-1 break-words capitalize">{order.order_status}</p>
                 </div>
               </div>
 
               <div className="flex items-start gap-2 sm:gap-3 p-2.5 sm:p-3 bg-green-50 rounded-lg">
                 <Clock className="w-4 h-4 sm:w-5 sm:h-5 text-green-600 mt-0.5 flex-shrink-0" />
                 <div className="flex-1 min-w-0">
-                  <p className="text-xs font-medium text-gray-500">
-                    {order.deliveredDate ? 'Delivered On' : 'Estimated Delivery'}
-                  </p>
+                  <p className="text-xs font-medium text-gray-500">Order Date</p>
                   <p className="text-xs sm:text-sm font-semibold text-gray-900 mt-1">
-                    {new Date(order.deliveredDate || order.estimatedDelivery).toLocaleDateString()}
+                    {new Date(order.created_at).toLocaleDateString()}
                   </p>
                 </div>
               </div>
@@ -546,16 +627,15 @@ const MyAccount = () => {
             <div className="mb-3 sm:mb-4">
               <h4 className="text-sm sm:text-base font-semibold text-gray-700 mb-2 sm:mb-3">Order Items:</h4>
               <div className="space-y-2">
-                {order.products.map((product, idx) => (
+                {order.items?.map((item, idx) => (
                   <div key={idx} className="flex flex-col sm:flex-row sm:justify-between sm:items-center py-2 px-2.5 sm:px-3 bg-gray-50 rounded-lg gap-1 sm:gap-2">
                     <div className="flex items-center gap-2 flex-1 min-w-0">
-                      <span className="text-xs sm:text-sm text-gray-900 font-medium break-words">{product.name}</span>
-                      <span className="text-gray-400 text-xs sm:text-sm whitespace-nowrap">×{product.qty}</span>
-                      <span className="text-gray-400 text-xs whitespace-nowrap">({product.weight}kg)</span>
+                      <span className="text-xs sm:text-sm text-gray-900 font-medium break-words">{item.product_name}</span>
+                      <span className="text-gray-400 text-xs sm:text-sm whitespace-nowrap">×{item.quantity}</span>
                     </div>
-                    <span className="text-sm sm:text-base font-semibold text-gray-900 self-start sm:self-auto">Rs. {product.price.toLocaleString()}</span>
+                    <span className="text-sm sm:text-base font-semibold text-gray-900 self-start sm:self-auto">Rs. {parseFloat(item.price).toLocaleString()}</span>
                   </div>
-                ))}
+                )) || []}
               </div>
             </div>
 
@@ -563,22 +643,22 @@ const MyAccount = () => {
             <div className="bg-gray-50 rounded-lg p-3 sm:p-4 mb-3 sm:mb-4 space-y-2">
               <div className="flex justify-between text-xs sm:text-sm">
                 <span className="text-gray-600">Items Subtotal:</span>
-                <span className="font-semibold">Rs. {order.total.toLocaleString()}</span>
+                <span className="font-semibold">Rs. {parseFloat(order.subtotal).toLocaleString()}</span>
               </div>
               <div className="flex justify-between text-xs sm:text-sm">
                 <span className="text-gray-600">Delivery Charge:</span>
-                <span className="font-semibold">Rs. {order.deliveryCharge.toLocaleString()}</span>
+                <span className="font-semibold">Rs. {parseFloat(order.shipping_fee).toLocaleString()}</span>
               </div>
-              {order.paymentFee > 0 && (
+              {order.discount > 0 && (
                 <div className="flex justify-between text-xs sm:text-sm">
                   <span className="text-gray-600">Payment Processing:</span>
-                  <span className="font-semibold">Rs. {order.paymentFee.toLocaleString()}</span>
+                  <span className="font-semibold">Rs. {parseFloat(order.discount).toLocaleString()}</span>
                 </div>
               )}
               <div className="flex justify-between pt-2 border-t border-gray-200 text-sm sm:text-base">
                 <span className="font-bold text-gray-900">Total Paid:</span>
                 <span className="font-bold text-red-600">
-                  Rs. {(order.total + order.deliveryCharge + order.paymentFee).toLocaleString()}
+                  Rs. {parseFloat(order.total).toLocaleString()}
                 </span>
               </div>
               <div className="flex justify-between text-xs sm:text-sm pt-2 border-t border-gray-200">
@@ -586,12 +666,12 @@ const MyAccount = () => {
                   <CreditCard className="w-3 h-3 sm:w-4 sm:h-4" />
                   Payment Method:
                 </span>
-                <span className="font-semibold">{order.paymentMethod}</span>
+                <span className="font-semibold">{order.payment_method}</span>
               </div>
             </div>
 
-            {/* Delivery Tracking */}
-            {order.deliveryUpdates && (
+            {/* Delivery Tracking - Commented out until we have tracking data */}
+            {false && order.deliveryUpdates && (
               <div className="mb-4">
                 <button
                   onClick={(e) => {
@@ -677,7 +757,8 @@ const MyAccount = () => {
               )}
             </AnimatePresence>
           </motion.div>
-        ))}
+        ))
+        )}
 
         {/* Refund Request Modal */}
         {showRefundModal && selectedOrderForRefund && (
@@ -772,35 +853,73 @@ const MyAccount = () => {
         className="bg-white rounded-xl p-4 sm:p-5 md:p-6 shadow-lg border-2 border-gray-100"
       >
         <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-3 sm:mb-4">Change Password</h3>
-        <div className="space-y-3 sm:space-y-4">
-          <div>
-            <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-2">Current Password</label>
-            <input
-              type="password"
-              className="w-full px-3 sm:px-4 py-2.5 sm:py-3 border-2 border-gray-200 rounded-lg focus:border-red-500 focus:outline-none text-sm sm:text-base"
-              placeholder="Enter current password"
-            />
+        
+        <form onSubmit={(e) => {
+          e.preventDefault();
+          const formData = new FormData(e.target);
+          const currentPassword = formData.get('currentPassword');
+          const newPassword = formData.get('newPassword');
+          const confirmPassword = formData.get('confirmPassword');
+          
+          if (newPassword !== confirmPassword) {
+            alert('New passwords do not match');
+            return;
+          }
+          
+          authAPI.changePassword({
+            currentPassword,
+            newPassword,
+            confirmPassword
+          }).then(() => {
+            alert('Password changed successfully');
+            e.target.reset();
+          }).catch(err => {
+            alert(err.response?.data?.message || 'Failed to change password');
+          });
+        }}>
+          <div className="space-y-3 sm:space-y-4">
+            <div>
+              <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-2">Current Password *</label>
+              <input
+                type="password"
+                name="currentPassword"
+                placeholder="Enter current password"
+                required
+                className="w-full px-3 sm:px-4 py-2.5 sm:py-3 border-2 border-gray-200 focus:border-red-500 rounded-lg focus:outline-none text-sm sm:text-base transition-colors"
+              />
+            </div>
+            
+            <div>
+              <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-2">New Password *</label>
+              <input
+                type="password"
+                name="newPassword"
+                placeholder="Enter new password (min 6 characters)"
+                required
+                minLength="6"
+                className="w-full px-3 sm:px-4 py-2.5 sm:py-3 border-2 border-gray-200 focus:border-red-500 rounded-lg focus:outline-none text-sm sm:text-base transition-colors"
+              />
+            </div>
+            
+            <div>
+              <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-2">Confirm New Password *</label>
+              <input
+                type="password"
+                name="confirmPassword"
+                placeholder="Confirm new password"
+                required
+                className="w-full px-3 sm:px-4 py-2.5 sm:py-3 border-2 border-gray-200 focus:border-red-500 rounded-lg focus:outline-none text-sm sm:text-base transition-colors"
+              />
+            </div>
+            
+            <button 
+              type="submit"
+              className="w-full bg-gradient-to-r from-red-500 to-orange-500 hover:from-red-600 hover:to-orange-600 text-white py-2.5 sm:py-3 rounded-lg font-bold transition-all text-sm sm:text-base"
+            >
+              Update Password
+            </button>
           </div>
-          <div>
-            <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-2">New Password</label>
-            <input
-              type="password"
-              className="w-full px-3 sm:px-4 py-2.5 sm:py-3 border-2 border-gray-200 rounded-lg focus:border-red-500 focus:outline-none text-sm sm:text-base"
-              placeholder="Enter new password"
-            />
-          </div>
-          <div>
-            <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-2">Confirm New Password</label>
-            <input
-              type="password"
-              className="w-full px-3 sm:px-4 py-2.5 sm:py-3 border-2 border-gray-200 rounded-lg focus:border-red-500 focus:outline-none text-sm sm:text-base"
-              placeholder="Confirm new password"
-            />
-          </div>
-          <button className="w-full bg-gradient-to-r from-red-500 to-orange-500 hover:from-red-600 hover:to-orange-600 text-white py-2.5 sm:py-3 rounded-lg font-bold transition-all text-sm sm:text-base">
-            Update Password
-          </button>
-        </div>
+        </form>
       </motion.div>
 
       <motion.div
@@ -811,7 +930,10 @@ const MyAccount = () => {
       >
         <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-2 sm:mb-4">Logout</h3>
         <p className="text-sm sm:text-base text-gray-600 mb-3 sm:mb-4">Sign out of your account on this device</p>
-        <button className="flex items-center gap-2 w-full bg-red-500 hover:bg-red-600 text-white py-2.5 sm:py-3 rounded-lg font-bold transition-all justify-center text-sm sm:text-base">
+        <button 
+          onClick={handleLogout}
+          className="flex items-center gap-2 w-full bg-red-500 hover:bg-red-600 text-white py-2.5 sm:py-3 rounded-lg font-bold transition-all justify-center text-sm sm:text-base"
+        >
           <LogOut className="w-4 h-4 sm:w-5 sm:h-5" />
           Logout
         </button>

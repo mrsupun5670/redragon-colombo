@@ -1,18 +1,18 @@
 const db = require('../config/db');
 
 class DeliveryZone {
-  // Get all active delivery zones
+  // Get all delivery zones
   static async findAll() {
     const [rows] = await db.query(
-      'SELECT * FROM delivery_zones WHERE is_active = 1 ORDER BY zone_name ASC'
+      'SELECT * FROM delivery_zones ORDER BY zone_name ASC'
     );
     return rows;
   }
 
-  // Get all zones (including inactive) for admin
+  // Get all zones for admin
   static async findAllForAdmin() {
     const [rows] = await db.query(
-      'SELECT * FROM delivery_zones ORDER BY created_at DESC'
+      'SELECT * FROM delivery_zones ORDER BY zone_name ASC'
     );
     return rows;
   }
@@ -37,7 +37,7 @@ class DeliveryZone {
   }
 
   // Update delivery zone
-  static async update(id, { zone_name, base_charge, extra_charge, min_weight, is_active }) {
+  static async update(id, { zone_name, base_charge, extra_charge, min_weight }) {
     const updates = [];
     const values = [];
 
@@ -56,10 +56,6 @@ class DeliveryZone {
     if (min_weight !== undefined) {
       updates.push('min_weight = ?');
       values.push(min_weight);
-    }
-    if (is_active !== undefined) {
-      updates.push('is_active = ?');
-      values.push(is_active);
     }
 
     if (updates.length === 0) {
@@ -91,10 +87,6 @@ class DeliveryZone {
 
     if (!zone) {
       throw new Error('Delivery zone not found');
-    }
-
-    if (!zone.is_active) {
-      throw new Error('Delivery zone is not active');
     }
 
     let deliveryCharge;
