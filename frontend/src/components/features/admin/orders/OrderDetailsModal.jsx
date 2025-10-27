@@ -47,12 +47,16 @@ const OrderDetailsModal = ({ order, onClose, setOrders }) => {
           <div className="mt-8">
             <h3 className="text-lg font-bold mb-2">Order Items</h3>
             <ul className="space-y-2">
-              {order.items.map(item => (
-                <li key={item.name} className="flex justify-between">
-                  <span>{item.name} (x{item.qty})</span>
-                  <span>Rs. {item.price.toLocaleString()}</span>
-                </li>
-              ))}
+              {order.items && order.items.length > 0 ? (
+                order.items.map((item, index) => (
+                  <li key={item.product_name || item.name || index} className="flex justify-between">
+                    <span>{item.product_name || item.name} (x{item.quantity || item.qty})</span>
+                    <span>Rs. {parseFloat(item.price).toLocaleString()}</span>
+                  </li>
+                ))
+              ) : (
+                <li className="text-gray-500 italic">No items found for this order</li>
+              )}
             </ul>
           </div>
           <div className="mt-8">
