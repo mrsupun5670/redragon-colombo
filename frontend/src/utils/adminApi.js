@@ -3,7 +3,7 @@ import axios from 'axios';
 const API_BASE_URL = 'http://localhost:5001/api';
 
 const getAdminToken = () => {
-  return localStorage.getItem('adminToken');
+  return localStorage.getItem('adminToken') || localStorage.getItem('token');
 };
 
 const apiClient = axios.create({

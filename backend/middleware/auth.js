@@ -54,4 +54,32 @@ const adminAuth = (req, res, next) => {
   });
 };
 
-module.exports = { auth, adminAuth };
+// Optional middleware - doesn't require auth but sets req.user if token is valid
+const optionalAuth = (req, res, next) => {
+  try {
+    // Get token from cookie first, then from Authorization header
+    let token = req.cookies.token;
+    
+    if (!token) {
+      const authHeader = req.header('Authorization') || req.headers.authorization;
+      if (authHeader && authHeader.startsWith('Bearer ')) {
+        token = authHeader.substring(7);
+      }
+    }
+    
+    // If no token, continue without setting req.user
+    if (!token) {
+      return next();
+    }
+
+    // Verify token if present
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    req.user = decoded;
+    next();
+  } catch (err) {
+    // If token is invalid, continue without setting req.user (don't block request)
+    next();
+  }
+};
+
+module.exports = { auth, adminAuth, optionalAuth };

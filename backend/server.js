@@ -82,12 +82,10 @@ const addressRoutes = require('./routes/addresses');
 const payhereRoutes = require('./routes/payhere');
 const orderRoutes = require('./routes/orders');
 const wishlistRoutes = require('./routes/wishlist');
-const { getAllProductsForAdmin } = require('./controllers/productController');
 
 
 app.use('/api/auth', authRoutes);
 app.use('/api/products', productRoutes);
-app.use('/api/adminProducts', getAllProductsForAdmin);
 app.use('/api/images', imageRoutes);
 app.use('/api/refunds', refundRoutes);
 app.use('/api/delivery', deliveryRoutes);

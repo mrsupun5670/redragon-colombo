@@ -35,7 +35,7 @@ const sendEmail = async (to, subject, html) => {
 
     const mailOptions = {
       from: {
-        name: 'Red Dragon Colombo',
+        name: 'Redragon Colombo',
         address: process.env.EMAIL_USER
       },
       to,
@@ -59,7 +59,7 @@ const sendPasswordResetEmail = async (email, resetCode, userName) => {
     <head>
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <title>Password Reset Code - Red Dragon Colombo</title>
+      <title>Password Reset Code - Redragon Colombo</title>
       <style>
         body { font-family: Arial, sans-serif; line-height: 1.6; margin: 0; padding: 0; background-color: #f4f4f4; }
         .container { max-width: 600px; margin: 0 auto; padding: 20px; background-color: #ffffff; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
@@ -75,14 +75,14 @@ const sendPasswordResetEmail = async (email, resetCode, userName) => {
     <body>
       <div class="container">
         <div class="header">
-          <div class="logo">Red Dragon Colombo</div>
+          <div class="logo">Redragon Colombo</div>
         </div>
         
         <div class="content">
           <h2>Password Reset Code</h2>
           <p>Hello ${userName || 'User'},</p>
           
-          <p>We received a request to reset your password for your Red Dragon Colombo account. If you didn't make this request, you can safely ignore this email.</p>
+          <p>We received a request to reset your password for your Redragon Colombo account. If you didn't make this request, you can safely ignore this email.</p>
           
           <p>Use the following 6-digit verification code to reset your password:</p>
           
@@ -97,11 +97,11 @@ const sendPasswordResetEmail = async (email, resetCode, userName) => {
           
           <p>If you didn't request a password reset, please ignore this email or contact our support team if you have concerns.</p>
           
-          <p>Best regards,<br>Red Dragon Colombo Team</p>
+          <p>Best regards,<br>Redragon Colombo Team</p>
         </div>
         
         <div class="footer">
-          <p>&copy; 2024 Red Dragon Colombo. All rights reserved.</p>
+          <p>&copy; 2024 Redragon Colombo. All rights reserved.</p>
           <p>This is an automated email. Please do not reply to this message.</p>
         </div>
       </div>
@@ -109,7 +109,7 @@ const sendPasswordResetEmail = async (email, resetCode, userName) => {
     </html>
   `;
 
-  return await sendEmail(email, 'Password Reset Code - Red Dragon Colombo', html);
+  return await sendEmail(email, 'Password Reset Code - Redragon Colombo', html);
 };
 
 module.exports = {
