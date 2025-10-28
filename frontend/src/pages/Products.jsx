@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Search,
@@ -19,6 +19,7 @@ import { productAPI, categoryAPI, brandAPI } from "../services/api";
 
 const Products = () => {
   const navigate = useNavigate();
+  const location = useLocation();
 
   // State management
   const [viewMode, setViewMode] = useState("grid");
@@ -45,6 +46,15 @@ const Products = () => {
   const [categoryOpen, setCategoryOpen] = useState(false);
   const [subCategoryOpen, setSubCategoryOpen] = useState(false);
   const [brandOpen, setBrandOpen] = useState(false);
+
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const category = params.get('category');
+    if (category) {
+      setSelectedCategories([category]);
+      setCategoryOpen(true);
+    }
+  }, [location.search]);
 
   // Data fetching
   useEffect(() => {
