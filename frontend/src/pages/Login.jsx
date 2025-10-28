@@ -8,6 +8,7 @@ import ParticleEffect from "../components/common/ParticleEffect";
 import ErrorPopup from "../components/common/ErrorPopup";
 import SuccessPopup from "../components/common/SuccessPopup";
 import { useAuth } from "../context/AuthContext";
+import { navigateToForgotPassword } from "../utils/routeProtection";
 
 const LoginPage = () => {
   const [formData, setFormData] = useState({
@@ -149,12 +150,13 @@ const LoginPage = () => {
 
                 {/* Forgot Password */}
                 <div className="text-right">
-                  <a
-                    href="/forgot-password"
+                  <button
+                    type="button"
+                    onClick={() => navigateToForgotPassword(navigate)}
                     className="text-sm font-bold text-red-600 hover:text-red-700 transition-colors"
                   >
                     Forgot Password?
-                  </a>
+                  </button>
                 </div>
 
                 {/* Submit Button */}

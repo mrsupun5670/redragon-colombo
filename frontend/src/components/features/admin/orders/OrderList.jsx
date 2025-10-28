@@ -12,8 +12,18 @@ const OrderList = () => {
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [selectedOrderLoading, setSelectedOrderLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [debouncedSearchQuery, setDebouncedSearchQuery] = useState('');
 
   const statusFilters = ['all', 'pending', 'confirmed', 'processing', 'shipped', 'delivered', 'cancelled'];
+
+  // Debounce search query
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      setDebouncedSearchQuery(searchQuery);
+    }, 500);
+
+    return () => clearTimeout(timeoutId);
+  }, [searchQuery]);
 
   // Fetch orders from API
   useEffect(() => {
@@ -26,8 +36,8 @@ const OrderList = () => {
           params.append('status', filteredStatus);
         }
         
-        if (searchQuery.trim()) {
-          params.append('search', searchQuery.trim());
+        if (debouncedSearchQuery.trim()) {
+          params.append('search', debouncedSearchQuery.trim());
         }
 
         const response = await adminApi.get(`/orders/admin/all?${params.toString()}`);
@@ -46,13 +56,8 @@ const OrderList = () => {
       }
     };
 
-    // Debounce search query
-    const timeoutId = setTimeout(() => {
-      fetchOrders();
-    }, searchQuery ? 500 : 0);
-
-    return () => clearTimeout(timeoutId);
-  }, [filteredStatus, searchQuery]);
+    fetchOrders();
+  }, [filteredStatus, debouncedSearchQuery]);
 
   // Fetch full order details when order is clicked
   const handleOrderClick = async (order) => {
@@ -84,6 +89,33 @@ const OrderList = () => {
       });
     } finally {
       setSelectedOrderLoading(false);
+    }
+  };
+
+  // Refresh orders after status update
+  const refreshOrders = async () => {
+    try {
+      setLoading(true);
+      const params = new URLSearchParams();
+      
+      if (filteredStatus !== 'all') {
+        params.append('status', filteredStatus);
+      }
+      
+      if (debouncedSearchQuery.trim()) {
+        params.append('search', debouncedSearchQuery.trim());
+      }
+
+      const response = await adminApi.get(`/orders/admin/all?${params.toString()}`);
+      
+      if (response.success) {
+        setOrders(response.data);
+        setError(null);
+      }
+    } catch (err) {
+      console.error('Error refreshing orders:', err);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -150,6 +182,11 @@ const OrderList = () => {
             onChange={(e) => setSearchQuery(e.target.value)}
             className="w-full pl-12 pr-4 py-3 text-gray-800 bg-blue-100 border-2 border-blue-200 rounded-lg text-base"
           />
+          {searchQuery !== debouncedSearchQuery && (
+            <div className="absolute right-4 top-1/2 -translate-y-1/2">
+              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-500"></div>
+            </div>
+          )}
         </div>
       </div>
       <table className="w-full text-left">
@@ -214,7 +251,10 @@ const OrderList = () => {
       {selectedOrder && !selectedOrderLoading && (
         <OrderDetailsModal 
           order={selectedOrder} 
-          onClose={() => setSelectedOrder(null)} 
+          onClose={() => {
+            setSelectedOrder(null);
+            refreshOrders(); // Refresh orders after modal closes
+          }} 
           setOrders={setOrders} 
         />
       )}

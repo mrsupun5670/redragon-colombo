@@ -1,91 +1,211 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { DollarSign, ShoppingCart, Users, Package, ArrowUp, ArrowDown, TrendingUp, Eye } from 'lucide-react';
+import { 
+  DollarSign, ShoppingCart, Users, Package, ArrowUp, ArrowDown, TrendingUp, Eye, 
+  AlertTriangle, CheckCircle, Clock, Truck, Star, Award, BarChart3, Zap
+} from 'lucide-react';
+import { adminApi } from '../../../utils/adminApi';
 
 const Dashboard = ({ setActiveTab }) => {
-  const stats = [
+  const [dashboardData, setDashboardData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [lastUpdated, setLastUpdated] = useState(new Date());
+
+  // Fetch dashboard data
+  useEffect(() => {
+    const fetchDashboardData = async () => {
+      try {
+        setLoading(true);
+        const response = await adminApi.get('/dashboard/stats');
+        
+        if (response.success) {
+          setDashboardData(response.data);
+          setLastUpdated(new Date());
+          setError(null);
+        } else {
+          setError('Failed to load dashboard data');
+        }
+      } catch (err) {
+        console.error('Error fetching dashboard data:', err);
+        setError('Failed to load dashboard data. Please try again.');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchDashboardData();
+
+    // Set up auto-refresh every 5 minutes
+    const interval = setInterval(fetchDashboardData, 5 * 60 * 1000);
+    return () => clearInterval(interval);
+  }, []);
+
+  if (loading && !dashboardData) {
+    return (
+      <div className="flex items-center justify-center h-96">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-500 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Loading dashboard...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error && !dashboardData) {
+    return (
+      <div className="flex items-center justify-center h-96">
+        <div className="text-center">
+          <p className="text-red-500 text-xl">{error}</p>
+          <button 
+            onClick={() => window.location.reload()} 
+            className="mt-4 bg-red-500 hover:bg-red-600 text-white px-6 py-2 rounded"
+          >
+            Try Again
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  const { stats, topProducts, topCustomers, recentOrders, ordersChart, lowStockProducts } = dashboardData || {};
+
+  // Create stats cards from API data
+  const statsCards = [
     {
       name: 'Total Revenue',
-      value: 'Rs. 2,456,780',
-      change: '+20.1%',
-      changeType: 'increase',
+      value: `Rs. ${stats?.revenue?.current?.toLocaleString() || '0'}`,
+      change: `${stats?.revenue?.change >= 0 ? '+' : ''}${stats?.revenue?.change || 0}%`,
+      changeType: stats?.revenue?.changeType || 'increase',
       icon: DollarSign,
-      color: 'from-green-500 to-emerald-600'
+      color: 'from-green-500 to-emerald-600',
+      total: `Rs. ${stats?.revenue?.total?.toLocaleString() || '0'}`,
+      subtitle: 'This month vs last month'
     },
     {
       name: 'Total Orders',
-      value: '1,248',
-      change: '+15.3%',
-      changeType: 'increase',
+      value: `${stats?.orders?.current?.toLocaleString() || '0'}`,
+      change: `${stats?.orders?.change >= 0 ? '+' : ''}${stats?.orders?.change || 0}%`,
+      changeType: stats?.orders?.changeType || 'increase',
       icon: ShoppingCart,
-      color: 'from-blue-500 to-cyan-600'
+      color: 'from-blue-500 to-cyan-600',
+      total: `${stats?.orders?.total?.toLocaleString() || '0'} total`,
+      subtitle: 'This month vs last month'
     },
     {
       name: 'Total Customers',
-      value: '856',
-      change: '+12.5%',
-      changeType: 'increase',
+      value: `${stats?.customers?.current?.toLocaleString() || '0'}`,
+      change: `${stats?.customers?.change >= 0 ? '+' : ''}${stats?.customers?.change || 0}%`,
+      changeType: stats?.customers?.changeType || 'increase',
       icon: Users,
-      color: 'from-purple-500 to-pink-600'
+      color: 'from-purple-500 to-pink-600',
+      total: `${stats?.customers?.total?.toLocaleString() || '0'} total`,
+      subtitle: 'New this month vs last month'
     },
     {
       name: 'Total Products',
-      value: '342',
-      change: '-2.4%',
-      changeType: 'decrease',
+      value: `${stats?.products?.active?.toLocaleString() || '0'}`,
+      change: `${stats?.products?.low_stock || 0} low stock`,
+      changeType: 'info',
       icon: Package,
-      color: 'from-orange-500 to-red-600'
+      color: 'from-orange-500 to-red-600',
+      total: `${stats?.products?.total?.toLocaleString() || '0'} total`,
+      subtitle: 'Active products'
     },
   ];
 
-  const topProducts = [
-    { id: 1, name: 'Redragon K552 Keyboard', sold: 245, revenue: 'Rs. 14,697.55', stock: 100 },
-    { id: 2, name: 'Logitech G502 Mouse', sold: 189, revenue: 'Rs. 11,308.11', stock: 50 },
-    { id: 3, name: 'Razer BlackWidow V3', sold: 156, revenue: 'Rs. 20,278.44', stock: 45 },
-    { id: 4, name: 'SteelSeries Arctis 7', sold: 92, revenue: 'Rs. 13,799.08', stock: 75 },
-    { id: 5, name: 'Corsair K70 RGB', sold: 78, revenue: 'Rs. 11,919.22', stock: 32 },
-  ];
+  // Process chart data
+  const processChartData = (chartData) => {
+    if (!chartData || chartData.length === 0) return [];
+    
+    // Fill missing days with 0 orders
+    const last30Days = [];
+    for (let i = 29; i >= 0; i--) {
+      const date = new Date();
+      date.setDate(date.getDate() - i);
+      const dateStr = date.toISOString().split('T')[0];
+      
+      const existingData = chartData.find(d => d.order_date === dateStr);
+      last30Days.push({
+        day: 30 - i,
+        date: dateStr,
+        orders: existingData ? parseInt(existingData.order_count) : 0,
+        revenue: existingData ? parseFloat(existingData.daily_revenue) : 0
+      });
+    }
+    return last30Days;
+  };
 
-  const topCustomers = [
-    { id: 1, name: 'Nimal Perera', orders: 24, spent: 'Rs. 125,000', status: 'VIP' },
-    { id: 2, name: 'Saman Fernando', orders: 18, spent: 'Rs. 98,500', status: 'VIP' },
-    { id: 3, name: 'Kamal Silva', orders: 15, spent: 'Rs. 76,200', status: 'Regular' },
-    { id: 4, name: 'Sanduni Rajapaksha', orders: 12, spent: 'Rs. 65,400', status: 'Regular' },
-    { id: 5, name: 'Chaminda Jayawardena', orders: 10, spent: 'Rs. 54,800', status: 'Regular' },
-  ];
-
-  const recentOrders = [
-    { id: '#1248', customer: 'Nimal Perera', amount: 'Rs. 15,000', status: 'Delivered', date: '2024-10-15' },
-    { id: '#1247', customer: 'Saman Fernando', amount: 'Rs. 7,550', status: 'Processing', date: '2024-10-15' },
-    { id: '#1246', customer: 'Kamal Silva', amount: 'Rs. 30,000', status: 'Shipped', date: '2024-10-14' },
-    { id: '#1245', customer: 'Sanduni Rajapaksha', amount: 'Rs. 5,000', status: 'Pending', date: '2024-10-14' },
-    { id: '#1244', customer: 'Chaminda Jayawardena', amount: 'Rs. 12,300', status: 'Delivered', date: '2024-10-13' },
-  ];
-
-  // Mock data for orders chart (last 30 days)
-  const ordersChartData = [
-    { day: 1, orders: 12 }, { day: 2, orders: 19 }, { day: 3, orders: 15 }, { day: 4, orders: 25 },
-    { day: 5, orders: 22 }, { day: 6, orders: 18 }, { day: 7, orders: 30 }, { day: 8, orders: 28 },
-    { day: 9, orders: 24 }, { day: 10, orders: 32 }, { day: 11, orders: 28 }, { day: 12, orders: 35 },
-    { day: 13, orders: 40 }, { day: 14, orders: 38 }, { day: 15, orders: 42 }, { day: 16, orders: 45 },
-    { day: 17, orders: 50 }, { day: 18, orders: 48 }, { day: 19, orders: 52 }, { day: 20, orders: 55 },
-    { day: 21, orders: 58 }, { day: 22, orders: 54 }, { day: 23, orders: 60 }, { day: 24, orders: 62 },
-    { day: 25, orders: 65 }, { day: 26, orders: 63 }, { day: 27, orders: 68 }, { day: 28, orders: 70 },
-    { day: 29, orders: 72 }, { day: 30, orders: 75 }
-  ];
-
-  const maxOrders = Math.max(...ordersChartData.map(d => d.orders));
+  const ordersChartData = processChartData(ordersChart);
+  const maxOrders = Math.max(...ordersChartData.map(d => d.orders), 1);
 
   return (
     <div className="space-y-6 md:space-y-8">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
         <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold">Dashboard Overview</h1>
-        <div className="text-xs sm:text-sm text-gray-500">Last updated: {new Date().toLocaleDateString()}</div>
+        <div className="flex items-center space-x-4">
+          {loading && (
+            <div className="flex items-center space-x-2">
+              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-500"></div>
+              <span className="text-xs text-blue-600">Updating...</span>
+            </div>
+          )}
+          <div className="text-xs sm:text-sm text-gray-500">
+            Last updated: {lastUpdated.toLocaleTimeString()}
+          </div>
+        </div>
+      </div>
+
+      {/* Quick Actions Bar */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <button
+          onClick={() => setActiveTab('orders')}
+          className="flex items-center justify-between p-4 bg-blue-50 rounded-xl hover:bg-blue-100 transition-colors"
+        >
+          <div>
+            <p className="text-sm font-medium text-blue-900">Pending Orders</p>
+            <p className="text-2xl font-bold text-blue-600">{stats?.orders?.pending || 0}</p>
+          </div>
+          <Clock className="w-8 h-8 text-blue-500" />
+        </button>
+        
+        <button
+          onClick={() => setActiveTab('products')}
+          className="flex items-center justify-between p-4 bg-red-50 rounded-xl hover:bg-red-100 transition-colors"
+        >
+          <div>
+            <p className="text-sm font-medium text-red-900">Low Stock</p>
+            <p className="text-2xl font-bold text-red-600">{stats?.products?.low_stock || 0}</p>
+          </div>
+          <AlertTriangle className="w-8 h-8 text-red-500" />
+        </button>
+        
+        <button
+          onClick={() => setActiveTab('customers')}
+          className="flex items-center justify-between p-4 bg-green-50 rounded-xl hover:bg-green-100 transition-colors"
+        >
+          <div>
+            <p className="text-sm font-medium text-green-900">Active Customers</p>
+            <p className="text-2xl font-bold text-green-600">{stats?.customers?.active || 0}</p>
+          </div>
+          <CheckCircle className="w-8 h-8 text-green-500" />
+        </button>
+        
+        <button
+          onClick={() => setActiveTab('orders')}
+          className="flex items-center justify-between p-4 bg-purple-50 rounded-xl hover:bg-purple-100 transition-colors"
+        >
+          <div>
+            <p className="text-sm font-medium text-purple-900">Shipped</p>
+            <p className="text-2xl font-bold text-purple-600">{stats?.orders?.shipped || 0}</p>
+          </div>
+          <Truck className="w-8 h-8 text-purple-500" />
+        </button>
       </div>
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
-        {stats.map((stat, index) => (
+        {statsCards.map((stat, index) => (
           <motion.div
             key={stat.name}
             initial={{ opacity: 0, y: 20 }}
@@ -102,19 +222,23 @@ const Dashboard = ({ setActiveTab }) => {
                   <stat.icon className="w-5 h-5 md:w-6 md:h-6 text-white" />
                 </div>
                 <div className={`flex items-center text-xs md:text-sm font-semibold ${
-                  stat.changeType === 'increase' ? 'text-green-600' : 'text-red-600'
+                  stat.changeType === 'increase' ? 'text-green-600' : 
+                  stat.changeType === 'decrease' ? 'text-red-600' : 'text-yellow-600'
                 }`}>
                   {stat.changeType === 'increase' ? (
                     <ArrowUp className="w-3 h-3 md:w-4 md:h-4 mr-1" />
-                  ) : (
+                  ) : stat.changeType === 'decrease' ? (
                     <ArrowDown className="w-3 h-3 md:w-4 md:h-4 mr-1" />
+                  ) : (
+                    <AlertTriangle className="w-3 h-3 md:w-4 md:h-4 mr-1" />
                   )}
                   {stat.change}
                 </div>
               </div>
               <p className="text-xs md:text-sm font-medium text-gray-500 mb-1">{stat.name}</p>
               <p className="text-2xl md:text-3xl font-bold text-gray-900">{stat.value}</p>
-              <p className="text-xs text-gray-400 mt-1 md:mt-2">vs last month</p>
+              <p className="text-xs text-gray-400 mt-1 md:mt-2">{stat.subtitle}</p>
+              <p className="text-xs text-gray-500 mt-1">{stat.total}</p>
             </div>
           </motion.div>
         ))}
@@ -146,19 +270,20 @@ const Dashboard = ({ setActiveTab }) => {
               <div key={index} className="flex-1 flex flex-col items-center justify-end group min-w-[8px]">
                 <div
                   className="w-full bg-gradient-to-t from-blue-500 to-cyan-400 rounded-t-lg transition-all duration-300 group-hover:from-blue-600 group-hover:to-cyan-500 relative"
-                  style={{ height: `${(data.orders / maxOrders) * 100}%` }}
+                  style={{ height: `${maxOrders > 0 ? (data.orders / maxOrders) * 100 : 0}%` }}
                 >
                   <div className="hidden md:block absolute -top-8 left-1/2 -translate-x-1/2 bg-gray-900 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
-                    Day {data.day}: {data.orders} orders
+                    {new Date(data.date).toLocaleDateString()}: {data.orders} orders
+                    <br />Rs. {data.revenue?.toLocaleString() || '0'}
                   </div>
                 </div>
               </div>
             ))}
           </div>
           <div className="flex justify-between mt-4 text-xs text-gray-500">
-            <span>Day 1</span>
-            <span>Day 15</span>
-            <span>Day 30</span>
+            <span>30 days ago</span>
+            <span>15 days ago</span>
+            <span>Today</span>
           </div>
         </motion.div>
 
@@ -179,25 +304,41 @@ const Dashboard = ({ setActiveTab }) => {
             </button>
           </div>
           <div className="space-y-2 md:space-y-3">
-            {recentOrders.map((order, index) => (
-              <div key={index} className="flex items-center justify-between p-2 md:p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
-                <div className="flex-1 min-w-0">
-                  <p className="text-xs md:text-sm font-semibold text-gray-900 truncate">{order.id}</p>
-                  <p className="text-xs text-gray-500 truncate">{order.customer}</p>
+            {recentOrders && recentOrders.length > 0 ? (
+              recentOrders.slice(0, 8).map((order, index) => (
+                <div key={order.id} className="flex items-center justify-between p-2 md:p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+                  <div className="flex-1 min-w-0">
+                    <p className="text-xs md:text-sm font-semibold text-gray-900 truncate">
+                      #{order.order_number || order.id}
+                    </p>
+                    <p className="text-xs text-gray-500 truncate">{order.customer_name}</p>
+                    <p className="text-xs text-gray-400">
+                      {new Date(order.created_at).toLocaleDateString()}
+                    </p>
+                  </div>
+                  <div className="text-right ml-2">
+                    <p className="text-xs md:text-sm font-bold text-gray-900 whitespace-nowrap">
+                      Rs. {parseFloat(order.total).toLocaleString()}
+                    </p>
+                    <span className={`text-xs px-2 py-0.5 md:py-1 rounded-full whitespace-nowrap ${
+                      order.order_status === 'delivered' ? 'bg-green-100 text-green-700' :
+                      order.order_status === 'processing' ? 'bg-blue-100 text-blue-700' :
+                      order.order_status === 'shipped' ? 'bg-purple-100 text-purple-700' :
+                      order.order_status === 'confirmed' ? 'bg-blue-100 text-blue-700' :
+                      order.order_status === 'cancelled' ? 'bg-red-100 text-red-700' :
+                      'bg-yellow-100 text-yellow-700'
+                    }`}>
+                      {order.order_status.charAt(0).toUpperCase() + order.order_status.slice(1)}
+                    </span>
+                  </div>
                 </div>
-                <div className="text-right ml-2">
-                  <p className="text-xs md:text-sm font-bold text-gray-900 whitespace-nowrap">{order.amount}</p>
-                  <span className={`text-xs px-2 py-0.5 md:py-1 rounded-full whitespace-nowrap ${
-                    order.status === 'Delivered' ? 'bg-green-100 text-green-700' :
-                    order.status === 'Processing' ? 'bg-blue-100 text-blue-700' :
-                    order.status === 'Shipped' ? 'bg-purple-100 text-purple-700' :
-                    'bg-yellow-100 text-yellow-700'
-                  }`}>
-                    {order.status}
-                  </span>
-                </div>
+              ))
+            ) : (
+              <div className="text-center py-8 text-gray-500">
+                <ShoppingCart className="w-12 h-12 mx-auto mb-2 text-gray-300" />
+                <p>No recent orders</p>
               </div>
-            ))}
+            )}
           </div>
         </motion.div>
       </div>
@@ -230,25 +371,41 @@ const Dashboard = ({ setActiveTab }) => {
                 </tr>
               </thead>
               <tbody>
-                {topProducts.map((product, index) => (
-                  <tr key={product.id} className="border-b border-gray-100 hover:bg-gray-50">
-                    <td className="py-2 md:py-3">
-                      <div className="flex items-center">
-                        <div className={`w-6 h-6 md:w-8 md:h-8 rounded-lg bg-gradient-to-br ${
-                          index === 0 ? 'from-yellow-400 to-orange-500' :
-                          index === 1 ? 'from-gray-300 to-gray-400' :
-                          index === 2 ? 'from-orange-400 to-orange-600' :
-                          'from-blue-400 to-blue-600'
-                        } flex items-center justify-center text-white font-bold text-xs mr-2 md:mr-3`}>
-                          {index + 1}
+                {topProducts && topProducts.length > 0 ? (
+                  topProducts.slice(0, 5).map((product, index) => (
+                    <tr key={product.id} className="border-b border-gray-100 hover:bg-gray-50">
+                      <td className="py-2 md:py-3">
+                        <div className="flex items-center">
+                          <div className={`w-6 h-6 md:w-8 md:h-8 rounded-lg bg-gradient-to-br ${
+                            index === 0 ? 'from-yellow-400 to-orange-500' :
+                            index === 1 ? 'from-gray-300 to-gray-400' :
+                            index === 2 ? 'from-orange-400 to-orange-600' :
+                            'from-blue-400 to-blue-600'
+                          } flex items-center justify-center text-white font-bold text-xs mr-2 md:mr-3`}>
+                            {index + 1}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className="text-xs md:text-sm font-medium text-gray-900 truncate">{product.name}</p>
+                            <p className="text-xs text-gray-500">{product.brand_name}</p>
+                          </div>
                         </div>
-                        <span className="text-xs md:text-sm font-medium text-gray-900 truncate">{product.name}</span>
-                      </div>
+                      </td>
+                      <td className="text-right py-2 md:py-3 text-xs md:text-sm font-semibold text-gray-700">
+                        {product.total_sold || 0}
+                      </td>
+                      <td className="text-right py-2 md:py-3 text-xs md:text-sm font-bold text-gray-900 hidden sm:table-cell">
+                        Rs. {parseFloat(product.total_revenue || 0).toLocaleString()}
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan="3" className="text-center py-8 text-gray-500">
+                      <Package className="w-12 h-12 mx-auto mb-2 text-gray-300" />
+                      <p>No product sales data</p>
                     </td>
-                    <td className="text-right py-2 md:py-3 text-xs md:text-sm font-semibold text-gray-700">{product.sold}</td>
-                    <td className="text-right py-2 md:py-3 text-xs md:text-sm font-bold text-gray-900 hidden sm:table-cell">{product.revenue}</td>
                   </tr>
-                ))}
+                )}
               </tbody>
             </table>
           </div>
@@ -280,32 +437,101 @@ const Dashboard = ({ setActiveTab }) => {
                 </tr>
               </thead>
               <tbody>
-                {topCustomers.map((customer) => (
-                  <tr key={customer.id} className="border-b border-gray-100 hover:bg-gray-50">
-                    <td className="py-2 md:py-3">
-                      <div className="flex items-center">
-                        <div className="w-6 h-6 md:w-8 md:h-8 rounded-full bg-gradient-to-br from-purple-400 to-pink-500 flex items-center justify-center text-white font-bold text-xs mr-2 md:mr-3">
-                          {customer.name.split(' ').map(n => n[0]).join('')}
+                {topCustomers && topCustomers.length > 0 ? (
+                  topCustomers.slice(0, 5).map((customer) => (
+                    <tr key={customer.id} className="border-b border-gray-100 hover:bg-gray-50">
+                      <td className="py-2 md:py-3">
+                        <div className="flex items-center">
+                          <div className="w-6 h-6 md:w-8 md:h-8 rounded-full bg-gradient-to-br from-purple-400 to-pink-500 flex items-center justify-center text-white font-bold text-xs mr-2 md:mr-3">
+                            {customer.full_name.split(' ').map(n => n[0]).join('')}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className="text-xs md:text-sm font-medium text-gray-900 truncate">{customer.full_name}</p>
+                            <div className="flex items-center space-x-2">
+                              <span className={`text-xs px-1.5 md:px-2 py-0.5 rounded-full ${
+                                customer.customer_tier === 'VIP' ? 'bg-yellow-100 text-yellow-700' : 
+                                customer.customer_tier === 'Premium' ? 'bg-purple-100 text-purple-700' :
+                                'bg-gray-100 text-gray-600'
+                              }`}>
+                                {customer.customer_tier}
+                              </span>
+                              <span className="text-xs text-gray-400">
+                                Avg: Rs. {parseFloat(customer.average_order_value || 0).toLocaleString()}
+                              </span>
+                            </div>
+                          </div>
                         </div>
-                        <div>
-                          <p className="text-xs md:text-sm font-medium text-gray-900 truncate">{customer.name}</p>
-                          <span className={`text-xs px-1.5 md:px-2 py-0.5 rounded-full ${
-                            customer.status === 'VIP' ? 'bg-yellow-100 text-yellow-700' : 'bg-gray-100 text-gray-600'
-                          }`}>
-                            {customer.status}
-                          </span>
-                        </div>
-                      </div>
+                      </td>
+                      <td className="text-center py-2 md:py-3 text-xs md:text-sm font-semibold text-gray-700 hidden sm:table-cell">
+                        {customer.total_orders || 0}
+                      </td>
+                      <td className="text-right py-2 md:py-3 text-xs md:text-sm font-bold text-gray-900">
+                        Rs. {parseFloat(customer.total_spent || 0).toLocaleString()}
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan="3" className="text-center py-8 text-gray-500">
+                      <Users className="w-12 h-12 mx-auto mb-2 text-gray-300" />
+                      <p>No customer data</p>
                     </td>
-                    <td className="text-center py-2 md:py-3 text-xs md:text-sm font-semibold text-gray-700 hidden sm:table-cell">{customer.orders}</td>
-                    <td className="text-right py-2 md:py-3 text-xs md:text-sm font-bold text-gray-900">{customer.spent}</td>
                   </tr>
-                ))}
+                )}
               </tbody>
             </table>
           </div>
         </motion.div>
       </div>
+
+      {/* Low Stock Alerts */}
+      {lowStockProducts && lowStockProducts.length > 0 && (
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.8 }}
+          className="bg-red-50 border border-red-200 rounded-xl md:rounded-2xl p-4 md:p-6"
+        >
+          <div className="flex items-center mb-4">
+            <AlertTriangle className="w-6 h-6 text-red-500 mr-3" />
+            <h3 className="text-lg md:text-xl font-bold text-red-900">Low Stock Alerts</h3>
+            <span className="ml-auto bg-red-500 text-white text-xs px-2 py-1 rounded-full">
+              {lowStockProducts.length} items
+            </span>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {lowStockProducts.slice(0, 6).map((product) => (
+              <div key={product.id} className="bg-white rounded-lg p-3 border border-red-100">
+                <div className="flex items-center justify-between">
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium text-gray-900 truncate">{product.name}</p>
+                    <p className="text-xs text-gray-500">{product.brand_name} • {product.category_name}</p>
+                    <p className="text-xs text-gray-400">SKU: {product.sku}</p>
+                  </div>
+                  <div className="text-right ml-2">
+                    <p className={`text-sm font-bold ${
+                      product.stock_quantity === 0 ? 'text-red-600' : 'text-orange-600'
+                    }`}>
+                      {product.stock_quantity} left
+                    </p>
+                    <p className="text-xs text-gray-500">Rs. {parseFloat(product.price).toLocaleString()}</p>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+          {lowStockProducts.length > 6 && (
+            <div className="mt-4 text-center">
+              <button
+                onClick={() => setActiveTab('products')}
+                className="text-red-600 hover:text-red-700 font-medium text-sm"
+              >
+                View all {lowStockProducts.length} low stock items →
+              </button>
+            </div>
+          )}
+        </motion.div>
+      )}
     </div>
   );
 };

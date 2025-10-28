@@ -606,7 +606,7 @@ const Products = () => {
                       animate={{ opacity: 1, scale: 1 }}
                       exit={{ opacity: 0, scale: 0.9 }}
                       transition={{ duration: 0.3 }}
-                      onClick={() => navigate(`/product/${product.slug}`)}
+                      onClick={() => navigate(`/product/${product.id}`)}
                       className="bg-white rounded-xl shadow-md hover:shadow-xl transition-all overflow-hidden group cursor-pointer"
                     >
                       <div className="relative aspect-square overflow-hidden">
@@ -654,7 +654,7 @@ const Products = () => {
                       animate={{ opacity: 1, x: 0 }}
                       exit={{ opacity: 0, x: -20 }}
                       transition={{ duration: 0.3 }}
-                      onClick={() => navigate(`/product/${product.slug}`)}
+                      onClick={() => navigate(`/product/${product.id}`)}
                       className="bg-white rounded-xl shadow-md hover:shadow-lg transition-all overflow-hidden flex group cursor-pointer"
                     >
                       <div className="relative w-32 h-32 flex-shrink-0 overflow-hidden">

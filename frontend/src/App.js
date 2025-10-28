@@ -6,6 +6,8 @@ import { AdminAuthProvider } from "./context/AdminAuthContext";
 import AdminProtectedRoute from "./components/admin/AdminProtectedRoute";
 import AdminGuestRoute from "./components/admin/AdminGuestRoute";
 import GuestRoute from "./components/common/GuestRoute";
+import PaymentRoute from "./components/common/PaymentRoute";
+import ForgotPasswordRoute from "./components/common/ForgotPasswordRoute";
 import CartSyncHandler from "./components/common/CartSyncHandler";
 
 import Home from "./pages/Home";
@@ -52,8 +54,16 @@ function App() {
               <Route path="/product/:id" element={<SingleProductView />} />
               <Route path="/cart" element={<Cart />} />
               <Route path="/checkout" element={<Checkout />} />
-              <Route path="/payment/success" element={<PaymentSuccess />} />
-              <Route path="/payment/cancel" element={<PaymentCancel />} />
+              <Route path="/payment/success" element={
+                <PaymentRoute>
+                  <PaymentSuccess />
+                </PaymentRoute>
+              } />
+              <Route path="/payment/cancel" element={
+                <PaymentRoute>
+                  <PaymentCancel />
+                </PaymentRoute>
+              } />
               <Route path="/login" element={
                 <GuestRoute>
                   <LoginPage />
@@ -65,9 +75,9 @@ function App() {
                 </GuestRoute>
               } />
               <Route path="/forgot-password" element={
-                <GuestRoute>
+                <ForgotPasswordRoute>
                   <ForgotPasswordPage />
-                </GuestRoute>
+                </ForgotPasswordRoute>
               } />
               <Route path="/admin" element={
                 <AdminProtectedRoute>

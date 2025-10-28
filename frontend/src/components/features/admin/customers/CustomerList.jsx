@@ -1,100 +1,64 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search, X, MapPin, Phone, Mail, ShoppingBag, Calendar } from 'lucide-react';
-
-const customersData = [
-  {
-    id: 1,
-    name: 'Nimal Perera',
-    email: 'nimal.perera@gmail.com',
-    mobile: '0771234567',
-    orders: 5,
-    status: 'Active',
-    address: 'No. 45/2, Dutugemunu Street, Colombo 06',
-    city: 'Colombo',
-    postalCode: '00600',
-    joinedDate: '2023-05-15',
-    totalSpent: 75000
-  },
-  {
-    id: 2,
-    name: 'Saman Fernando',
-    email: 'saman.fernando@yahoo.com',
-    mobile: '0712345678',
-    orders: 2,
-    status: 'Active',
-    address: '123/5A, Galle Road, Dehiwala',
-    city: 'Dehiwala',
-    postalCode: '10350',
-    joinedDate: '2023-08-20',
-    totalSpent: 25000
-  },
-  {
-    id: 3,
-    name: 'Kamal Silva',
-    email: 'kamal.silva@gmail.com',
-    mobile: '0765432109',
-    orders: 10,
-    status: 'Inactive',
-    address: '78, Peradeniya Road, Kandy',
-    city: 'Kandy',
-    postalCode: '20000',
-    joinedDate: '2023-01-10',
-    totalSpent: 150000
-  },
-  {
-    id: 4,
-    name: 'Sanduni Rajapaksha',
-    email: 'sanduni.rajapaksha@gmail.com',
-    mobile: '0756789012',
-    orders: 1,
-    status: 'Active',
-    address: '15/A, Negombo Road, Wattala',
-    city: 'Wattala',
-    postalCode: '11300',
-    joinedDate: '2023-10-05',
-    totalSpent: 12000
-  },
-  {
-    id: 5,
-    name: 'Chaminda Jayawardena',
-    email: 'chaminda.j@hotmail.com',
-    mobile: '+94782345678',
-    orders: 7,
-    status: 'Active',
-    address: '234/B, High Level Road, Maharagama',
-    city: 'Maharagama',
-    postalCode: '10280',
-    joinedDate: '2023-03-22',
-    totalSpent: 95000
-  },
-  {
-    id: 6,
-    name: 'Dilini Wickramasinghe',
-    email: 'dilini.w@gmail.com',
-    mobile: '0703456789',
-    orders: 3,
-    status: 'Active',
-    address: '67, Hospital Road, Matara',
-    city: 'Matara',
-    postalCode: '81000',
-    joinedDate: '2023-06-18',
-    totalSpent: 45000
-  },
-];
+import { Search, X, Phone, Mail, ShoppingBag, Calendar, CheckCircle, XCircle } from 'lucide-react';
+import { adminApi } from '../../../../utils/adminApi';
 
 const CustomerList = () => {
   const [searchQuery, setSearchQuery] = useState('');
-  const [customers, setCustomers] = useState(customersData);
+  const [debouncedSearchQuery, setDebouncedSearchQuery] = useState('');
+  const [customers, setCustomers] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [selectedCustomer, setSelectedCustomer] = useState(null);
+  const [selectedCustomerLoading, setSelectedCustomerLoading] = useState(false);
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [customerToToggle, setCustomerToToggle] = useState(null);
+  const [filteredStatus, setFilteredStatus] = useState('all');
 
-  const filteredCustomers = customers.filter(customer =>
-    customer.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    customer.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    customer.mobile.includes(searchQuery)
-  );
+  const statusFilters = ['all', 'active', 'inactive', 'verified', 'unverified'];
+
+  // Debounce search query
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      setDebouncedSearchQuery(searchQuery);
+    }, 500);
+
+    return () => clearTimeout(timeoutId);
+  }, [searchQuery]);
+
+  // Fetch customers from API
+  useEffect(() => {
+    const fetchCustomers = async () => {
+      try {
+        setLoading(true);
+        const params = new URLSearchParams();
+        
+        if (filteredStatus !== 'all') {
+          params.append('status', filteredStatus);
+        }
+        
+        if (debouncedSearchQuery.trim()) {
+          params.append('search', debouncedSearchQuery.trim());
+        }
+
+        const response = await adminApi.get(`/customers/admin/all?${params.toString()}`);
+        
+        if (response.success) {
+          setCustomers(response.data);
+          setError(null);
+        } else {
+          setError('Failed to load customers');
+        }
+      } catch (err) {
+        console.error('Error fetching customers:', err);
+        setError('Failed to load customers. Please try again.');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchCustomers();
+  }, [filteredStatus, debouncedSearchQuery]);
 
   const handleStatusClick = (e, customer) => {
     e.stopPropagation();
@@ -102,13 +66,30 @@ const CustomerList = () => {
     setShowConfirmation(true);
   };
 
-  const confirmStatusToggle = () => {
+  const confirmStatusToggle = async () => {
     if (customerToToggle) {
-      setCustomers(customers.map(customer =>
-        customer.id === customerToToggle.id
-          ? { ...customer, status: customer.status === 'Active' ? 'Inactive' : 'Active' }
-          : customer
-      ));
+      try {
+        const newStatus = !customerToToggle.is_active;
+        
+        const response = await adminApi.put(`/customers/admin/${customerToToggle.id}/status`, {
+          is_active: newStatus
+        });
+        
+        if (response.success) {
+          // Update local state
+          setCustomers(customers.map(customer =>
+            customer.id === customerToToggle.id
+              ? { ...customer, is_active: newStatus }
+              : customer
+          ));
+        } else {
+          console.error('Failed to update customer status:', response.message);
+          alert('Failed to update customer status. Please try again.');
+        }
+      } catch (error) {
+        console.error('Error updating customer status:', error);
+        alert('Error updating customer status. Please try again.');
+      }
     }
     setShowConfirmation(false);
     setCustomerToToggle(null);
@@ -119,13 +100,68 @@ const CustomerList = () => {
     setCustomerToToggle(null);
   };
 
-  const handleRowClick = (customer) => {
-    setSelectedCustomer(customer);
+  const handleRowClick = async (customer) => {
+    try {
+      setSelectedCustomerLoading(true);
+      
+      // Fetch detailed customer info
+      const response = await adminApi.get(`/customers/admin/${customer.id}`);
+      
+      if (response.success) {
+        setSelectedCustomer(response.data);
+      } else {
+        // Fallback to basic customer info
+        setSelectedCustomer(customer);
+      }
+    } catch (error) {
+      console.error('Error fetching customer details:', error);
+      // Fallback to basic customer info
+      setSelectedCustomer(customer);
+    } finally {
+      setSelectedCustomerLoading(false);
+    }
   };
+
+  if (loading) {
+    return (
+      <div className="bg-blue-50 rounded-2xl shadow-lg p-8">
+        <div className="flex items-center justify-center h-64">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-500"></div>
+          <span className="ml-3 text-gray-600">Loading customers...</span>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="bg-blue-50 rounded-2xl shadow-lg p-8">
+        <div className="text-center text-red-600">
+          <p>{error}</p>
+          <button 
+            onClick={() => window.location.reload()} 
+            className="mt-4 bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded"
+          >
+            Retry
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="bg-blue-50 rounded-2xl shadow-lg p-8">
-      <div className="flex justify-end mb-4">
+      <div className="flex justify-between items-center mb-4">
+        <div className="flex space-x-4">
+          {statusFilters.map(status => (
+            <button 
+              key={status}
+              onClick={() => setFilteredStatus(status)}
+              className={`px-4 py-2 rounded-lg font-semibold ${filteredStatus === status ? 'bg-red-600 text-white' : 'bg-blue-100 text-blue-800'}`}>
+              {status.charAt(0).toUpperCase() + status.slice(1)}
+            </button>
+          ))}
+        </div>
         <div className="relative w-96">
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
           <input
@@ -135,6 +171,11 @@ const CustomerList = () => {
             onChange={(e) => setSearchQuery(e.target.value)}
             className="w-full pl-12 pr-4 py-3 text-gray-800 bg-blue-100 border-2 border-blue-200 rounded-lg text-base"
           />
+          {searchQuery !== debouncedSearchQuery && (
+            <div className="absolute right-4 top-1/2 -translate-y-1/2">
+              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-500"></div>
+            </div>
+          )}
         </div>
       </div>
       <table className="w-full text-left">
@@ -142,43 +183,78 @@ const CustomerList = () => {
           <tr className="border-b border-blue-200">
             <th className="p-4">Name</th>
             <th className="p-4">Email</th>
-            <th className="p-4">Mobile</th>
-            <th className="p-4">No of Orders</th>
+            <th className="p-4">Phone</th>
+            <th className="p-4">Total Orders</th>
+            <th className="p-4">Total Spent</th>
             <th className="p-4">Status</th>
+            <th className="p-4">Verified</th>
           </tr>
         </thead>
         <tbody>
-          {filteredCustomers.map((customer, index) => (
-            <motion.tr
-              key={customer.id}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: index * 0.1 }}
-              onClick={() => handleRowClick(customer)}
-              className="border-b border-blue-200 hover:bg-blue-100 cursor-pointer"
-            >
-              <td className="p-4">{customer.name}</td>
-              <td className="p-4">{customer.email}</td>
-              <td className="p-4">{customer.mobile}</td>
-              <td className="p-4">{customer.orders}</td>
-              <td className="p-4">
-                <motion.span
-                  onClick={(e) => handleStatusClick(e, customer)}
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  className={`px-3 py-1 rounded-full text-xs font-semibold cursor-pointer transition-all ${
-                    customer.status === 'Active'
-                      ? 'bg-green-100 text-green-800 hover:bg-green-200'
-                      : 'bg-red-100 text-red-800 hover:bg-red-200'
-                  }`}
-                >
-                  {customer.status}
-                </motion.span>
+          {customers.length === 0 ? (
+            <tr>
+              <td colSpan="7" className="p-8 text-center text-gray-500">
+                {debouncedSearchQuery ? 'No customers found matching your search.' : 'No customers found.'}
               </td>
-            </motion.tr>
-          ))}
+            </tr>
+          ) : (
+            customers.map((customer, index) => (
+              <motion.tr
+                key={customer.id}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: index * 0.1 }}
+                onClick={() => handleRowClick(customer)}
+                className="border-b border-blue-200 hover:bg-blue-100 cursor-pointer"
+              >
+                <td className="p-4">{customer.full_name}</td>
+                <td className="p-4">{customer.email}</td>
+                <td className="p-4">{customer.phone}</td>
+                <td className="p-4">{customer.total_orders}</td>
+                <td className="p-4">Rs. {parseFloat(customer.total_spent).toLocaleString()}</td>
+                <td className="p-4">
+                  <motion.span
+                    onClick={(e) => handleStatusClick(e, customer)}
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    className={`px-3 py-1 rounded-full text-xs font-semibold cursor-pointer transition-all ${
+                      customer.is_active
+                        ? 'bg-green-100 text-green-800 hover:bg-green-200'
+                        : 'bg-red-100 text-red-800 hover:bg-red-200'
+                    }`}
+                  >
+                    {customer.is_active ? 'Active' : 'Inactive'}
+                  </motion.span>
+                </td>
+                <td className="p-4">
+                  <div className="flex items-center">
+                    {customer.email_verified ? (
+                      <CheckCircle className="w-5 h-5 text-green-500" />
+                    ) : (
+                      <XCircle className="w-5 h-5 text-red-500" />
+                    )}
+                    <span className={`ml-2 text-xs font-semibold ${
+                      customer.email_verified ? 'text-green-600' : 'text-red-600'
+                    }`}>
+                      {customer.email_verified ? 'Verified' : 'Unverified'}
+                    </span>
+                  </div>
+                </td>
+              </motion.tr>
+            ))
+          )}
         </tbody>
       </table>
+
+      {/* Loading overlay when fetching customer details */}
+      {selectedCustomerLoading && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
+          <div className="bg-white rounded-lg p-6 flex items-center space-x-3">
+            <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-red-500"></div>
+            <span>Loading customer details...</span>
+          </div>
+        </div>
+      )}
 
       {/* Confirmation Modal */}
       <AnimatePresence>
@@ -199,13 +275,13 @@ const CustomerList = () => {
             >
               <h3 className="text-xl font-bold text-gray-900 mb-4">Confirm Status Change</h3>
               <p className="text-gray-600 mb-6">
-                Are you sure you want to change the status of <strong>{customerToToggle?.name}</strong> from{' '}
-                <span className={`font-semibold ${customerToToggle?.status === 'Active' ? 'text-green-600' : 'text-red-600'}`}>
-                  {customerToToggle?.status}
+                Are you sure you want to change the status of <strong>{customerToToggle?.full_name}</strong> from{' '}
+                <span className={`font-semibold ${customerToToggle?.is_active ? 'text-green-600' : 'text-red-600'}`}>
+                  {customerToToggle?.is_active ? 'Active' : 'Inactive'}
                 </span>{' '}
                 to{' '}
-                <span className={`font-semibold ${customerToToggle?.status === 'Active' ? 'text-red-600' : 'text-green-600'}`}>
-                  {customerToToggle?.status === 'Active' ? 'Inactive' : 'Active'}
+                <span className={`font-semibold ${customerToToggle?.is_active ? 'text-red-600' : 'text-green-600'}`}>
+                  {customerToToggle?.is_active ? 'Inactive' : 'Active'}
                 </span>?
               </p>
               <div className="flex justify-end space-x-3">
@@ -265,7 +341,7 @@ const CustomerList = () => {
                       </div>
                       <div>
                         <p className="text-sm text-gray-500">Name</p>
-                        <p className="text-base font-semibold text-gray-900">{selectedCustomer.name}</p>
+                        <p className="text-base font-semibold text-gray-900">{selectedCustomer.full_name}</p>
                       </div>
                     </div>
                     <div className="flex items-start space-x-3">
@@ -282,8 +358,8 @@ const CustomerList = () => {
                         <Phone className="w-5 h-5 text-blue-600" />
                       </div>
                       <div>
-                        <p className="text-sm text-gray-500">Mobile</p>
-                        <p className="text-base font-semibold text-gray-900">{selectedCustomer.mobile}</p>
+                        <p className="text-sm text-gray-500">Phone</p>
+                        <p className="text-base font-semibold text-gray-900">{selectedCustomer.phone}</p>
                       </div>
                     </div>
                     <div className="flex items-start space-x-3">
@@ -293,7 +369,7 @@ const CustomerList = () => {
                       <div>
                         <p className="text-sm text-gray-500">Joined Date</p>
                         <p className="text-base font-semibold text-gray-900">
-                          {new Date(selectedCustomer.joinedDate).toLocaleDateString('en-US', {
+                          {new Date(selectedCustomer.created_at).toLocaleDateString('en-US', {
                             year: 'numeric',
                             month: 'long',
                             day: 'numeric'
@@ -304,17 +380,21 @@ const CustomerList = () => {
                   </div>
                 </div>
 
-                {/* Address Information */}
+                {/* Verification Status */}
                 <div className="bg-green-50 rounded-xl p-6">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-4">Address Information</h3>
-                  <div className="flex items-start space-x-3">
-                    <div className="p-2 bg-green-100 rounded-lg">
-                      <MapPin className="w-5 h-5 text-green-600" />
+                  <h3 className="text-lg font-semibold text-gray-900 mb-4">Verification Status</h3>
+                  <div className="flex items-center space-x-3">
+                    <div className={`p-2 rounded-lg ${selectedCustomer.email_verified ? 'bg-green-100' : 'bg-red-100'}`}>
+                      {selectedCustomer.email_verified ? (
+                        <CheckCircle className="w-5 h-5 text-green-600" />
+                      ) : (
+                        <XCircle className="w-5 h-5 text-red-600" />
+                      )}
                     </div>
                     <div>
-                      <p className="text-base font-semibold text-gray-900">{selectedCustomer.address}</p>
-                      <p className="text-sm text-gray-600 mt-1">
-                        {selectedCustomer.city}, {selectedCustomer.postalCode}
+                      <p className="text-sm text-gray-500">Email Verification</p>
+                      <p className={`text-base font-semibold ${selectedCustomer.email_verified ? 'text-green-700' : 'text-red-700'}`}>
+                        {selectedCustomer.email_verified ? 'Verified' : 'Unverified'}
                       </p>
                     </div>
                   </div>
@@ -330,7 +410,7 @@ const CustomerList = () => {
                       </div>
                       <div>
                         <p className="text-sm text-gray-500">Total Orders</p>
-                        <p className="text-2xl font-bold text-gray-900">{selectedCustomer.orders}</p>
+                        <p className="text-2xl font-bold text-gray-900">{selectedCustomer.total_orders}</p>
                       </div>
                     </div>
                     <div className="flex items-start space-x-3">
@@ -340,7 +420,7 @@ const CustomerList = () => {
                       <div>
                         <p className="text-sm text-gray-500">Total Spent</p>
                         <p className="text-2xl font-bold text-gray-900">
-                          Rs. {selectedCustomer.totalSpent.toLocaleString()}
+                          Rs. {parseFloat(selectedCustomer.total_spent).toLocaleString()}
                         </p>
                       </div>
                     </div>
@@ -353,12 +433,12 @@ const CustomerList = () => {
                     <p className="text-sm text-gray-500 mb-2">Account Status</p>
                     <span
                       className={`px-4 py-2 rounded-full text-sm font-semibold ${
-                        selectedCustomer.status === 'Active'
+                        selectedCustomer.is_active
                           ? 'bg-green-100 text-green-800'
                           : 'bg-red-100 text-red-800'
                       }`}
                     >
-                      {selectedCustomer.status}
+                      {selectedCustomer.is_active ? 'Active' : 'Inactive'}
                     </span>
                   </div>
                 </div>

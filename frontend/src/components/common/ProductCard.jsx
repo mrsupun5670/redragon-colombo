@@ -7,7 +7,7 @@ import CartContext from "../../context/CartContext";
 
 const ProductCard = ({ product }) => {
   const navigate = useNavigate();
-  const { addToCart } = useContext(CartContext);
+  const { addToCart, cartItems } = useContext(CartContext);
   const [isAddingToCart, setIsAddingToCart] = useState(false);
   
   const productImage = getOptimizedImageUrl(product, 'card');
@@ -19,7 +19,12 @@ const ProductCard = ({ product }) => {
   const rating = product.rating || 4; // Default rating
   const reviews = product.reviews || 0; // Default reviews
 
-  const handleProductClick = () => {
+  const handleProductClick = (e) => {
+    // Prevent navigation if clicking on buttons
+    if (e?.target?.closest('button')) {
+      return;
+    }
+    console.log('ProductCard - Navigating to product:', product.id, 'Product data:', product);
     navigate(`/product/${product.id}`);
   };
 
@@ -42,11 +47,32 @@ const ProductCard = ({ product }) => {
     }
   };
 
+  const handleBuyNow = async (e) => {
+    e.stopPropagation();
+    
+    if (product.stock_quantity <= 0) return;
+    
+    try {
+      // Check if product is already in cart
+      const existingItem = cartItems.find(item => item.id === product.id);
+      
+      if (!existingItem) {
+        // Only add to cart if not already present
+        await addToCart(product, 1);
+      }
+      
+      // Always navigate to cart regardless
+      navigate("/cart");
+    } catch (error) {
+      console.error('Error with buy now:', error);
+    }
+  };
+
   return (
     <motion.div
       whileHover={{ y: -10 }}
       className="bg-gray-800 rounded-lg overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 h-full flex flex-col cursor-pointer"
-      onClick={handleProductClick}
+      onClick={(e) => handleProductClick(e)}
     >
       <div className="relative">
         <img
@@ -128,8 +154,13 @@ const ProductCard = ({ product }) => {
           <motion.button
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
-            onClick={(e) => e.stopPropagation()}
-            className="flex-1 bg-gray-700 text-white px-1 py-1 sm:px-2 sm:py-1 rounded-lg text-xs sm:text-sm font-semibold"
+            onClick={handleBuyNow}
+            disabled={product.stock_quantity <= 0}
+            className={`flex-1 px-1 py-1 sm:px-2 sm:py-1 rounded-lg text-xs sm:text-sm font-semibold transition-colors ${
+              product.stock_quantity <= 0
+                ? 'bg-gray-500 text-gray-300 cursor-not-allowed'
+                : 'bg-gray-700 text-white hover:bg-gray-600'
+            }`}
           >
             Buy Now
           </motion.button>
