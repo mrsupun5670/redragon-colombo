@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Search,
@@ -19,7 +19,6 @@ import { productAPI, categoryAPI, brandAPI } from "../services/api";
 
 const Products = () => {
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
 
   // State management
   const [viewMode, setViewMode] = useState("grid");
@@ -46,33 +45,6 @@ const Products = () => {
   const [categoryOpen, setCategoryOpen] = useState(false);
   const [subCategoryOpen, setSubCategoryOpen] = useState(false);
   const [brandOpen, setBrandOpen] = useState(false);
-
-  // Initialize filters from URL parameters
-  useEffect(() => {
-    const brandParam = searchParams.get('brand');
-    const categoryParam = searchParams.get('category');
-    const subcategoryParam = searchParams.get('subcategory');
-    const searchParam = searchParams.get('search');
-    
-    if (brandParam) {
-      setSelectedBrands([brandParam]);
-      setBrandOpen(true);
-    }
-    
-    if (categoryParam) {
-      setSelectedCategories([categoryParam]);
-      setCategoryOpen(true);
-    }
-    
-    if (subcategoryParam) {
-      setSelectedSubCategories([subcategoryParam]);
-      setSubCategoryOpen(true);
-    }
-    
-    if (searchParam) {
-      setSearchQuery(searchParam);
-    }
-  }, [searchParams]);
 
   // Data fetching
   useEffect(() => {
