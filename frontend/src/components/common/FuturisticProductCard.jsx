@@ -9,7 +9,12 @@ const FuturisticProductCard = ({ product, showCategory = false }) => {
   const [isHovered, setIsHovered] = useState(false);
 
 
-  const handleProductClick = () => {
+  const handleProductClick = (e) => {
+    // Prevent navigation if clicking on buttons
+    if (e?.target?.closest('button')) {
+      return;
+    }
+    console.log('FuturisticProductCard - Navigating to product:', product.id, 'Product data:', product);
     navigate(`/product/${product.id}`);
   };
 
@@ -53,7 +58,7 @@ const FuturisticProductCard = ({ product, showCategory = false }) => {
           <motion.div
             animate={isHovered ? { scale: 1.15, z: 50 } : { scale: 1, z: 0 }}
             transition={{ duration: 0.4 }}
-            onClick={handleProductClick}
+            onClick={(e) => handleProductClick(e)}
             className="relative w-full h-full p-6 sm:p-8 flex items-center justify-center cursor-pointer"
             style={{ transformStyle: 'preserve-3d' }}
           >

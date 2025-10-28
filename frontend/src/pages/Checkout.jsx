@@ -17,7 +17,7 @@ import api, { locationAPI, authAPI, addressAPI, payhereAPI, orderAPI } from "../
 const Checkout = () => {
   const navigate = useNavigate();
   const { cartItems, cartSubtotal, totalWeight, clearCart } = useContext(CartContext);
-
+  
   const [step, setStep] = useState(1); // 1: Shipping, 2: Payment, 3: Review
   const [sameAsShipping, setSameAsShipping] = useState(true);
   const [paymentMethod, setPaymentMethod] = useState("");
@@ -1199,7 +1199,7 @@ const Checkout = () => {
                   cartItems.map((item) => (
                     <div key={item.id} className="flex gap-4">
                       <img
-                        src={item.primary_image || item.image || '/placeholder-product.jpg'}
+                        src={item.primary_image || item.image || item.images[0].image_path || '/placeholder-product.jpg'}
                         alt={item.name}
                         onClick={() => navigate(`/product/${item.id}`)}
                         className="w-16 h-16 object-cover rounded-lg cursor-pointer hover:opacity-80 transition-opacity"

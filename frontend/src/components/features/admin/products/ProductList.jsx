@@ -40,7 +40,7 @@ const ProductList = () => {
     try {
       // Fetch products, brands, and categories in parallel using authenticated API calls
       const [productsData, brandsData, mainCategoriesData, subCategoriesData] = await Promise.all([
-        adminApi.get('/adminProducts'),
+        adminApi.get('/products'),
         adminApi.get('/brands'),
         adminApi.get('/categories/main'),
         adminApi.get('/categories/sub')

@@ -82,12 +82,12 @@ const addressRoutes = require('./routes/addresses');
 const payhereRoutes = require('./routes/payhere');
 const orderRoutes = require('./routes/orders');
 const wishlistRoutes = require('./routes/wishlist');
-const { getAllProductsForAdmin } = require('./controllers/productController');
+const customerRoutes = require('./routes/customers');
+const dashboardRoutes = require('./routes/dashboard');
 
 
 app.use('/api/auth', authRoutes);
 app.use('/api/products', productRoutes);
-app.use('/api/adminProducts', getAllProductsForAdmin);
 app.use('/api/images', imageRoutes);
 app.use('/api/refunds', refundRoutes);
 app.use('/api/delivery', deliveryRoutes);
@@ -99,6 +99,8 @@ app.use('/api/addresses', addressRoutes);
 app.use('/api/payhere', payhereRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/wishlist', wishlistRoutes);
+app.use('/api/customers', customerRoutes);
+app.use('/api/dashboard', dashboardRoutes);
 
 app.get('/', (req, res) => {
   res.json({ message: 'Welcome to Redragon Shop API' });

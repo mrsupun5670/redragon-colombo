@@ -12,7 +12,7 @@ const {
   getProductImages,
   updateProductImages
 } = require('../controllers/productController');
-const { auth, adminAuth } = require('../middleware/auth');
+const { adminAuth, optionalAuth } = require('../middleware/auth');
 const { uploadMultiple, handleUploadError } = require('../middleware/upload');
 
 
@@ -22,9 +22,9 @@ router.get('/featured', getFeaturedProducts);
 router.get('/new-arrivals', getNewArrivals);
 router.get('/redragon', getRedragonProducts);
 
-// General product routes
-router.get('/', getAllProducts);
-router.get('/:id', getProductById);
+// General product routes (with optional auth to detect admin vs customer)
+router.get('/', optionalAuth, getAllProducts);
+router.get('/:id', optionalAuth, getProductById);
 router.get('/:id/images', getProductImages);
 
 // Protected routes (admin only)

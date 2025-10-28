@@ -33,7 +33,7 @@ import { useAuth } from "../context/AuthContext";
 const SingleProductView = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { addToCart } = useContext(CartContext);
+  const { addToCart, cartItems } = useContext(CartContext);
   const { isAuthenticated } = useAuth();
 
   // State management
@@ -149,7 +149,15 @@ const SingleProductView = () => {
   const handleBuyNow = async () => {
     if (product && product.stock_quantity > 0) {
       try {
-        await addToCart(product, quantity);
+        // Check if product is already in cart
+        const existingItem = cartItems.find(item => item.id === product.id);
+        
+        if (!existingItem) {
+          // Only add to cart if not already present
+          await addToCart(product, quantity);
+        }
+        
+        // Always navigate to cart regardless
         navigate("/cart");
       } catch (error) {
         console.error('Error adding to cart:', error);

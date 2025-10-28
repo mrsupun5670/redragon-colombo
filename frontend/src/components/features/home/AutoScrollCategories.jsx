@@ -1,12 +1,18 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 import useWindowDimensions from '../../../hooks/useWindowDimensions';
 
 const AutoScrollCategories = ({ categories }) => {
+  const navigate = useNavigate();
   const scrollRef = useRef(null);
   const [isPaused, setIsPaused] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
   const { width } = useWindowDimensions();
+
+  const handleCategoryClick = (categoryName) => {
+    navigate(`/products?category=${encodeURIComponent(categoryName)}`);
+  };
 
   useEffect(() => {
     if (isPaused) return;
@@ -79,7 +85,7 @@ const AutoScrollCategories = ({ categories }) => {
             className="flex-shrink-0 w-40 group cursor-pointer"
             whileHover={{ y: -5 }}
             transition={{ duration: 0.3 }}
-            onClick={() => window.location.href = `/products?category=${category.name}`}
+            onClick={() => handleCategoryClick(category.name)}
           >
             <div className="bg-white/10 backdrop-blur-sm rounded-xl overflow-hidden hover:bg-white/20 transition-all duration-300 border border-white/10 hover:border-red-500/50 shadow-lg hover:shadow-red-500/20">
               <div className="relative h-32 overflow-hidden bg-gray-900/50">

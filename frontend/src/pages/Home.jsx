@@ -53,7 +53,7 @@ const HomePage = () => {
         const brandData = brandsRes.data.data || [];
         const transformedBrands = brandData.map(brand => ({
           name: brand.name,
-          logo: brand.logo || '/image_not_there.avif'// fallback logo
+          logo: brand.logo_url || '/image_not_there.avif' // fallback logo
         }));
         setBrands(transformedBrands);
         
