@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { Mail, Lock, LogIn, ArrowRight, Eye, EyeOff } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import Navbar from "../components/layout/Navbar";
 import Footer from "../components/layout/Footer";
 import ParticleEffect from "../components/common/ParticleEffect";
@@ -20,7 +20,11 @@ const LoginPage = () => {
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
   const { login } = useAuth();
+
+  // Get the redirect path from location state (set by CustomerProtectedRoute)
+  const from = location.state?.from || "/";
 
   const { email, password } = formData;
 
@@ -45,7 +49,7 @@ const LoginPage = () => {
       if (result.success) {
         setSuccess("Login successful! Redirecting...");
         setTimeout(() => {
-          navigate("/");
+          navigate(from, { replace: true });
         }, 1500);
       } else {
         setError(result.message || "Login failed");

@@ -1,8 +1,40 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { MapPin, Phone, Mail, Facebook, Instagram, Twitter } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 const Footer = () => {
+  const navigate = useNavigate();
+
+  // Handle footer link navigation to products with category filtering
+  const handleShopLinkClick = (e, item) => {
+    e.preventDefault();
+    
+    // Map footer items to database categories/subcategories
+    const categoryMapping = {
+      'Keyboards': { type: 'subcategory', value: 'Keyboards' },
+      'Mice': { type: 'subcategory', value: 'Mice' },
+      'Headsets': { type: 'subcategory', value: 'Headsets' },
+      'Mouse Pads': { type: 'search', value: 'mouse pad' },
+      'Accessories': { type: 'category', value: 'Computer Accessories' }
+    };
+
+    const mapping = categoryMapping[item];
+    if (mapping) {
+      let searchParams = new URLSearchParams();
+      
+      if (mapping.type === 'category') {
+        searchParams.set('category', mapping.value);
+      } else if (mapping.type === 'subcategory') {
+        searchParams.set('subcategory', mapping.value);
+      } else if (mapping.type === 'search') {
+        searchParams.set('search', mapping.value);
+      }
+      
+      navigate(`/products?${searchParams.toString()}`);
+    }
+  };
+
   return (
     <footer className="bg-gradient-to-b from-white via-gray-50 to-gray-100 border-t-4 border-red-500">
       <div className="container mx-auto px-4 py-12">
@@ -36,7 +68,11 @@ const Footer = () => {
             <ul className="space-y-2 text-sm">
               {["Keyboards", "Mice", "Headsets", "Mouse Pads", "Accessories"].map((item) => (
                 <li key={item}>
-                  <a href={`/${item.toLowerCase()}`} className="text-gray-700 hover:text-red-500 transition-colors hover:translate-x-1 inline-block">
+                  <a 
+                    href="#" 
+                    onClick={(e) => handleShopLinkClick(e, item)}
+                    className="text-gray-700 hover:text-red-500 transition-colors hover:translate-x-1 inline-block cursor-pointer"
+                  >
                     {item}
                   </a>
                 </li>

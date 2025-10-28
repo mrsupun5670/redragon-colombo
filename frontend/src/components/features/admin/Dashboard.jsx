@@ -70,6 +70,8 @@ const Dashboard = ({ setActiveTab }) => {
 
   const { stats, topProducts, topCustomers, recentOrders, ordersChart, lowStockProducts } = dashboardData || {};
 
+  console.log("recent orders", recentOrders);
+  
   // Create stats cards from API data
   const statsCards = [
     {
@@ -116,7 +118,22 @@ const Dashboard = ({ setActiveTab }) => {
 
   // Process chart data
   const processChartData = (chartData) => {
-    if (!chartData || chartData.length === 0) return [];
+    if (!chartData || chartData.length === 0) {
+      const last30Days = [];
+      for (let i = 29; i >= 0; i--) {
+        const date = new Date();
+        date.setDate(date.getDate() - i);
+        const dateStr = date.toISOString().split('T')[0];
+        
+        last30Days.push({
+          day: 30 - i,
+          date: dateStr,
+          orders: 0,
+          revenue: 0
+        });
+      }
+      return last30Days;
+    }
     
     // Fill missing days with 0 orders
     const last30Days = [];
@@ -129,15 +146,19 @@ const Dashboard = ({ setActiveTab }) => {
       last30Days.push({
         day: 30 - i,
         date: dateStr,
-        orders: existingData ? parseInt(existingData.order_count) : 0,
-        revenue: existingData ? parseFloat(existingData.daily_revenue) : 0
+        orders: existingData ? parseInt(existingData.order_count || 0) : 0,
+        revenue: existingData ? parseFloat(existingData.daily_revenue || 0) : 0
       });
     }
+    
     return last30Days;
   };
 
   const ordersChartData = processChartData(ordersChart);
   const maxOrders = Math.max(...ordersChartData.map(d => d.orders), 1);
+  
+  console.log('Orders chart data:', ordersChartData);
+  console.log('Max orders:', maxOrders);
 
   return (
     <div className="space-y-6 md:space-y-8">
@@ -266,19 +287,34 @@ const Dashboard = ({ setActiveTab }) => {
 
           {/* Simple Bar Chart */}
           <div className="flex items-end justify-between h-48 md:h-64 gap-0.5 md:gap-1 overflow-x-auto">
-            {ordersChartData.map((data, index) => (
-              <div key={index} className="flex-1 flex flex-col items-center justify-end group min-w-[8px]">
-                <div
-                  className="w-full bg-gradient-to-t from-blue-500 to-cyan-400 rounded-t-lg transition-all duration-300 group-hover:from-blue-600 group-hover:to-cyan-500 relative"
-                  style={{ height: `${maxOrders > 0 ? (data.orders / maxOrders) * 100 : 0}%` }}
-                >
-                  <div className="hidden md:block absolute -top-8 left-1/2 -translate-x-1/2 bg-gray-900 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
-                    {new Date(data.date).toLocaleDateString()}: {data.orders} orders
-                    <br />Rs. {data.revenue?.toLocaleString() || '0'}
+            {ordersChartData && ordersChartData.length > 0 ? (
+              ordersChartData.map((data, index) => {
+                const barHeight = maxOrders > 0 ? Math.max((data.orders / maxOrders) * 100, 2) : 2;
+                return (
+                  <div key={index} className="flex-1 flex flex-col items-center justify-end group min-w-[8px]">
+                    <div
+                      className="w-full bg-gradient-to-t from-blue-500 to-cyan-400 rounded-t-lg transition-all duration-300 group-hover:from-blue-600 group-hover:to-cyan-500 relative"
+                      style={{ 
+                        height: `${barHeight}%`,
+                        minHeight: data.orders > 0 ? '4px' : '2px'
+                      }}
+                    >
+                      <div className="hidden md:block absolute -top-8 left-1/2 -translate-x-1/2 bg-gray-900 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-10">
+                        {new Date(data.date).toLocaleDateString()}: {data.orders} orders
+                        <br />Rs. {data.revenue?.toLocaleString() || '0'}
+                      </div>
+                    </div>
                   </div>
+                );
+              })
+            ) : (
+              <div className="flex-1 flex items-center justify-center h-full text-gray-500">
+                <div className="text-center">
+                  <BarChart3 className="w-12 h-12 mx-auto mb-2 text-gray-300" />
+                  <p className="text-sm">No order data available</p>
                 </div>
               </div>
-            ))}
+            )}
           </div>
           <div className="flex justify-between mt-4 text-xs text-gray-500">
             <span>30 days ago</span>

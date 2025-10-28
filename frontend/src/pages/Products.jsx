@@ -51,15 +51,26 @@ const Products = () => {
   useEffect(() => {
     const brandParam = searchParams.get('brand');
     const categoryParam = searchParams.get('category');
+    const subcategoryParam = searchParams.get('subcategory');
+    const searchParam = searchParams.get('search');
     
     if (brandParam) {
       setSelectedBrands([brandParam]);
-      setBrandOpen(true); // Open brand filter section when brand is selected
+      setBrandOpen(true);
     }
     
     if (categoryParam) {
       setSelectedCategories([categoryParam]);
-      setCategoryOpen(true); // Open category filter section when category is selected
+      setCategoryOpen(true);
+    }
+    
+    if (subcategoryParam) {
+      setSelectedSubCategories([subcategoryParam]);
+      setSubCategoryOpen(true);
+    }
+    
+    if (searchParam) {
+      setSearchQuery(searchParam);
     }
   }, [searchParams]);
 
