@@ -1,8 +1,10 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const crypto = require('crypto');
 const Customer = require('../models/Customer');
 const Admin = require('../models/Admin');
 const { hashPassword, comparePassword, generateToken } = require('../utils/auth');
+const { sendPasswordResetEmail } = require('../config/email');
 
 exports.getMe = async (req, res) => {
   try {
@@ -451,6 +453,188 @@ exports.adminLogin = async (req, res) => {
     res.status(500).json({ 
       success: false,
       message: 'Server error. Please try again later.' 
+    });
+  }
+};
+
+// Forget Password
+exports.forgetPassword = async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    // Validate input
+    if (!email) {
+      return res.status(400).json({
+        success: false,
+        message: 'Email is required'
+      });
+    }
+
+    // Find customer by email
+    const customers = await Customer.findByEmail(email.toLowerCase());
+    if (customers.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: 'No account found with this email address'
+      });
+    }
+
+    const customer = customers[0];
+
+    // Check if account is active
+    if (!customer.is_active) {
+      return res.status(403).json({
+        success: false,
+        message: 'Account is deactivated. Please contact support.'
+      });
+    }
+
+    // Generate 6-digit reset code
+    const resetCode = Math.floor(100000 + Math.random() * 900000); // Integer, not string
+    const resetCodeExpiry = new Date(Date.now() + 300000); // 5 minutes from now
+
+
+    // Save reset code to database
+    await Customer.setPasswordResetCode(email.toLowerCase(), resetCode, resetCodeExpiry);
+
+    // Send password reset email
+    try {
+      await sendPasswordResetEmail(
+        email.toLowerCase(),
+        resetCode,
+        `${customer.first_name} ${customer.last_name}`
+      );
+    } catch (emailError) {
+      console.error('Email sending failed:', emailError.message);
+      // Still return success since code is saved to database
+    }
+
+    res.json({
+      success: true,
+      message: 'Password reset code has been sent to your email address'
+    });
+
+  } catch (err) {
+    console.error('Forget password error:', err);
+    res.status(500).json({
+      success: false,
+      message: 'Server error. Please try again later.'
+    });
+  }
+};
+
+// Reset Password
+exports.resetPassword = async (req, res) => {
+  try {
+    const { code, newPassword, confirmPassword } = req.body;
+
+    // Validate input
+    if (!code || !newPassword || !confirmPassword) {
+      return res.status(400).json({
+        success: false,
+        message: 'All fields are required'
+      });
+    }
+
+    // Check if passwords match
+    if (newPassword !== confirmPassword) {
+      return res.status(400).json({
+        success: false,
+        message: 'Passwords do not match'
+      });
+    }
+
+    // Validate password strength
+    if (newPassword.length < 6) {
+      return res.status(400).json({
+        success: false,
+        message: 'Password must be at least 6 characters long'
+      });
+    }
+
+    // Validate code format (6 digits) and convert to integer
+    if (!/^\d{6}$/.test(code)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid code format. Code must be 6 digits.'
+      });
+    }
+
+    const resetCodeInt = parseInt(code, 10);
+
+    // Find customer by reset code
+    const customers = await Customer.findByResetCode(resetCodeInt);
+    if (customers.length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid or expired reset code'
+      });
+    }
+
+    const customer = customers[0];
+
+    // Hash new password
+    const newPasswordHash = await hashPassword(newPassword);
+
+    // Update password and clear reset code
+    await Customer.updatePassword(customer.customer_id, newPasswordHash);
+    await Customer.clearPasswordResetCode(customer.customer_id);
+
+    res.json({
+      success: true,
+      message: 'Password has been reset successfully. You can now login with your new password.'
+    });
+
+  } catch (err) {
+    console.error('Reset password error:', err);
+    res.status(500).json({
+      success: false,
+      message: 'Server error. Please try again later.'
+    });
+  }
+};
+
+// Verify Reset Code
+exports.verifyResetCode = async (req, res) => {
+  try {
+    const { code } = req.body;
+
+    if (!code) {
+      return res.status(400).json({
+        success: false,
+        message: 'Reset code is required'
+      });
+    }
+
+    // Validate code format (6 digits) and convert to integer
+    if (!/^\d{6}$/.test(code)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid code format. Code must be 6 digits.'
+      });
+    }
+
+    const resetCodeInt = parseInt(code, 10);
+
+    // Find customer by reset code
+    const customers = await Customer.findByResetCode(resetCodeInt);
+    if (customers.length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid or expired reset code'
+      });
+    }
+
+    res.json({
+      success: true,
+      message: 'Reset code is valid'
+    });
+
+  } catch (err) {
+    console.error('Verify reset code error:', err);
+    res.status(500).json({
+      success: false,
+      message: 'Server error. Please try again later.'
     });
   }
 };

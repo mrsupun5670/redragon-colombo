@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { Search, Eye, CheckCircle, XCircle, Clock } from 'lucide-react';
 import RefundDetailsModal from './RefundDetailsModal';
 

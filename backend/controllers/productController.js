@@ -58,14 +58,20 @@ exports.getRedragonProducts = async (req, res) => {
   }
 };
 
-// Get all products with pagination
+// Get all products with pagination (smart routing - admin gets all, customers get active only)
 exports.getAllProducts = async (req, res) => {
   try {
     const limit = parseInt(req.query.limit) || 20;
     const page = parseInt(req.query.page) || 1;
     const offset = (page - 1) * limit;
     
-    const products = await Product.getAll(limit, offset);
+    // Check if request has admin authentication
+    const isAdmin = req.user && req.user.type === 'admin';
+    
+    // Admins get all products, customers get only active products
+    const products = isAdmin 
+      ? await Product.getAllForAdmin(limit, offset)
+      : await Product.getAll(limit, offset);
     
     res.json({
       success: true,
@@ -86,11 +92,19 @@ exports.getAllProducts = async (req, res) => {
   }
 };
 
-// Get product by ID
+
+// Get product by ID (smart routing - admin gets all, customers get active only)
 exports.getProductById = async (req, res) => {
   try {
     const { id } = req.params;
-    const product = await Product.getById(id);
+    
+    // Check if request has admin authentication
+    const isAdmin = req.user && req.user.type === 'admin';
+    
+    // Admins can access any product, customers only active products
+    const product = isAdmin 
+      ? await Product.getByIdForAdmin(id)
+      : await Product.getById(id);
     
     if (!product) {
       return res.status(404).json({
@@ -119,7 +133,7 @@ exports.createProduct = async (req, res) => {
     const {
       name, description, specifications, brand_id, main_category_id,
       sub_category_id, price, sale_price, cost_price, stock_quantity,
-      color_id, weight, sku, is_featured
+      weight, sku, is_featured
     } = req.body;
 
     // Validate required fields
@@ -157,14 +171,12 @@ exports.createProduct = async (req, res) => {
       sale_price: sale_price ? parseFloat(sale_price) : null,
       cost_price: cost_price ? parseFloat(cost_price) : null,
       stock_quantity: parseInt(stock_quantity),
-      color_id: color_id ? parseInt(color_id) : null,
       weight: weight ? parseInt(weight) : 0,
       is_active: 1,
       is_featured: parseInt(is_featured) || 0
     };
 
     // Debug: Log the product data being created
-    console.log('Creating product with data:', productData);
     
     // Create product
     const result = await Product.create(productData);
@@ -223,11 +235,11 @@ exports.updateProduct = async (req, res) => {
     const {
       name, description, specifications, brand_id, main_category_id,
       sub_category_id, price, sale_price, cost_price, stock_quantity,
-      color_id, weight, sku, is_active, is_featured
+      weight, sku, is_active, is_featured
     } = req.body;
 
-    // Check if product exists
-    const existingProduct = await Product.getById(productId);
+    // Check if product exists (use admin version to include inactive products)
+    const existingProduct = await Product.getByIdForAdmin(productId);
     if (!existingProduct) {
       return res.status(404).json({
         success: false,
@@ -263,7 +275,6 @@ exports.updateProduct = async (req, res) => {
       sale_price: sale_price ? parseFloat(sale_price) : existingProduct.sale_price,
       cost_price: cost_price ? parseFloat(cost_price) : existingProduct.cost_price,
       stock_quantity: stock_quantity !== undefined ? parseInt(stock_quantity) : existingProduct.stock_quantity,
-      color_id: color_id ? parseInt(color_id) : existingProduct.color_id,
       weight: weight !== undefined ? parseInt(weight) : (existingProduct.weight || 0),
       is_active: is_active !== undefined ? parseInt(is_active) : existingProduct.is_active,
       is_featured: is_featured !== undefined ? parseInt(is_featured) : (existingProduct.is_featured || 0)

@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { login, register, getMe, logout, adminLogin, updateProfile, changePassword } = require('../controllers/authController');
+const { login, register, getMe, logout, adminLogin, updateProfile, changePassword, forgetPassword, resetPassword, verifyResetCode } = require('../controllers/authController');
 const { registerValidation, loginValidation, adminLoginValidation, handleValidationErrors } = require('../middleware/validation');
 const { auth, adminAuth } = require('../middleware/auth');
 
@@ -38,5 +38,20 @@ router.post('/logout', auth, logout);
 // @desc    Login admin
 // @access  Public
 router.post('/admin/login', adminLoginValidation, handleValidationErrors, adminLogin);
+
+// @route   POST /api/auth/forget-password
+// @desc    Send password reset email
+// @access  Public
+router.post('/forget-password', forgetPassword);
+
+// @route   POST /api/auth/reset-password
+// @desc    Reset password using code
+// @access  Public
+router.post('/reset-password', resetPassword);
+
+// @route   POST /api/auth/verify-reset-code
+// @desc    Verify password reset code
+// @access  Public
+router.post('/verify-reset-code', verifyResetCode);
 
 module.exports = router;

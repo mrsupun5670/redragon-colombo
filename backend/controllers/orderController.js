@@ -1,5 +1,6 @@
 const db = require('../config/db');
 const { auth } = require('../middleware/auth');
+const Order = require('../models/Order');
 
 const orderController = {
   // Create a new order
@@ -207,6 +208,168 @@ const orderController = {
       res.status(500).json({
         success: false,
         message: 'Failed to fetch order'
+      });
+    }
+  },
+
+  // Admin: Get all orders
+  getAllOrdersForAdmin: async (req, res) => {
+    try {
+      const limit = parseInt(req.query.limit) || 50;
+      const page = parseInt(req.query.page) || 1;
+      const offset = (page - 1) * limit;
+      const status = req.query.status;
+      const search = req.query.search;
+
+      let orders;
+
+      if (search) {
+        // Search orders by order number or customer name
+        orders = await Order.search(search, limit, offset);
+      } else if (status && status !== 'all') {
+        // Filter by status
+        orders = await Order.getByStatus(status, limit, offset);
+      } else {
+        // Get all orders
+        orders = await Order.getAll(limit, offset);
+      }
+
+      res.json({
+        success: true,
+        message: 'Orders retrieved successfully',
+        data: orders,
+        pagination: {
+          page,
+          limit,
+          total: orders.length
+        }
+      });
+    } catch (err) {
+      console.error('Get orders error:', err);
+      res.status(500).json({
+        success: false,
+        message: 'Server error. Please try again later.'
+      });
+    }
+  },
+
+  // Admin: Get order by ID (with all details)
+  getOrderByIdForAdmin: async (req, res) => {
+    try {
+      const { id } = req.params;
+      const order = await Order.getById(id);
+
+      if (!order) {
+        return res.status(404).json({
+          success: false,
+          message: 'Order not found'
+        });
+      }
+
+      res.json({
+        success: true,
+        message: 'Order retrieved successfully',
+        data: order
+      });
+    } catch (err) {
+      console.error('Get order by ID error:', err);
+      res.status(500).json({
+        success: false,
+        message: 'Server error. Please try again later.'
+      });
+    }
+  },
+
+  // Admin: Update order status
+  updateOrderStatus: async (req, res) => {
+    try {
+      const { id } = req.params;
+      const { order_status } = req.body;
+
+      // Validate order status
+      const validStatuses = ['pending', 'confirmed', 'processing', 'shipped', 'delivered', 'cancelled'];
+      if (!validStatuses.includes(order_status)) {
+        return res.status(400).json({
+          success: false,
+          message: 'Invalid order status'
+        });
+      }
+
+      // Check if order exists
+      const existingOrder = await Order.getById(id);
+      if (!existingOrder) {
+        return res.status(404).json({
+          success: false,
+          message: 'Order not found'
+        });
+      }
+
+      // Update order status
+      const updated = await Order.updateStatus(id, order_status);
+
+      if (!updated) {
+        return res.status(400).json({
+          success: false,
+          message: 'Failed to update order status'
+        });
+      }
+
+      res.json({
+        success: true,
+        message: 'Order status updated successfully'
+      });
+    } catch (err) {
+      console.error('Update order status error:', err);
+      res.status(500).json({
+        success: false,
+        message: 'Server error. Please try again later.'
+      });
+    }
+  },
+
+  // Admin: Update payment status
+  updatePaymentStatus: async (req, res) => {
+    try {
+      const { id } = req.params;
+      const { payment_status } = req.body;
+
+      // Validate payment status
+      const validStatuses = ['pending', 'paid', 'failed', 'refunded'];
+      if (!validStatuses.includes(payment_status)) {
+        return res.status(400).json({
+          success: false,
+          message: 'Invalid payment status'
+        });
+      }
+
+      // Check if order exists
+      const existingOrder = await Order.getById(id);
+      if (!existingOrder) {
+        return res.status(404).json({
+          success: false,
+          message: 'Order not found'
+        });
+      }
+
+      // Update payment status
+      const updated = await Order.updatePaymentStatus(id, payment_status);
+
+      if (!updated) {
+        return res.status(400).json({
+          success: false,
+          message: 'Failed to update payment status'
+        });
+      }
+
+      res.json({
+        success: true,
+        message: 'Payment status updated successfully'
+      });
+    } catch (err) {
+      console.error('Update payment status error:', err);
+      res.status(500).json({
+        success: false,
+        message: 'Server error. Please try again later.'
       });
     }
   }

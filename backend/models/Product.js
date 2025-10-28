@@ -12,8 +12,8 @@ class Product {
         LEFT JOIN main_categories mc ON p.main_category_id = mc.id
         LEFT JOIN sub_categories sc ON p.sub_category_id = sc.id
         LEFT JOIN product_image_uploads pi ON p.id = pi.product_id AND pi.is_primary = 1
-        WHERE p.is_featured = 1 AND p.is_active = 1
-        ORDER BY p.created_at DESC
+        WHERE p.is_active = 1 AND p.is_featured = 1
+        GROUP BY p.id
       `;
       const [rows] = await db.execute(query);
       return rows;
@@ -66,7 +66,7 @@ class Product {
     }
   }
 
-  // Get all products with pagination
+  // Get all products with pagination (customer-facing - only active products)
   static async getAll(limit = 20, offset = 0) {
     try {
       const query = `
@@ -78,6 +78,7 @@ class Product {
         LEFT JOIN sub_categories sc ON p.sub_category_id = sc.id
         LEFT JOIN product_image_uploads pi ON p.id = pi.product_id AND pi.is_primary = 1
         WHERE p.is_active = 1
+        GROUP BY p.id
         ORDER BY p.created_at DESC
         LIMIT ? OFFSET ?
       `;
@@ -88,7 +89,6 @@ class Product {
     }
   }
 
-  // Get product by ID with all images
   static async getById(productId) {
     try {
       const query = `
@@ -122,6 +122,62 @@ class Product {
     }
   }
 
+  // Admin version - gets product regardless of is_active status
+  static async getByIdForAdmin(productId) {
+    try {
+      const query = `
+        SELECT p.*, b.name as brand_name, mc.name as main_category_name, sc.name as sub_category_name
+        FROM products p
+        LEFT JOIN brands b ON p.brand_id = b.id
+        LEFT JOIN main_categories mc ON p.main_category_id = mc.id
+        LEFT JOIN sub_categories sc ON p.sub_category_id = sc.id
+        WHERE p.id = ?
+      `;
+      const [rows] = await db.execute(query, [productId]);
+      
+      if (rows.length === 0) {
+        return null;
+      }
+
+      const product = rows[0];
+      
+      // Get all images for this product
+      const imageQuery = `
+        SELECT * FROM product_image_uploads 
+        WHERE product_id = ? 
+        ORDER BY is_primary DESC, created_at ASC
+      `;
+      const [images] = await db.execute(imageQuery, [productId]);
+      product.images = images;
+      
+      return product;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  // Admin version - gets all products regardless of is_active status
+  static async getAllForAdmin(limit = 20, offset = 0) {
+    try {
+      const query = `
+        SELECT p.*, b.name as brand_name, mc.name as main_category_name, sc.name as sub_category_name,
+               pi.image_path as primary_image
+        FROM products p
+        LEFT JOIN brands b ON p.brand_id = b.id
+        LEFT JOIN main_categories mc ON p.main_category_id = mc.id
+        LEFT JOIN sub_categories sc ON p.sub_category_id = sc.id
+        LEFT JOIN product_image_uploads pi ON p.id = pi.product_id AND pi.is_primary = 1
+        GROUP BY p.id
+        ORDER BY p.created_at DESC
+        LIMIT ? OFFSET ?
+      `;
+      const [rows] = await db.execute(query, [limit, offset]);
+      return rows;
+    } catch (error) {
+      throw error;
+    }
+  }
+
   // Create new product
   static async create(productData) {
     try {
@@ -129,8 +185,8 @@ class Product {
         INSERT INTO products (
           name, slug, sku, description, specifications, brand_id, main_category_id, 
           sub_category_id, price, sale_price, cost_price, stock_quantity, 
-          color_id, weight, is_active, is_featured
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+          weight, is_active, is_featured
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       `;
       
       const values = [
@@ -143,10 +199,9 @@ class Product {
         productData.main_category_id,
         productData.sub_category_id,
         productData.price,
-        productData.sale_price,
+        productData.sale_price || productData.price,
         productData.cost_price,
         productData.stock_quantity,
-        productData.color_id,
         productData.weight || 0,
         productData.is_active !== undefined ? productData.is_active : 1,
         productData.is_featured || 0
@@ -167,7 +222,7 @@ class Product {
           name = ?, slug = ?, sku = ?, description = ?, specifications = ?,
           brand_id = ?, main_category_id = ?, sub_category_id = ?, price = ?,
           sale_price = ?, cost_price = ?, stock_quantity = ?,
-          color_id = ?, weight = ?, is_active = ?, is_featured = ?,
+          weight = ?, is_active = ?, is_featured = ?,
           updated_at = CURRENT_TIMESTAMP
         WHERE id = ?
       `;
@@ -182,10 +237,9 @@ class Product {
         productData.main_category_id,
         productData.sub_category_id,
         productData.price,
-        productData.sale_price,
+        productData.sale_price || productData.price,
         productData.cost_price,
         productData.stock_quantity,
-        productData.color_id,
         productData.weight || 0,
         productData.is_active !== undefined ? productData.is_active : 1,
         productData.is_featured || 0,
@@ -241,31 +295,7 @@ class Product {
     }
   }
 
-  // Legacy methods for backward compatibility
-  static getAll_old(callback) {
-    const query = 'SELECT * FROM products';
-    db.query(query, callback);
-  }
-  
-  static getById_old(id, callback) {
-    const query = 'SELECT * FROM products WHERE id = ?';
-    db.query(query, [id], callback);
-  }
-  
-  static create_old(product, callback) {
-    const query = 'INSERT INTO products SET ?';
-    db.query(query, product, callback);
-  }
-  
-  static update_old(id, product, callback) {
-    const query = 'UPDATE products SET ? WHERE id = ?';
-    db.query(query, [product, id], callback);
-  }
-  
-  static delete_old(id, callback) {
-    const query = 'DELETE FROM products WHERE id = ?';
-    db.query(query, [id], callback);
-  }
+
 }
 
 module.exports = Product;

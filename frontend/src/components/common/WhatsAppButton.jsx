@@ -1,9 +1,7 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { MessageCircle, X } from 'lucide-react';
 
 const WhatsAppButton = () => {
-  const [isOpen, setIsOpen] = useState(false);
   const phoneNumber = "+94112345678"; // Replace with actual WhatsApp number
   const message = "Hello! I'm interested in Redragon products.";
 

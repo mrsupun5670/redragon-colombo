@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Heart,
@@ -17,19 +17,74 @@ import DevelopmentWatermark from "../components/common/DevelopmentWatermark";
 import FuturisticProductCard from "../components/common/FuturisticProductCard";
 import ErrorPopup from "../components/common/ErrorPopup";
 import SuccessPopup from "../components/common/SuccessPopup";
-import { featuredProducts } from "../data/products";
+import { useAuth } from "../context/AuthContext";
+import { wishlistAPI } from "../services/api";
 
 const Wishlist = () => {
-  // Sample wishlist items (first 4 featured products)
-  const [wishlistItems, setWishlistItems] = useState(
-    featuredProducts.slice(0, 4)
-  );
+  const [wishlistItems, setWishlistItems] = useState([]);
   const [success, setSuccess] = useState(null);
   const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const { isAuthenticated } = useAuth();
+
+  // Load wishlist on component mount
+  useEffect(() => {
+    const loadWishlist = async () => {
+      try {
+        setLoading(true);
+        
+        if (isAuthenticated) {
+          // Authenticated user - load from database
+          const response = await wishlistAPI.getWishlist();
+          if (response.data.success) {
+            setWishlistItems(response.data.data.items || []);
+          } else {
+            setWishlistItems([]);
+          }
+        } else {
+          // Guest user - load from localStorage
+          const guestWishlist = JSON.parse(localStorage.getItem('guest_wishlist')) || [];
+          setWishlistItems(guestWishlist);
+        }
+      } catch (error) {
+        console.error('Error loading wishlist:', error);
+        setError('Failed to load wishlist');
+        setWishlistItems([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadWishlist();
+  }, [isAuthenticated]);
 
   // Remove from wishlist
-  const removeFromWishlist = (id) => {
-    setWishlistItems((items) => items.filter((item) => item.id !== id));
+  const removeFromWishlist = async (id) => {
+    try {
+      if (isAuthenticated) {
+        // Authenticated user - remove from database
+        const response = await wishlistAPI.removeFromWishlist(id);
+        if (response.data.success) {
+          const updatedItems = wishlistItems.filter((item) => item.id !== id);
+          setWishlistItems(updatedItems);
+          setSuccess('Product removed from wishlist!');
+        } else {
+          setError('Failed to remove product from wishlist');
+        }
+      } else {
+        // Guest user - remove from localStorage
+        const updatedItems = wishlistItems.filter((item) => item.id !== id);
+        setWishlistItems(updatedItems);
+        localStorage.setItem('guest_wishlist', JSON.stringify(updatedItems));
+        setSuccess('Product removed from wishlist!');
+      }
+      
+      // Dispatch custom event to update navbar
+      window.dispatchEvent(new Event('wishlistUpdated'));
+    } catch (error) {
+      console.error('Error removing from wishlist:', error);
+      setError('Failed to remove product from wishlist');
+    }
   };
 
   // Add to cart (placeholder)
@@ -102,7 +157,24 @@ const Wishlist = () => {
 
       {/* Main Content */}
       <div className="container mx-auto px-4 py-12">
-        {wishlistItems.length === 0 ? (
+        {loading ? (
+          // Loading State
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="text-center py-20"
+          >
+            <div className="inline-flex w-16 h-16 bg-gradient-to-br from-red-500 to-red-600 rounded-full items-center justify-center mb-6 animate-pulse">
+              <Heart className="w-8 h-8 text-white" />
+            </div>
+            <h2 className="text-2xl font-black text-gray-900 mb-3">
+              Loading your wishlist...
+            </h2>
+            <div className="w-48 h-2 bg-gray-200 rounded-full mx-auto overflow-hidden">
+              <div className="h-full bg-gradient-to-r from-red-500 to-red-600 rounded-full animate-pulse" style={{ width: '60%' }}></div>
+            </div>
+          </motion.div>
+        ) : wishlistItems.length === 0 ? (
           // Empty Wishlist
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
@@ -147,7 +219,7 @@ const Wishlist = () => {
                 </div>
                 <div className="text-center">
                   <div className="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-red-600 to-orange-600">
-                    Rs. {wishlistItems.reduce((sum, item) => sum + item.price, 0).toLocaleString()}
+                    Rs. {wishlistItems.reduce((sum, item) => sum + (parseFloat(item.sale_price || item.price) || 0), 0).toLocaleString()}
                   </div>
                   <div className="text-sm font-bold text-gray-600 uppercase">
                     Total Value
@@ -155,22 +227,13 @@ const Wishlist = () => {
                 </div>
                 <div className="text-center">
                   <div className="text-3xl font-black text-green-600">
-                    {wishlistItems.filter(item => item.inStock).length}
+                    {wishlistItems.filter(item => item.stock_quantity > 0).length}
                   </div>
                   <div className="text-sm font-bold text-gray-600 uppercase">
                     In Stock
                   </div>
                 </div>
-                <div className="text-center">
-                  <motion.button
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                    onClick={() => wishlistItems.forEach(item => addToCart(item))}
-                    className="w-full bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white px-4 py-2 rounded-xl font-black text-sm uppercase shadow-lg"
-                  >
-                    Add All to Cart
-                  </motion.button>
-                </div>
+                
               </div>
             </motion.div>
 
@@ -261,17 +324,7 @@ const Wishlist = () => {
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                {featuredProducts.slice(4, 8).map((product, index) => (
-                  <motion.div
-                    key={product.id}
-                    initial={{ opacity: 0, y: 30 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ delay: index * 0.1 }}
-                  >
-                    <FuturisticProductCard product={product} showCategory />
-                  </motion.div>
-                ))}
+                
               </div>
             </motion.div>
           </>

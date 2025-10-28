@@ -25,7 +25,7 @@ const corsOptions = {
     if (allowedOrigins.indexOf(origin) !== -1) {
       callback(null, true);
     } else {
-      console.log('❌ CORS blocked origin:', origin);
+      console.log('CORS blocked origin:', origin);
       console.log('📋 Allowed origins:', allowedOrigins);
       callback(new Error('Not allowed by CORS'));
     }
@@ -81,6 +81,9 @@ const locationRoutes = require('./routes/locations');
 const addressRoutes = require('./routes/addresses');
 const payhereRoutes = require('./routes/payhere');
 const orderRoutes = require('./routes/orders');
+const wishlistRoutes = require('./routes/wishlist');
+const customerRoutes = require('./routes/customers');
+const dashboardRoutes = require('./routes/dashboard');
 
 
 app.use('/api/auth', authRoutes);
@@ -95,6 +98,9 @@ app.use('/api/locations', locationRoutes);
 app.use('/api/addresses', addressRoutes);
 app.use('/api/payhere', payhereRoutes);
 app.use('/api/orders', orderRoutes);
+app.use('/api/wishlist', wishlistRoutes);
+app.use('/api/customers', customerRoutes);
+app.use('/api/dashboard', dashboardRoutes);
 
 app.get('/', (req, res) => {
   res.json({ message: 'Welcome to Redragon Shop API' });
@@ -113,7 +119,7 @@ app.use((err, req, res, next) => {
 
 // Start server
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
+app.listen(PORT, async () => {
   console.log(`Server running on port ${PORT}`);
   console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
 });

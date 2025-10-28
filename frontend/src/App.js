@@ -5,7 +5,11 @@ import { CartProvider } from "./context/CartContext";
 import { AdminAuthProvider } from "./context/AdminAuthContext";
 import AdminProtectedRoute from "./components/admin/AdminProtectedRoute";
 import AdminGuestRoute from "./components/admin/AdminGuestRoute";
+import AdminRouteGuard from "./components/admin/AdminRouteGuard";
+import CustomerProtectedRoute from "./components/common/CustomerProtectedRoute";
 import GuestRoute from "./components/common/GuestRoute";
+import PaymentRoute from "./components/common/PaymentRoute";
+import ForgotPasswordRoute from "./components/common/ForgotPasswordRoute";
 import CartSyncHandler from "./components/common/CartSyncHandler";
 
 import Home from "./pages/Home";
@@ -45,15 +49,49 @@ function App() {
         <AdminAuthProvider>
           <Router>
             <Routes>
-              {/* Main Pages */}
-              <Route path="/" element={<Home />} />
-              <Route path="/products" element={<Products />} />
-              <Route path="/products/:id" element={<ProductDetail />} />
-              <Route path="/product/:id" element={<SingleProductView />} />
-              <Route path="/cart" element={<Cart />} />
-              <Route path="/checkout" element={<Checkout />} />
-              <Route path="/payment/success" element={<PaymentSuccess />} />
-              <Route path="/payment/cancel" element={<PaymentCancel />} />
+              {/* Main Pages - Protected from admin access */}
+              <Route path="/" element={
+                <AdminRouteGuard>
+                  <Home />
+                </AdminRouteGuard>
+              } />
+              <Route path="/products" element={
+                <AdminRouteGuard>
+                  <Products />
+                </AdminRouteGuard>
+              } />
+              <Route path="/products/:id" element={
+                <AdminRouteGuard>
+                  <ProductDetail />
+                </AdminRouteGuard>
+              } />
+              <Route path="/product/:id" element={
+                <AdminRouteGuard>
+                  <SingleProductView />
+                </AdminRouteGuard>
+              } />
+              <Route path="/cart" element={
+                <AdminRouteGuard>
+                  <Cart />
+                </AdminRouteGuard>
+              } />
+              <Route path="/checkout" element={
+                <AdminRouteGuard>
+                  <CustomerProtectedRoute>
+                    <Checkout />
+                  </CustomerProtectedRoute>
+                </AdminRouteGuard>
+              } />
+              <Route path="/payment/success" element={
+                <PaymentRoute>
+                  <PaymentSuccess />
+                </PaymentRoute>
+              } />
+              <Route path="/payment/cancel" element={
+                <PaymentRoute>
+                  <PaymentCancel />
+                </PaymentRoute>
+              } />
               <Route path="/login" element={
                 <GuestRoute>
                   <LoginPage />
@@ -65,9 +103,9 @@ function App() {
                 </GuestRoute>
               } />
               <Route path="/forgot-password" element={
-                <GuestRoute>
+                <ForgotPasswordRoute>
                   <ForgotPasswordPage />
-                </GuestRoute>
+                </ForgotPasswordRoute>
               } />
               <Route path="/admin" element={
                 <AdminProtectedRoute>
@@ -79,15 +117,45 @@ function App() {
                   <AdminLogin />
                 </AdminGuestRoute>
               } />
-              <Route path="/about" element={<About />} />
-              <Route path="/wishlist" element={<Wishlist />} />
-              <Route path="/categories" element={<CategoriesPage />} />
-              <Route path="/account" element={<MyAccount />} />
+              <Route path="/about" element={
+                <AdminRouteGuard>
+                  <About />
+                </AdminRouteGuard>
+              } />
+              <Route path="/wishlist" element={
+                <AdminRouteGuard>
+                  <Wishlist />
+                </AdminRouteGuard>
+              } />
+              <Route path="/categories" element={
+                <AdminRouteGuard>
+                  <CategoriesPage />
+                </AdminRouteGuard>
+              } />
+              <Route path="/account" element={
+                <AdminRouteGuard>
+                  <CustomerProtectedRoute>
+                    <MyAccount />
+                  </CustomerProtectedRoute>
+                </AdminRouteGuard>
+              } />
 
-              {/* Policy Pages */}
-              <Route path="/refund-policy" element={<RefundPolicy />} />
-              <Route path="/privacy-policy" element={<PrivacyPolicy />} />
-              <Route path="/terms-conditions" element={<TermsConditions />} />
+              {/* Policy Pages - Protected from admin access */}
+              <Route path="/refund-policy" element={
+                <AdminRouteGuard>
+                  <RefundPolicy />
+                </AdminRouteGuard>
+              } />
+              <Route path="/privacy-policy" element={
+                <AdminRouteGuard>
+                  <PrivacyPolicy />
+                </AdminRouteGuard>
+              } />
+              <Route path="/terms-conditions" element={
+                <AdminRouteGuard>
+                  <TermsConditions />
+                </AdminRouteGuard>
+              } />
 
               {/* Error Pages */}
               <Route path="/error" element={<ErrorPage />} />

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   X,
@@ -40,54 +40,8 @@ const EditProfileModal = ({ userData, onClose, onSave }) => {
   const [loadingDistricts, setLoadingDistricts] = useState(false);
   const [loadingCities, setLoadingCities] = useState(false);
 
-  useEffect(() => {
-    if (userData) {
-      setFormData({
-        firstName: userData.firstName || '',
-        lastName: userData.lastName || '',
-        email: userData.email || '',
-        phone: userData.phone || '',
-        addressLine1: userData.addressLine1 || '',
-        addressLine2: userData.addressLine2 || '',
-        province: '',
-        district: '',
-        city: userData.city || '',
-        postalCode: userData.postalCode || ''
-      });
-    }
-    // Load provinces and address data when modal opens
-    loadProvinces();
-    loadDefaultAddress();
-  }, [userData]);
-
-  // Load customer's default address
-  const loadDefaultAddress = async () => {
-    try {
-      const response = await addressAPI.getDefaultAddress();
-      const address = response.data.data;
-      
-      if (address) {
-        // Update form data with address information
-        setFormData(prev => ({
-          ...prev,
-          phone: address.phone || prev.phone,
-          addressLine1: address.address_line1 || '',
-          addressLine2: address.address_line2 || '',
-          city: address.city_name || '',
-          postalCode: address.postal_code || ''
-        }));
-
-        // Load provinces and then find matching province/district
-        await loadProvincesAndSetAddress(address);
-      }
-    } catch (error) {
-      console.error('Error loading default address:', error);
-      // Don't show error message as address might not exist yet
-    }
-  };
-
   // Load provinces and set address location data
-  const loadProvincesAndSetAddress = async (address) => {
+  const loadProvincesAndSetAddress = useCallback(async (address) => {
     try {
       // Load all provinces
       const provincesResponse = await locationAPI.getProvinces();
@@ -133,10 +87,36 @@ const EditProfileModal = ({ userData, onClose, onSave }) => {
     } catch (error) {
       console.error('Error loading address location data:', error);
     }
-  };
+  }, []);
+
+  // Load customer's default address
+  const loadDefaultAddress = useCallback(async () => {
+    try {
+      const response = await addressAPI.getDefaultAddress();
+      const address = response.data.data;
+      
+      if (address) {
+        // Update form data with address information
+        setFormData(prev => ({
+          ...prev,
+          phone: address.phone || prev.phone,
+          addressLine1: address.address_line1 || '',
+          addressLine2: address.address_line2 || '',
+          city: address.city_name || '',
+          postalCode: address.postal_code || ''
+        }));
+
+        // Load provinces and then find matching province/district
+        await loadProvincesAndSetAddress(address);
+      }
+    } catch (error) {
+      console.error('Error loading default address:', error);
+      // Don't show error message as address might not exist yet
+    }
+  }, [loadProvincesAndSetAddress]);
 
   // Load provinces (only if not already loaded)
-  const loadProvinces = async () => {
+  const loadProvinces = useCallback(async () => {
     if (provinces.length > 0) return; // Already loaded
     
     try {
@@ -149,7 +129,27 @@ const EditProfileModal = ({ userData, onClose, onSave }) => {
     } finally {
       setLoadingProvinces(false);
     }
-  };
+  }, [provinces.length]);
+
+  useEffect(() => {
+    if (userData) {
+      setFormData({
+        firstName: userData.firstName || '',
+        lastName: userData.lastName || '',
+        email: userData.email || '',
+        phone: userData.phone || '',
+        addressLine1: userData.addressLine1 || '',
+        addressLine2: userData.addressLine2 || '',
+        province: '',
+        district: '',
+        city: userData.city || '',
+        postalCode: userData.postalCode || ''
+      });
+    }
+    // Load provinces and address data when modal opens
+    loadProvinces();
+    loadDefaultAddress();
+  }, [userData, loadProvinces, loadDefaultAddress]);
 
   // Load districts when province changes
   const loadDistricts = async (provinceId) => {
@@ -306,13 +306,13 @@ const EditProfileModal = ({ userData, onClose, onSave }) => {
         addressLine1: formData.addressLine1,
         addressLine2: formData.addressLine2,
         cityName: formData.city,
-        districtName: districts.find(d => d.id == formData.district)?.name || '',
-        provinceName: provinces.find(p => p.id == formData.province)?.name || '',
+        districtName: districts.find(d => d.id === Number(formData.district))?.name || '',
+        provinceName: provinces.find(p => p.id === Number(formData.province))?.name || '',
         postalCode: formData.postalCode
       };
 
       // Update customer profile
-      const profileResponse = await authAPI.updateProfile(customerData);
+      await authAPI.updateProfile(customerData);
       
       // Update shipping address if address fields are provided
       if (formData.addressLine1 && formData.city && formData.province && formData.district) {

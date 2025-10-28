@@ -31,10 +31,10 @@ class Brand {
     try {
       const { name, image_url } = brandData;
       const query = `
-        INSERT INTO brands (name, logo_url)
-        VALUES (?, ?)
+        INSERT INTO brands (name, logo_url, slug)
+        VALUES (?, ?, ?)
       `;
-      const [result] = await db.execute(query, [name, image_url || null]);
+      const [result] = await db.execute(query, [name, image_url || null, name.toLowerCase().replace(/\s+/g, '-')]);
       return {
         id: result.insertId,
         name,

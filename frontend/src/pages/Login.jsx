@@ -1,13 +1,14 @@
 import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { Mail, Lock, LogIn, ArrowRight, Eye, EyeOff } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import Navbar from "../components/layout/Navbar";
 import Footer from "../components/layout/Footer";
 import ParticleEffect from "../components/common/ParticleEffect";
 import ErrorPopup from "../components/common/ErrorPopup";
 import SuccessPopup from "../components/common/SuccessPopup";
 import { useAuth } from "../context/AuthContext";
+import { navigateToForgotPassword } from "../utils/routeProtection";
 
 const LoginPage = () => {
   const [formData, setFormData] = useState({
@@ -19,7 +20,11 @@ const LoginPage = () => {
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
   const { login } = useAuth();
+
+  // Get the redirect path from location state (set by CustomerProtectedRoute)
+  const from = location.state?.from || "/";
 
   const { email, password } = formData;
 
@@ -44,7 +49,7 @@ const LoginPage = () => {
       if (result.success) {
         setSuccess("Login successful! Redirecting...");
         setTimeout(() => {
-          navigate("/");
+          navigate(from, { replace: true });
         }, 1500);
       } else {
         setError(result.message || "Login failed");
@@ -149,12 +154,13 @@ const LoginPage = () => {
 
                 {/* Forgot Password */}
                 <div className="text-right">
-                  <a
-                    href="/forgot-password"
+                  <button
+                    type="button"
+                    onClick={() => navigateToForgotPassword(navigate)}
                     className="text-sm font-bold text-red-600 hover:text-red-700 transition-colors"
                   >
                     Forgot Password?
-                  </a>
+                  </button>
                 </div>
 
                 {/* Submit Button */}

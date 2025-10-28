@@ -3,7 +3,6 @@ const { uploadToCloudinary } = require('../config/cloudinary');
 
 // Get all main categories
 exports.getAllMainCategories = async (req, res) => {
-  console.log('Fetching all main categories');
   try {
     const categories = await Category.getAllMainCategories();
     
@@ -25,17 +24,16 @@ exports.getAllMainCategories = async (req, res) => {
 exports.getAllSubCategories = async (req, res) => {
   try {
     const categories = await Category.getAllSubCategories();
-    
-    res.json({
+        res.json({
       success: true,
       message: 'Sub categories retrieved successfully',
-      data: categories
+      data: categories || []
     });
   } catch (error) {
-    console.error('Get sub categories error:', error);
+    console.error('❌ Get sub categories error:', error);
     res.status(500).json({
       success: false,
-      message: 'Server error. Please try again later.'
+      message: 'Server error. Please try again later.',
     });
   }
 };
@@ -62,7 +60,6 @@ exports.getSubCategoriesByMainCategory = async (req, res) => {
 
 // Create new main category
 exports.createMainCategory = async (req, res) => {
-  console.log('Creating new main category');
   try {
     const { name, description } = req.body;
     
@@ -95,15 +92,10 @@ exports.createMainCategory = async (req, res) => {
         // Convert buffer to base64 for Cloudinary upload
         const b64 = Buffer.from(req.file.buffer).toString('base64');
         const dataURI = `data:${req.file.mimetype};base64,${b64}`;
-
-        console.log('📤 Uploading category image to Cloudinary...');
         
         // Upload to Cloudinary
         const uploadResult = await uploadToCloudinary(dataURI, 'categories');
-        console.log('🔍 Upload result from Cloudinary:', uploadResult);
-        
-        console.log(uploadResult);
-        
+                
         iconUrl = uploadResult.url;
         console.log('🔍 Icon URL extracted:', iconUrl);
         

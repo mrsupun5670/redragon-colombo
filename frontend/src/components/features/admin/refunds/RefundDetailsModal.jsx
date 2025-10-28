@@ -8,8 +8,6 @@ import {
   User,
   Mail,
   Phone,
-  Calendar,
-  DollarSign,
   AlertCircle,
   CheckCircle,
   XCircle,

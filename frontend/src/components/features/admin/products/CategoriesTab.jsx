@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Edit, Plus, ChevronDown, X, Upload, Trash2 } from 'lucide-react';
+import { Edit, Plus, ChevronDown, X, Trash2 } from 'lucide-react';
 import AddCategoryModal from './AddCategoryModal';
 import { adminApi } from '../../../../utils/adminApi';
 import ErrorPopup from '../../../common/ErrorPopup';
@@ -24,7 +24,7 @@ const CategoriesTab = () => {
   const [error, setError] = useState(null);
 
   // Fetch main categories
-  const fetchMainCategories = async () => {
+  const fetchMainCategories = React.useCallback(async () => {
     try {
       const data = await adminApi.get('/categories/main');
       if (data.success) {
@@ -33,10 +33,10 @@ const CategoriesTab = () => {
     } catch (error) {
       console.error('Error fetching main categories:', error);
     }
-  };
+  }, []);
 
   // Fetch sub categories
-  const fetchSubCategories = async () => {
+  const fetchSubCategories = React.useCallback(async () => {
     try {
       const data = await adminApi.get('/categories/sub');
       if (data.success) {
@@ -45,10 +45,10 @@ const CategoriesTab = () => {
     } catch (error) {
       console.error('Error fetching sub categories:', error);
     }
-  };
+  }, []);
 
   // Fetch all categories
-  const fetchCategories = async () => {
+  const fetchCategories = React.useCallback(async () => {
     setLoading(true);
     try {
       await Promise.all([fetchMainCategories(), fetchSubCategories()]);
@@ -57,11 +57,11 @@ const CategoriesTab = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [fetchMainCategories, fetchSubCategories]);
 
   useEffect(() => {
     fetchCategories();
-  }, []);
+  }, [fetchCategories]);
 
   // Get subcategories for a main category
   const getSubCategoriesForMain = (mainCategoryId) => {

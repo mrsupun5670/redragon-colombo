@@ -58,6 +58,10 @@ export const authAPI = {
   updateProfile: (profileData) => api.put('/auth/profile', profileData),
   changePassword: (passwordData) => api.put('/auth/change-password', passwordData),
   
+  // Password reset
+  forgotPassword: (email) => api.post('/auth/forget-password', { email }),
+  resetPassword: (resetData) => api.post('/auth/reset-password', resetData),
+  
   // Common
   getCurrentUser: () => api.get('/auth/me'),
   logout: () => api.post('/auth/logout'),
@@ -74,7 +78,7 @@ export const productAPI = {
   // Get Redragon products for homepage
   getRedragonProducts: () => api.get('/products/redragon'),
   
-  // Get all products with pagination
+  // Get all products with pagination and filtering
   getAll: (params = {}) => api.get('/products', { params }),
   
   // Get product by ID
@@ -202,5 +206,24 @@ export const orderAPI = {
   // Get order by ID
   getOrderById: (id) => api.get(`/orders/${id}`),
 };
+
+// Wishlist API functions
+export const wishlistAPI = {
+  // Get customer's wishlist with items
+  getWishlist: () => api.get('/wishlist'),
+  
+  // Get wishlist item count
+  getWishlistCount: () => api.get('/wishlist/count'),
+  
+  // Check if product is in wishlist
+  checkWishlistStatus: (productId) => api.get(`/wishlist/check/${productId}`),
+  
+  // Add item to wishlist
+  addToWishlist: (productId) => api.post('/wishlist/add', { product_id: productId }),
+  
+  // Remove item from wishlist
+  removeFromWishlist: (productId) => api.delete(`/wishlist/remove/${productId}`),
+};
+
 
 export default api;

@@ -8,9 +8,17 @@ class Category {
         SELECT * FROM main_categories 
         ORDER BY name ASC
       `;
-      const [rows] = await db.execute(query);
-      return rows;
+      const result = await db.execute(query);
+      
+      if (!result || !Array.isArray(result) || result.length === 0) {
+        console.error('Database query returned invalid result:', result);
+        return [];
+      }
+      
+      const [rows] = result;
+      return rows || [];
     } catch (error) {
+      console.error('Error in getAllMainCategories:', error);
       throw error;
     }
   }
@@ -25,8 +33,10 @@ class Category {
         ORDER BY mc.name ASC, sc.name ASC
       `;
       const [rows] = await db.execute(query);
-      return rows;
+      return rows || [];
+      
     } catch (error) {
+      console.error('Error in getAllSubCategories:', error);
       throw error;
     }
   }

@@ -26,13 +26,15 @@ import WhatsAppButton from "../components/common/WhatsAppButton";
 import ParticleEffect from "../components/common/ParticleEffect";
 import ErrorPopup from "../components/common/ErrorPopup";
 import SuccessPopup from "../components/common/SuccessPopup";
-import { productAPI } from "../services/api";
+import { productAPI, wishlistAPI } from "../services/api";
 import CartContext from "../context/CartContext";
+import { useAuth } from "../context/AuthContext";
 
 const SingleProductView = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { addToCart } = useContext(CartContext);
+  const { addToCart, cartItems } = useContext(CartContext);
+  const { isAuthenticated } = useAuth();
 
   // State management
   const [product, setProduct] = useState(null);
@@ -78,6 +80,32 @@ const SingleProductView = () => {
     }
   }, [id]);
 
+  // Check if product is in wishlist when product loads
+  useEffect(() => {
+    const checkWishlistStatus = async () => {
+      if (!product) return;
+
+      if (isAuthenticated) {
+        // Authenticated user - check database
+        try {
+          const response = await wishlistAPI.checkWishlistStatus(product.id);
+          if (response.data.success) {
+            setIsWishlisted(response.data.data.isInWishlist);
+          }
+        } catch (error) {
+          console.error('Error checking wishlist status:', error);
+        }
+      } else {
+        // Guest user - check localStorage
+        const guestWishlist = JSON.parse(localStorage.getItem('guest_wishlist')) || [];
+        const isInWishlist = guestWishlist.some(item => item.id === product.id);
+        setIsWishlisted(isInWishlist);
+      }
+    };
+
+    checkWishlistStatus();
+  }, [product, isAuthenticated]);
+
   // Product images from the API data (primary image and additional images)
   const productImages = product && product.images && product.images.length > 0
     ? product.images.map(img => img.image_path)
@@ -121,7 +149,15 @@ const SingleProductView = () => {
   const handleBuyNow = async () => {
     if (product && product.stock_quantity > 0) {
       try {
-        await addToCart(product, quantity);
+        // Check if product is already in cart
+        const existingItem = cartItems.find(item => item.id === product.id);
+        
+        if (!existingItem) {
+          // Only add to cart if not already present
+          await addToCart(product, quantity);
+        }
+        
+        // Always navigate to cart regardless
         navigate("/cart");
       } catch (error) {
         console.error('Error adding to cart:', error);
@@ -142,6 +178,63 @@ const SingleProductView = () => {
       // Fallback: copy to clipboard
       navigator.clipboard.writeText(window.location.href);
       setSuccess("Link copied to clipboard!");
+    }
+  };
+
+  // Handle add to wishlist
+  const handleAddToWishlist = async () => {
+    if (!isAuthenticated) {
+      // Guest user - save to localStorage
+      const guestWishlist = JSON.parse(localStorage.getItem('guest_wishlist')) || [];
+      
+      // Check if product already in wishlist
+      const isAlreadyInWishlist = guestWishlist.some(item => item.id === product.id);
+      
+      if (isAlreadyInWishlist) {
+        // Remove from wishlist
+        const updatedWishlist = guestWishlist.filter(item => item.id !== product.id);
+        localStorage.setItem('guest_wishlist', JSON.stringify(updatedWishlist));
+        setIsWishlisted(false);
+        setSuccess("Removed from wishlist!");
+      } else {
+        // Add to wishlist
+        guestWishlist.push(product);
+        localStorage.setItem('guest_wishlist', JSON.stringify(guestWishlist));
+        setIsWishlisted(true);
+        setSuccess("Added to wishlist!");
+      }
+      
+      // Dispatch custom event to update navbar
+      window.dispatchEvent(new Event('wishlistUpdated'));
+    } else {
+      // Authenticated user - use database
+      try {
+        if (isWishlisted) {
+          // Remove from wishlist
+          const response = await wishlistAPI.removeFromWishlist(product.id);
+          if (response.data.success) {
+            setIsWishlisted(false);
+            setSuccess("Removed from wishlist!");
+          } else {
+            setPopupError("Failed to remove from wishlist");
+          }
+        } else {
+          // Add to wishlist
+          const response = await wishlistAPI.addToWishlist(product.id);
+          if (response.data.success) {
+            setIsWishlisted(true);
+            setSuccess("Added to wishlist!");
+          } else {
+            setPopupError(response.data.message || "Failed to add to wishlist");
+          }
+        }
+        
+        // Dispatch custom event to update navbar
+        window.dispatchEvent(new Event('wishlistUpdated'));
+      } catch (error) {
+        console.error('Error updating wishlist:', error);
+        setPopupError("Failed to update wishlist. Please try again.");
+      }
     }
   };
 
@@ -465,7 +558,7 @@ const SingleProductView = () => {
             {/* Secondary Actions */}
             <div className="flex items-center gap-3 sm:gap-4 pt-2">
               <motion.button
-                onClick={() => setIsWishlisted(!isWishlisted)}
+                onClick={handleAddToWishlist}
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 className={`flex-1 flex items-center justify-center gap-2 px-4 sm:px-6 py-2 sm:py-3 rounded-lg sm:rounded-xl font-bold text-sm sm:text-base transition-all border-2 ${

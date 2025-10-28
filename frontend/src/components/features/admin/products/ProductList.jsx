@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Edit, Filter, X, Plus, Trash2, Upload, Search } from 'lucide-react';
 import { adminApi } from '../../../../utils/adminApi';
@@ -31,7 +31,6 @@ const ProductList = () => {
   const [editFormData, setEditFormData] = useState({});
   const [selectedImages, setSelectedImages] = useState([]);
   const [imagePreviews, setImagePreviews] = useState([]);
-  const [existingImages, setExistingImages] = useState([]);
   const [success, setSuccess] = useState(null);
   const [error, setError] = useState(null);
 
@@ -94,7 +93,6 @@ const ProductList = () => {
     });
     setSelectedImages([]);
     setImagePreviews([]);
-    setExistingImages([]);
     setActiveTab('details');
 
     // Fetch existing product images
@@ -114,7 +112,6 @@ const ProductList = () => {
           }
         }
         
-        setExistingImages(existingImageData);
         setImagePreviews(existingPreviews);
       }
     } catch (error) {
@@ -242,7 +239,7 @@ const ProductList = () => {
     }
   };
 
-  const applyFilters = () => {
+  const applyFilters = useCallback(() => {
     let filtered = [...allProducts];
 
     // Filter by search query (ID or name)
@@ -289,7 +286,7 @@ const ProductList = () => {
     }
 
     setProducts(filtered);
-  };
+  }, [allProducts, filters, searchQuery]);
 
   const resetFilters = () => {
     setSearchQuery('');
@@ -304,11 +301,9 @@ const ProductList = () => {
     setProducts(allProducts);
   };
 
-  React.useEffect(() => {
-    if (allProducts.length > 0) {
-      applyFilters();
-    }
-  }, [filters, searchQuery, allProducts]);
+  useEffect(() => {
+    applyFilters();
+  }, [applyFilters]);
 
   if (loading) {
     return (
@@ -733,7 +728,7 @@ const ProductList = () => {
                               <div className="relative w-full h-full">
                                 <img
                                   src={imagePreviews[index]}
-                                  alt={`Product image ${index + 1}`}
+                                  alt={`Product ${index + 1}`}
                                   className="w-full h-full object-cover rounded-lg border-2 border-gray-300"
                                 />
                                 <button

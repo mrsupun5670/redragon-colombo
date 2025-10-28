@@ -1,12 +1,18 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 import useWindowDimensions from '../../../hooks/useWindowDimensions';
 
 const AutoScrollBrands = ({ brands }) => {
+  const navigate = useNavigate();
   const scrollRef = useRef(null);
   const [isPaused, setIsPaused] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
   const { width } = useWindowDimensions();
+
+  const handleBrandClick = (brandName) => {
+    navigate(`/products?brand=${encodeURIComponent(brandName)}`);
+  };
 
   useEffect(() => {
     if (isPaused) return;
@@ -79,7 +85,7 @@ const AutoScrollBrands = ({ brands }) => {
             className="flex-shrink-0 w-45 group cursor-pointer"
             whileHover={{ y: -8, scale: 1.05 }}
             transition={{ duration: 0.3 }}
-            onClick={() => window.location.href = `/products?brand=${brand.name}`}
+            onClick={() => handleBrandClick(brand.name)}
           >
             <div className="bg-white rounded-2xl overflow-hidden hover:shadow-2xl hover:shadow-red-500/20 transition-all duration-300 border-2 border-gray-200 hover:border-red-500 p-6 h-32 flex items-center justify-center">
               <img

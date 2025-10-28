@@ -18,6 +18,22 @@ export const getOptimizedImageUrl = (product, size = 'card') => {
 
   const { width, height } = sizePresets[size] || sizePresets.card;
 
+  // First check for images array (new format)
+  if (product.images && product.images.length > 0) {
+    // Find primary image or use first image
+    const primaryImage = product.images.find(img => img.is_primary === 1) || product.images[0];
+    const imageUrl = primaryImage.image_path;
+    
+    // If it's a Cloudinary URL, add transformation for consistent sizing
+    if (imageUrl && imageUrl.startsWith('https://res.cloudinary.com/')) {
+      const baseUrl = imageUrl.split('/upload/')[0];
+      const imagePath = imageUrl.split('/upload/')[1];
+      return `${baseUrl}/upload/w_${width},h_${height},c_fill,f_auto,q_auto,g_center/${imagePath}`;
+    }
+    return imageUrl;
+  }
+
+  // Fallback to primary_image (old format)
   if (product.primary_image) {
     // If it's a Cloudinary URL, add transformation for consistent sizing
     if (product.primary_image.startsWith('https://res.cloudinary.com/')) {
