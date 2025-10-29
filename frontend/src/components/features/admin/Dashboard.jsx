@@ -107,14 +107,14 @@ const Dashboard = ({ setActiveTab }) => {
       subtitle: 'New this month vs last month'
     },
     {
-      name: 'Total Products',
+      name: 'Active Products',
       value: `${stats?.products?.active?.toLocaleString() || '0'}`,
       change: `${stats?.products?.low_stock || 0} low stock`,
       changeType: 'info',
       icon: Package,
       color: 'from-orange-500 to-red-600',
       total: `${stats?.products?.total?.toLocaleString() || '0'} total`,
-      subtitle: 'Active products'
+      subtitle: 'Total products'
     },
   ];
 

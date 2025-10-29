@@ -194,14 +194,14 @@ const SalesCharts = () => {
         </motion.div>
       </div>
 
-      {/* Top Products & Returns */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6">
+      {/* Top Products */}
+      <div className="grid grid-cols-1 gap-4 md:gap-6">
         {/* Top Performing Products */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.6 }}
-          className="lg:col-span-2 bg-white rounded-xl md:rounded-2xl shadow-lg p-4 md:p-6"
+          className="bg-white rounded-xl md:rounded-2xl shadow-lg p-4 md:p-6"
         >
           <h3 className="text-lg md:text-xl font-bold text-gray-900 mb-3 md:mb-4">Top Performing Products</h3>
           <div className="overflow-x-auto">
@@ -236,48 +236,6 @@ const SalesCharts = () => {
                 ))}
               </tbody>
             </table>
-          </div>
-        </motion.div>
-
-        {/* Returns & Issues */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.7 }}
-          className="bg-white rounded-xl md:rounded-2xl shadow-lg p-4 md:p-6"
-        >
-          <h3 className="text-lg md:text-xl font-bold text-gray-900 mb-3 md:mb-4">Returns & Refunds</h3>
-          <div className="space-y-4">
-            <div className="bg-red-50 p-4 rounded-xl">
-              <p className="text-sm text-gray-600 mb-1">Total Returns</p>
-              <p className="text-3xl font-bold text-red-600">42</p>
-              <p className="text-xs text-red-500 mt-1">↓ 8.3% from last month</p>
-            </div>
-            <div className="bg-orange-50 p-4 rounded-xl">
-              <p className="text-sm text-gray-600 mb-1">Refund Amount</p>
-              <p className="text-2xl font-bold text-orange-600">Rs. 125,800</p>
-            </div>
-            <div className="bg-yellow-50 p-4 rounded-xl">
-              <p className="text-sm text-gray-600 mb-1">Return Rate</p>
-              <p className="text-2xl font-bold text-yellow-600">1.78%</p>
-            </div>
-            <div className="pt-4 border-t border-gray-200">
-              <p className="text-sm font-medium text-gray-700 mb-2">Top Return Reasons</p>
-              <div className="space-y-2">
-                <div className="flex justify-between text-sm">
-                  <span className="text-gray-600">Defective</span>
-                  <span className="font-semibold text-gray-900">45%</span>
-                </div>
-                <div className="flex justify-between text-sm">
-                  <span className="text-gray-600">Wrong Item</span>
-                  <span className="font-semibold text-gray-900">30%</span>
-                </div>
-                <div className="flex justify-between text-sm">
-                  <span className="text-gray-600">Not as Described</span>
-                  <span className="font-semibold text-gray-900">25%</span>
-                </div>
-              </div>
-            </div>
           </div>
         </motion.div>
       </div>
