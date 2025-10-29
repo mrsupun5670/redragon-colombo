@@ -97,7 +97,7 @@ const Dashboard = {
       LEFT JOIN orders o ON oi.order_id = o.id
       LEFT JOIN brands b ON p.brand_id = b.id
       LEFT JOIN product_image_uploads pi ON p.id = pi.product_id AND pi.is_primary = 1
-      WHERE o.payment_status = 'paid'
+      WHERE o.payment_status IN ('paid', 'pending')
       GROUP BY p.id, p.name, p.price, p.stock_quantity, b.name, pi.image_path
       ORDER BY total_sold DESC
       LIMIT ?
@@ -127,7 +127,7 @@ const Dashboard = {
         END as customer_tier
       FROM customers c
       INNER JOIN orders o ON c.customer_id = o.customer_id
-      WHERE o.payment_status = 'paid'
+      WHERE o.payment_status IN ('paid', 'pending')
       GROUP BY c.customer_id, c.first_name, c.last_name, c.email, c.phone
       ORDER BY total_spent DESC
       LIMIT ?
