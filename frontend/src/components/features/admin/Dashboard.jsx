@@ -71,6 +71,8 @@ const Dashboard = ({ setActiveTab }) => {
   const { stats, topProducts, topCustomers, recentOrders, ordersChart, lowStockProducts } = dashboardData || {};
 
   console.log("recent orders", recentOrders);
+  console.log("top products", topProducts);
+  console.log("top customers", topCustomers);
   
   // Create stats cards from API data
   const statsCards = [
@@ -157,13 +159,12 @@ const Dashboard = ({ setActiveTab }) => {
   };
 
   const ordersChartData = processRecentOrdersForChart(recentOrders);
-  const maxOrders = Math.max(...ordersChartData.map(d => d.orders), 1);
+  const maxRevenue = Math.max(...ordersChartData.map(d => d.revenue), 1);
   
   console.log('Chart data sample:', ordersChartData.slice(0, 5));
-  console.log('Max orders for scaling:', maxOrders);
+  console.log('Max revenue for scaling:', maxRevenue);
   
   console.log('Orders chart data:', ordersChartData);
-  console.log('Max orders:', maxOrders);
 
   return (
     <div className="space-y-6 md:space-y-8">
@@ -294,14 +295,15 @@ const Dashboard = ({ setActiveTab }) => {
           <div className="flex items-end justify-between h-48 md:h-64 gap-0.5 md:gap-1 overflow-x-auto">
             {ordersChartData && ordersChartData.length > 0 ? (
               ordersChartData.map((data, index) => {
-                const barHeight = data.orders > 0 ? Math.max((data.orders / maxOrders) * 100, 3) : 1;
-                console.log(`Bar ${index}: orders=${data.orders}, height=${barHeight}%`);
+                const maxHeight = 200; // Fixed max height in pixels
+                const barHeightPx = data.revenue > 0 ? Math.max((data.revenue / maxRevenue) * maxHeight, 20) : 4;
+                console.log(`Bar ${index}: orders=${data.orders}, revenue=${data.revenue}, height=${barHeightPx}px`);
                 return (
                   <div key={index} className="flex-1 flex flex-col items-center justify-end group min-w-[8px]">
                     <div
                       className="w-full bg-gradient-to-t from-blue-500 to-cyan-400 rounded-t-lg transition-all duration-300 group-hover:from-blue-600 group-hover:to-cyan-500 relative"
                       style={{ 
-                        height: `${barHeight}%`
+                        height: `${barHeightPx}px`
                       }}
                     >
                       <div className="hidden md:block absolute -top-8 left-1/2 -translate-x-1/2 bg-gray-900 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-10">
