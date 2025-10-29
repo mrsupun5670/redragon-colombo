@@ -51,18 +51,16 @@ const Products = () => {
     const fetchData = async () => {
       setLoading(true);
       try {
-        const [productsRes, categoriesRes, subCategoriesRes, brandsRes] =
-          await Promise.all([
-            productAPI.getAll(),
-            categoryAPI.getMainCategories(),
-            categoryAPI.getSubCategories(),
-            brandAPI.getAll(),
-          ]);
+        const [productsRes, categoriesRes, brandsRes] = await Promise.all([
+          productAPI.getAll(),
+          categoryAPI.getMainCategories(),
+          brandAPI.getAll(),
+        ]);
         setProducts(productsRes.data.data);
         const maxPrice = Math.max(...productsRes.data.data.map((p) => p.price));
         setPriceRange([0, maxPrice]);
         setMainCategories(categoriesRes.data.data);
-        setSubCategories(subCategoriesRes.data.data);
+
         setBrands(brandsRes.data.data);
         setError(null);
       } catch (error) {
@@ -173,12 +171,40 @@ const Products = () => {
     products,
   ]);
 
+  // Fetch sub-categories when a main category is selected
+  useEffect(() => {
+    const fetchSubCategories = async () => {
+      if (selectedCategories.length === 1) {
+        try {
+          // Find the full category object to get its ID
+          const selectedMainCategory = mainCategories.find(
+            (c) => c.name === selectedCategories[0]
+          );
+          if (selectedMainCategory) {
+            const res = await categoryAPI.getSubCategoriesByMainCategory(
+              selectedMainCategory.id
+            );
+            setSubCategories(res.data.data || []);
+          }
+        } catch (error) {
+          console.error("Error fetching sub-categories:", error);
+          setSubCategories([]);
+        }
+      } else {
+        // Clear sub-categories if no category or multiple categories are selected
+        setSubCategories([]);
+      }
+      // Also clear any previously selected sub-category filters
+      setSelectedSubCategories([]);
+    };
+
+    fetchSubCategories();
+  }, [selectedCategories, mainCategories]);
+
   // Filter handlers
   const toggleCategory = (category) => {
     setSelectedCategories((prev) =>
-      prev.includes(category)
-        ? prev.filter((c) => c !== category)
-        : [...prev, category]
+      prev.includes(category) ? [] : [category]
     );
   };
 
@@ -388,7 +414,7 @@ const Products = () => {
                   </div>
 
                   {/* SubCategory Filter */}
-                  {filterOptions.subCategories.length > 0 && (
+                  {subCategories.length > 0 && (
                     <div className="mb-6">
                       <button
                         onClick={() => setSubCategoryOpen(!subCategoryOpen)}
@@ -403,23 +429,24 @@ const Products = () => {
                       </button>
                       {subCategoryOpen && (
                         <div className="space-y-2">
-                          {filterOptions.subCategories.map((subCategory) => (
+                          {subCategories.map((subCategory) => (
                             <label
-                              key={subCategory}
+                              key={subCategory.id}
                               className="flex items-center cursor-pointer group"
                             >
                               <input
                                 type="checkbox"
                                 checked={selectedSubCategories.includes(
-                                  subCategory
+                                  subCategory.name
                                 )}
-                                onChange={() => toggleSubCategory(subCategory)}
+                                onChange={() => toggleSubCategory(subCategory.name)}
                                 className="w-4 h-4 text-red-500 border-gray-300 rounded focus:ring-red-500"
                               />
                               <span className="ml-2 text-sm text-gray-700 group-hover:text-red-500 transition-colors">
-                                {subCategory}
+                                {subCategory.name}
                               </span>
-                            </label>))}
+                            </label>
+                          ))}
                         </div>
                       )}
                     </div>
