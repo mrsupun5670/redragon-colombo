@@ -1,7 +1,7 @@
 const db = require('../config/db');
 
 class Order {
-  // Get all orders with customer and payment method details
+  // Get all orders with customer, payment method and shipping address details
   static async getAll(limit = 50, offset = 0) {
     try {
       const query = `
@@ -10,10 +10,23 @@ class Order {
           CONCAT(c.first_name, ' ', c.last_name) as customer_name,
           c.email as customer_email,
           c.phone as customer_phone,
-          pm.name as payment_method_name
+          pm.name as payment_method_name,
+          sa.address_line1,
+          sa.address_line2,
+          sa.city_name,
+          sa.district_name,
+          sa.province_name,
+          sa.postal_code,
+          sa.phone as shipping_phone,
+          CONCAT(sa.address_line1, 
+                 CASE WHEN sa.address_line2 IS NOT NULL THEN CONCAT(', ', sa.address_line2) ELSE '' END,
+                 ', ', sa.city_name, ', ', sa.district_name, ', ', sa.province_name, 
+                 CASE WHEN sa.postal_code IS NOT NULL THEN CONCAT(' ', sa.postal_code) ELSE '' END
+          ) as address
         FROM orders o
         LEFT JOIN customers c ON o.customer_id = c.customer_id
         LEFT JOIN payment_methods pm ON o.payment_method_id = pm.id
+        LEFT JOIN shipping_addresses sa ON o.shipping_address_id = sa.id
         ORDER BY o.created_at DESC
         LIMIT ? OFFSET ?
       `;
@@ -24,7 +37,7 @@ class Order {
     }
   }
 
-  // Get order by ID with all details
+  // Get order by ID with all details including shipping address
   static async getById(orderId) {
     try {
       const query = `
@@ -33,10 +46,22 @@ class Order {
           CONCAT(c.first_name, ' ', c.last_name) as customer_name,
           c.email as customer_email,
           c.phone as customer_phone,
-          pm.name as payment_method_name
+          pm.name as payment_method_name,
+          sa.address_line1,
+          sa.address_line2,
+          sa.city_name,
+          sa.district_name,
+          sa.province_name,
+          sa.postal_code,
+          sa.phone as shipping_phone,
+          CONCAT(sa.address_line1, 
+                 CASE WHEN sa.address_line2 IS NOT NULL THEN CONCAT(', ', sa.address_line2) ELSE '' END,
+                 ', ', sa.city_name, ', ', sa.district_name, ', ', sa.province_name
+          ) as address
         FROM orders o
         LEFT JOIN customers c ON o.customer_id = c.customer_id
         LEFT JOIN payment_methods pm ON o.payment_method_id = pm.id
+        LEFT JOIN shipping_addresses sa ON o.shipping_address_id = sa.id
         WHERE o.id = ?
       `;
       const [rows] = await db.execute(query, [orderId]);
@@ -103,10 +128,23 @@ class Order {
           CONCAT(c.first_name, ' ', c.last_name) as customer_name,
           c.email as customer_email,
           c.phone as customer_phone,
-          pm.name as payment_method_name
+          pm.name as payment_method_name,
+          sa.address_line1,
+          sa.address_line2,
+          sa.city_name,
+          sa.district_name,
+          sa.province_name,
+          sa.postal_code,
+          sa.phone as shipping_phone,
+          CONCAT(sa.address_line1, 
+                 CASE WHEN sa.address_line2 IS NOT NULL THEN CONCAT(', ', sa.address_line2) ELSE '' END,
+                 ', ', sa.city_name, ', ', sa.district_name, ', ', sa.province_name, 
+                 CASE WHEN sa.postal_code IS NOT NULL THEN CONCAT(' ', sa.postal_code) ELSE '' END
+          ) as address
         FROM orders o
         LEFT JOIN customers c ON o.customer_id = c.customer_id
         LEFT JOIN payment_methods pm ON o.payment_method_id = pm.id
+        LEFT JOIN shipping_addresses sa ON o.shipping_address_id = sa.id
         WHERE o.order_status = ?
         ORDER BY o.created_at DESC
         LIMIT ? OFFSET ?
@@ -127,10 +165,23 @@ class Order {
           CONCAT(c.first_name, ' ', c.last_name) as customer_name,
           c.email as customer_email,
           c.phone as customer_phone,
-          pm.name as payment_method_name
+          pm.name as payment_method_name,
+          sa.address_line1,
+          sa.address_line2,
+          sa.city_name,
+          sa.district_name,
+          sa.province_name,
+          sa.postal_code,
+          sa.phone as shipping_phone,
+          CONCAT(sa.address_line1, 
+                 CASE WHEN sa.address_line2 IS NOT NULL THEN CONCAT(', ', sa.address_line2) ELSE '' END,
+                 ', ', sa.city_name, ', ', sa.district_name, ', ', sa.province_name, 
+                 CASE WHEN sa.postal_code IS NOT NULL THEN CONCAT(' ', sa.postal_code) ELSE '' END
+          ) as address
         FROM orders o
         LEFT JOIN customers c ON o.customer_id = c.customer_id
         LEFT JOIN payment_methods pm ON o.payment_method_id = pm.id
+        LEFT JOIN shipping_addresses sa ON o.shipping_address_id = sa.id
         WHERE o.order_number LIKE ? 
            OR CONCAT(c.first_name, ' ', c.last_name) LIKE ?
            OR c.email LIKE ?

@@ -69,8 +69,6 @@ const Dashboard = ({ setActiveTab }) => {
   }
 
   const { stats, topProducts, topCustomers, recentOrders, ordersChart, lowStockProducts } = dashboardData || {};
-
-  console.log("recent orders", recentOrders);
   
   // Create stats cards from API data
   const statsCards = [
