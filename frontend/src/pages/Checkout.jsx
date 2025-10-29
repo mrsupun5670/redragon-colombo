@@ -244,7 +244,6 @@ const Checkout = () => {
   // Helper function to populate location dropdowns with proper sequencing
   const populateLocationDropdowns = async (addressData) => {
     try {
-      console.log('Populating location dropdowns with:', addressData);
       
       // Ensure provinces are loaded
       let provincesData = provinces;

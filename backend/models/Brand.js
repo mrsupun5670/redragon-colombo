@@ -8,7 +8,7 @@ class Brand {
         SELECT * FROM brands 
         ORDER BY name ASC
       `;
-      const [rows] = await db.execute(query);
+      const [rows] = await db.executeWithRetry(query);
       return rows;
     } catch (error) {
       throw error;
@@ -19,7 +19,7 @@ class Brand {
   static async getById(brandId) {
     try {
       const query = 'SELECT * FROM brands WHERE id = ?';
-      const [rows] = await db.execute(query, [brandId]);
+      const [rows] = await db.executeWithRetry(query, [brandId]);
       return rows[0] || null;
     } catch (error) {
       throw error;
@@ -34,7 +34,7 @@ class Brand {
         INSERT INTO brands (name, logo_url, slug)
         VALUES (?, ?, ?)
       `;
-      const [result] = await db.execute(query, [name, image_url || null, name.toLowerCase().replace(/\s+/g, '-')]);
+      const [result] = await db.executeWithRetry(query, [name, image_url || null, name.toLowerCase().replace(/\s+/g, '-')]);
       return {
         id: result.insertId,
         name,
@@ -54,7 +54,7 @@ class Brand {
         SET name = ?, logo_url = ?
         WHERE id = ?
       `;
-      const [result] = await db.execute(query, [name, image_url || null, brandId]);
+      const [result] = await db.executeWithRetry(query, [name, image_url || null, brandId]);
       
       if (result.affectedRows === 0) {
         return null;
@@ -71,14 +71,14 @@ class Brand {
     try {
       // Check if brand is used by any products
       const checkQuery = 'SELECT COUNT(*) as count FROM products WHERE brand_id = ?';
-      const [checkResult] = await db.execute(checkQuery, [brandId]);
+      const [checkResult] = await db.executeWithRetry(checkQuery, [brandId]);
       
       if (checkResult[0].count > 0) {
         throw new Error('Cannot delete brand. It is being used by products.');
       }
 
       const query = 'DELETE FROM brands WHERE id = ?';
-      const [result] = await db.execute(query, [brandId]);
+      const [result] = await db.executeWithRetry(query, [brandId]);
       
       return result.affectedRows > 0;
     } catch (error) {
@@ -97,7 +97,7 @@ class Brand {
         params.push(excludeId);
       }
       
-      const [rows] = await db.execute(query, params);
+      const [rows] = await db.executeWithRetry(query, params);
       return rows[0].count > 0;
     } catch (error) {
       throw error;

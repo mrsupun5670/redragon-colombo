@@ -84,6 +84,7 @@ const orderRoutes = require('./routes/orders');
 const wishlistRoutes = require('./routes/wishlist');
 const customerRoutes = require('./routes/customers');
 const dashboardRoutes = require('./routes/dashboard');
+const promoRoutes = require('./routes/promo');
 
 
 app.use('/api/auth', authRoutes);
@@ -101,6 +102,7 @@ app.use('/api/orders', orderRoutes);
 app.use('/api/wishlist', wishlistRoutes);
 app.use('/api/customers', customerRoutes);
 app.use('/api/dashboard', dashboardRoutes);
+app.use('/api/promo', promoRoutes);
 
 app.get('/', (req, res) => {
   res.json({ message: 'Welcome to Redragon Shop API' });

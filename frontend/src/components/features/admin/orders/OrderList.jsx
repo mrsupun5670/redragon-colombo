@@ -40,9 +40,7 @@ const OrderList = () => {
           params.append('search', debouncedSearchQuery.trim());
         }
 
-        const response = await adminApi.get(`/orders/admin/all?${params.toString()}`);
-        console.log(response.data);
-        
+        const response = await adminApi.get(`/orders/admin/all?${params.toString()}`);        
         if (response.success) {
           setOrders(response.data);
           setError(null);

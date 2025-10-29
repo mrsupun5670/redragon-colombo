@@ -3,7 +3,7 @@ const db = require('../config/db');
 class PaymentMethod {
   // Get all active payment methods
   static async findAll() {
-    const [rows] = await db.query(
+    const [rows] = await db.queryWithRetry(
       'SELECT id, name as display_name, slug as method_name, percentage, is_active FROM payment_methods WHERE is_active = 1 ORDER BY id ASC'
     );
     return rows;
@@ -11,7 +11,7 @@ class PaymentMethod {
 
   // Get all payment methods (including inactive) for admin
   static async findAllForAdmin() {
-    const [rows] = await db.query(
+    const [rows] = await db.queryWithRetry(
       'SELECT * FROM payment_methods ORDER BY created_at DESC'
     );
     return rows;
@@ -19,7 +19,7 @@ class PaymentMethod {
 
   // Get payment method by ID
   static async findById(id) {
-    const [rows] = await db.query(
+    const [rows] = await db.queryWithRetry(
       'SELECT * FROM payment_methods WHERE id = ?',
       [id]
     );
@@ -28,7 +28,7 @@ class PaymentMethod {
 
   // Get payment method by method name
   static async findByName(method_name) {
-    const [rows] = await db.query(
+    const [rows] = await db.queryWithRetry(
       'SELECT id, name, slug, percentage, is_active FROM payment_methods WHERE (name = ? OR slug = ?) AND is_active = 1',
       [method_name, method_name]
     );
@@ -37,7 +37,7 @@ class PaymentMethod {
 
   // Create new payment method
   static async create({ method_name, display_name, fee_type, fee_value, description }) {
-    const [result] = await db.query(
+    const [result] = await db.queryWithRetry(
       `INSERT INTO payment_methods (name, display_name, fee_type, fee_value, description)
        VALUES (?, ?, ?, ?, ?)`,
       [method_name, display_name, fee_type || 'percentage', fee_value || 0, description]
@@ -81,7 +81,7 @@ class PaymentMethod {
 
     values.push(id);
 
-    const [result] = await db.query(
+    const [result] = await db.queryWithRetry(
       `UPDATE payment_methods SET ${updates.join(', ')} WHERE id = ?`,
       values
     );
@@ -91,7 +91,7 @@ class PaymentMethod {
 
   // Delete payment method
   static async delete(id) {
-    const [result] = await db.query(
+    const [result] = await db.queryWithRetry(
       'DELETE FROM payment_methods WHERE id = ?',
       [id]
     );

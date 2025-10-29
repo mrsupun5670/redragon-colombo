@@ -2,17 +2,17 @@ const db = require('../config/db');
 
 const Cart = {
   async findByCustomerId(customerId) {
-    const [rows] = await db.query('SELECT * FROM carts WHERE customer_id = ?', [customerId]);
+    const [rows] = await db.queryWithRetry('SELECT * FROM carts WHERE customer_id = ?', [customerId]);
     return rows[0];
   },
 
   async create(customerId) {
-    const [result] = await db.query('INSERT INTO carts (customer_id) VALUES (?)', [customerId]);
+    const [result] = await db.queryWithRetry('INSERT INTO carts (customer_id) VALUES (?)', [customerId]);
     return result.insertId;
   },
 
   async getCartItems(cartId) {
-    const [rows] = await db.query(
+    const [rows] = await db.queryWithRetry(
       `SELECT p.id, p.name, p.slug, p.price, p.sale_price, p.weight, p.stock_quantity, 
               ci.quantity, b.name as brand_name, iu.image_path as primary_image
        FROM cart_items ci 
@@ -27,7 +27,7 @@ const Cart = {
   },
 
   async addToCart(cartId, productId, quantity) {
-    const [result] = await db.query(
+    const [result] = await db.queryWithRetry(
       'INSERT INTO cart_items (cart_id, product_id, quantity) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE quantity = quantity + ?',
       [cartId, productId, quantity, quantity]
     );
@@ -35,7 +35,7 @@ const Cart = {
   },
 
   async updateItemQuantity(cartId, productId, quantity) {
-    const [result] = await db.query(
+    const [result] = await db.queryWithRetry(
       'UPDATE cart_items SET quantity = ? WHERE cart_id = ? AND product_id = ?',
       [quantity, cartId, productId]
     );
@@ -43,17 +43,17 @@ const Cart = {
   },
 
   async removeFromCart(cartId, productId) {
-    const [result] = await db.query('DELETE FROM cart_items WHERE cart_id = ? AND product_id = ?', [cartId, productId]);
+    const [result] = await db.queryWithRetry('DELETE FROM cart_items WHERE cart_id = ? AND product_id = ?', [cartId, productId]);
     return result;
   },
 
   async clearCart(cartId) {
-    const [result] = await db.query('DELETE FROM cart_items WHERE cart_id = ?', [cartId]);
+    const [result] = await db.queryWithRetry('DELETE FROM cart_items WHERE cart_id = ?', [cartId]);
     return result;
   },
 
   async validateProduct(productId, requestedQuantity) {
-    const [rows] = await db.query(
+    const [rows] = await db.queryWithRetry(
       'SELECT id, name, stock_quantity, is_active FROM products WHERE id = ?',
       [productId]
     );
@@ -76,7 +76,7 @@ const Cart = {
   },
 
   async getCartItemCount(cartId, productId) {
-    const [rows] = await db.query(
+    const [rows] = await db.queryWithRetry(
       'SELECT quantity FROM cart_items WHERE cart_id = ? AND product_id = ?',
       [cartId, productId]
     );

@@ -3,7 +3,7 @@ const db = require('../config/db');
 class DeliveryZone {
   // Get all delivery zones
   static async findAll() {
-    const [rows] = await db.query(
+    const [rows] = await db.queryWithRetry(
       'SELECT * FROM delivery_zones ORDER BY zone_name ASC'
     );
     return rows;
@@ -11,7 +11,7 @@ class DeliveryZone {
 
   // Get all zones for admin
   static async findAllForAdmin() {
-    const [rows] = await db.query(
+    const [rows] = await db.queryWithRetry(
       'SELECT * FROM delivery_zones ORDER BY zone_name ASC'
     );
     return rows;
@@ -19,7 +19,7 @@ class DeliveryZone {
 
   // Get zone by ID
   static async findById(id) {
-    const [rows] = await db.query(
+    const [rows] = await db.queryWithRetry(
       'SELECT * FROM delivery_zones WHERE id = ?',
       [id]
     );
@@ -28,7 +28,7 @@ class DeliveryZone {
 
   // Create new delivery zone
   static async create({ zone_name, base_charge, extra_charge, min_weight }) {
-    const [result] = await db.query(
+    const [result] = await db.queryWithRetry(
       `INSERT INTO delivery_zones (zone_name, base_charge, extra_charge, min_weight)
        VALUES (?, ?, ?, ?)`,
       [zone_name, base_charge, extra_charge, min_weight || 1.00]
@@ -64,7 +64,7 @@ class DeliveryZone {
 
     values.push(id);
 
-    const [result] = await db.query(
+    const [result] = await db.queryWithRetry(
       `UPDATE delivery_zones SET ${updates.join(', ')} WHERE id = ?`,
       values
     );
@@ -74,7 +74,7 @@ class DeliveryZone {
 
   // Delete delivery zone
   static async delete(id) {
-    const [result] = await db.query(
+    const [result] = await db.queryWithRetry(
       'DELETE FROM delivery_zones WHERE id = ?',
       [id]
     );

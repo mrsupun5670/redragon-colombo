@@ -3,7 +3,7 @@ const pool = require('../config/db');
 const Refund = {
   // Create new refund request
   create: async (refundData) => {
-    const [result] = await pool.query(
+    const [result] = await pool.queryWithRetry(
       `INSERT INTO refunds (order_id, customer_id, product_name, quantity, refund_amount, reason, detailed_description, images)
        VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
       [
@@ -50,13 +50,13 @@ const Refund = {
 
     query += ' ORDER BY r.requested_at DESC';
 
-    const [rows] = await pool.query(query, params);
+    const [rows] = await pool.queryWithRetry(query, params);
     return rows;
   },
 
   // Find refund by ID
   findById: async (refundId) => {
-    const [rows] = await pool.query(
+    const [rows] = await pool.queryWithRetry(
       `SELECT r.*,
               c.first_name, c.last_name, c.email, c.phone,
               o.total as order_total, o.status as order_status, o.date as order_date
@@ -71,7 +71,7 @@ const Refund = {
 
   // Find refunds by customer ID
   findByCustomer: async (customerId) => {
-    const [rows] = await pool.query(
+    const [rows] = await pool.queryWithRetry(
       `SELECT r.*, o.total as order_total, o.status as order_status
        FROM refunds r
        LEFT JOIN orders o ON r.order_id = o.order_id
@@ -84,7 +84,7 @@ const Refund = {
 
   // Update refund status
   updateStatus: async (refundId, status, adminNotes, adminId) => {
-    const [result] = await pool.query(
+    const [result] = await pool.queryWithRetry(
       `UPDATE refunds
        SET status = ?, admin_notes = ?, reviewed_at = CURRENT_TIMESTAMP, reviewed_by = ?, updated_at = CURRENT_TIMESTAMP
        WHERE refund_id = ?`,
@@ -95,7 +95,7 @@ const Refund = {
 
   // Get refund statistics
   getStatistics: async () => {
-    const [rows] = await pool.query(`
+    const [rows] = await pool.queryWithRetry(`
       SELECT
         COUNT(*) as total_refunds,
         SUM(CASE WHEN status = 'pending' THEN 1 ELSE 0 END) as pending_refunds,

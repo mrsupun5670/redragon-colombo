@@ -14,7 +14,6 @@ const FuturisticProductCard = ({ product, showCategory = false }) => {
     if (e?.target?.closest('button')) {
       return;
     }
-    console.log('FuturisticProductCard - Navigating to product:', product.id, 'Product data:', product);
     navigate(`/product/${product.id}`);
   };
 
@@ -181,27 +180,7 @@ const FuturisticProductCard = ({ product, showCategory = false }) => {
             className="h-px bg-gradient-to-r from-transparent via-red-500 to-transparent mb-4 origin-center"
           />
 
-          {/* Add to Cart Button with 3D Press Effect */}
-          <motion.button
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98, rotateX: 10 }}
-            animate={isHovered ? { y: 0, opacity: 1 } : { y: 10, opacity: 0.8 }}
-            className="relative w-full bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white py-2.5 sm:py-3 rounded-xl font-bold text-xs sm:text-sm uppercase tracking-wider transition-all overflow-hidden shadow-lg hover:shadow-xl"
-            style={{ transformStyle: 'preserve-3d' }}
-          >
-            {/* Button shine effect */}
-            <motion.div
-              animate={{ x: isHovered ? ['-200%', '200%'] : '-200%' }}
-              transition={{ duration: 1.5, ease: "easeInOut" }}
-              className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent"
-            />
-
-            <span className="relative z-10 flex items-center justify-center gap-2">
-              <ShoppingCart className="w-4 h-4" />
-              <span className="hidden sm:inline">ADD TO CART</span>
-              <span className="sm:hidden">ADD</span>
-            </span>
-          </motion.button>
+     
         </div>
 
         {/* 3D Corner Accents */}

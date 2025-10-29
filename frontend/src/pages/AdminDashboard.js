@@ -11,6 +11,7 @@ import CustomerList from '../components/features/admin/customers/CustomerList';
 import RefundList from '../components/features/admin/refunds/RefundList';
 import DeliverySettings from '../components/features/admin/delivery/DeliverySettings';
 import SalesCharts from '../components/features/admin/sales/SalesCharts';
+import PromoList from '../components/features/admin/promotions/PromoList';
 
 const AdminDashboard = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
@@ -86,6 +87,12 @@ const AdminDashboard = () => {
           <div>
             <h1 className="text-4xl font-bold mb-8">Customer Management</h1>
             <CustomerList />
+          </div>
+        );
+      case 'promotions':
+        return (
+          <div>
+            <PromoList />
           </div>
         );
       case 'refunds':

@@ -5,7 +5,7 @@ const ShippingAddress = {
   // Create new customer address (keeps history, doesn't delete old ones)
   async createNewDefault(customerId, addressData) {
     try {
-      const [result] = await db.query(
+      const [result] = await db.queryWithRetry(
         `INSERT INTO shipping_addresses 
          (customers_customer_id, phone, address_line1, address_line2, city_name, 
           district_name, province_name, postal_code, created_at) 
@@ -35,7 +35,7 @@ const ShippingAddress = {
   // Get customer's most recent default shipping address
   async getDefaultByCustomerId(customerId) {
     try {
-      const [rows] = await db.query(
+      const [rows] = await db.queryWithRetry(
         `SELECT * FROM shipping_addresses 
          WHERE customers_customer_id = ? 
          ORDER BY created_at DESC LIMIT 1`,
@@ -50,7 +50,7 @@ const ShippingAddress = {
   // Get all shipping addresses for a customer (including history)
   async getAllByCustomerId(customerId) {
     try {
-      const [rows] = await db.query(
+      const [rows] = await db.queryWithRetry(
         `SELECT * FROM shipping_addresses 
          WHERE customers_customer_id = ? 
          ORDER BY created_at DESC`,
@@ -65,7 +65,7 @@ const ShippingAddress = {
   // Get customer's address history 
   async getAddressHistory(customerId, limit = 10) {
     try {
-      const [rows] = await db.query(
+      const [rows] = await db.queryWithRetry(
         `SELECT * FROM shipping_addresses 
          WHERE customers_customer_id = ? 
          ORDER BY created_at DESC 
@@ -81,7 +81,7 @@ const ShippingAddress = {
   // Create shipping address for a specific order (now just creates address, no order reference)
   async createForOrder(customerId, addressData) {
     try {
-      const [result] = await db.query(
+      const [result] = await db.queryWithRetry(
         `INSERT INTO shipping_addresses 
          (customers_customer_id, phone, address_line1, address_line2, 
           city_name, district_name, province_name, postal_code, delivery_notes, created_at) 
@@ -107,7 +107,7 @@ const ShippingAddress = {
   // Get shipping address by ID
   async getById(addressId) {
     try {
-      const [rows] = await db.query(
+      const [rows] = await db.queryWithRetry(
         'SELECT * FROM shipping_addresses WHERE id = ?',
         [addressId]
       );
@@ -120,7 +120,7 @@ const ShippingAddress = {
   // Delete shipping address
   async delete(addressId, customerId) {
     try {
-      const [result] = await db.query(
+      const [result] = await db.queryWithRetry(
         'DELETE FROM shipping_addresses WHERE id = ? AND customers_customer_id = ?',
         [addressId, customerId]
       );

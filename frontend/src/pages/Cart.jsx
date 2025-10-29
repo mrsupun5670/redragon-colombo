@@ -18,6 +18,7 @@ import WhatsAppButton from "../components/common/WhatsAppButton";
 import ErrorPopup from "../components/common/ErrorPopup";
 import SuccessPopup from "../components/common/SuccessPopup";
 import CartContext from "../context/CartContext";
+import { promoAPI } from "../services/api";
 
 const Cart = () => {
   const navigate = useNavigate();
@@ -59,12 +60,28 @@ const Cart = () => {
   };
 
   // Apply promo code
-  const applyPromo = () => {
-    if (promoCode.toUpperCase() === "REDRAGON10") {
-      setDiscount(cartSubtotal * 0.1);
-      setSuccess("Promo code applied! 10% discount");
-    } else if (promoCode) {
-      setPopupError("Invalid promo code");
+  const applyPromo = async () => {
+    if (!promoCode.trim()) {
+      setPopupError("Please enter a promo code");
+      return;
+    }
+
+    try {
+      const response = await promoAPI.validatePromoCode(promoCode.trim());
+      
+      if (response.data.success && response.data.data.valid) {
+        const discountPercentage = response.data.data.discount;
+        const discountAmount = (cartSubtotal * discountPercentage) / 100;
+        setDiscount(discountAmount);
+        setSuccess(`Promo code applied! ${discountPercentage}% discount (Rs. ${discountAmount.toLocaleString()})`);
+      } else {
+        setPopupError("Invalid promo code");
+        setDiscount(0);
+      }
+    } catch (error) {
+      console.error('Error validating promo code:', error);
+      setPopupError("Error validating promo code. Please try again.");
+      setDiscount(0);
     }
   };
   
@@ -384,14 +401,7 @@ const Cart = () => {
                       100% Genuine Products
                     </span>
                   </div>
-                  <div className="flex items-center gap-3 text-sm text-gray-700">
-                    <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                      <Truck className="w-4 h-4 text-blue-600" />
-                    </div>
-                    <span className="font-semibold">
-                      Free shipping over Rs. 15,000
-                    </span>
-                  </div>
+                  
                   <div className="flex items-center gap-3 text-sm text-gray-700">
                     <div className="w-8 h-8 bg-red-100 rounded-lg flex items-center justify-center flex-shrink-0">
                       <CreditCard className="w-4 h-4 text-red-600" />

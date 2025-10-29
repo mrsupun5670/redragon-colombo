@@ -30,7 +30,7 @@ class Order {
         ORDER BY o.created_at DESC
         LIMIT ? OFFSET ?
       `;
-      const [rows] = await db.execute(query, [limit, offset]);
+      const [rows] = await db.executeWithRetry(query, [limit, offset]);
       return rows;
     } catch (error) {
       throw error;
@@ -64,7 +64,7 @@ class Order {
         LEFT JOIN shipping_addresses sa ON o.shipping_address_id = sa.id
         WHERE o.id = ?
       `;
-      const [rows] = await db.execute(query, [orderId]);
+      const [rows] = await db.executeWithRetry(query, [orderId]);
       
       if (rows.length === 0) {
         return null;
@@ -78,7 +78,7 @@ class Order {
         WHERE order_id = ?
         ORDER BY id
       `;
-      const [items] = await db.execute(itemsQuery, [orderId]);
+      const [items] = await db.executeWithRetry(itemsQuery, [orderId]);
       order.items = items;
       
       return order;
@@ -95,7 +95,7 @@ class Order {
         SET order_status = ?, updated_at = CURRENT_TIMESTAMP 
         WHERE id = ?
       `;
-      const [result] = await db.execute(query, [orderStatus, orderId]);
+      const [result] = await db.executeWithRetry(query, [orderStatus, orderId]);
       return result.affectedRows > 0;
     } catch (error) {
       throw error;
@@ -112,7 +112,7 @@ class Order {
             updated_at = CURRENT_TIMESTAMP 
         WHERE id = ?
       `;
-      const [result] = await db.execute(query, [paymentStatus, paymentStatus, orderId]);
+      const [result] = await db.executeWithRetry(query, [paymentStatus, paymentStatus, orderId]);
       return result.affectedRows > 0;
     } catch (error) {
       throw error;
@@ -149,7 +149,7 @@ class Order {
         ORDER BY o.created_at DESC
         LIMIT ? OFFSET ?
       `;
-      const [rows] = await db.execute(query, [status, limit, offset]);
+      const [rows] = await db.executeWithRetry(query, [status, limit, offset]);
       return rows;
     } catch (error) {
       throw error;
@@ -189,7 +189,7 @@ class Order {
         LIMIT ? OFFSET ?
       `;
       const searchPattern = `%${searchTerm}%`;
-      const [rows] = await db.execute(query, [searchPattern, searchPattern, searchPattern, limit, offset]);
+      const [rows] = await db.executeWithRetry(query, [searchPattern, searchPattern, searchPattern, limit, offset]);
       return rows;
     } catch (error) {
       throw error;
@@ -199,7 +199,7 @@ class Order {
   // Legacy create method (keeping for backwards compatibility)
   static create(order, callback) {
     const query = 'INSERT INTO orders SET ?';
-    db.query(query, order, callback);
+    db.queryWithRetry(query, order, callback);
   }
 }
 
