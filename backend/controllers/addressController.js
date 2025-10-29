@@ -15,6 +15,9 @@ const addressController = {
         postalCode 
       } = req.body;
 
+      console.log(req.body);
+      
+
       // Validate required fields
       if (!phone || !addressLine1 || !cityName || !districtName || !provinceName || !postalCode) {
         return res.status(400).json({

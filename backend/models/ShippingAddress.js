@@ -7,9 +7,9 @@ const ShippingAddress = {
     try {
       const [result] = await db.query(
         `INSERT INTO shipping_addresses 
-         (order_id, customers_customer_id, phone, address_line1, address_line2, city_name, 
+         (customers_customer_id, phone, address_line1, address_line2, city_name, 
           district_name, province_name, postal_code, created_at) 
-         VALUES (NULL, ?, ?, ?, ?, ?, ?, ?, ?, ${getSriLankanTimestamp()})`,
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ${getSriLankanTimestamp()})`,
         [
           customerId,
           addressData.phone,
@@ -37,7 +37,7 @@ const ShippingAddress = {
     try {
       const [rows] = await db.query(
         `SELECT * FROM shipping_addresses 
-         WHERE customers_customer_id = ? AND order_id IS NULL 
+         WHERE customers_customer_id = ? 
          ORDER BY created_at DESC LIMIT 1`,
         [customerId]
       );
@@ -62,12 +62,12 @@ const ShippingAddress = {
     }
   },
 
-  // Get customer's address history (default addresses only)
+  // Get customer's address history 
   async getAddressHistory(customerId, limit = 10) {
     try {
       const [rows] = await db.query(
         `SELECT * FROM shipping_addresses 
-         WHERE customers_customer_id = ? AND order_id IS NULL 
+         WHERE customers_customer_id = ? 
          ORDER BY created_at DESC 
          LIMIT ?`,
         [customerId, limit]
@@ -78,16 +78,15 @@ const ShippingAddress = {
     }
   },
 
-  // Create shipping address for a specific order
-  async createForOrder(orderId, customerId, addressData) {
+  // Create shipping address for a specific order (now just creates address, no order reference)
+  async createForOrder(customerId, addressData) {
     try {
       const [result] = await db.query(
         `INSERT INTO shipping_addresses 
-         (order_id, customers_customer_id, phone, address_line1, address_line2, 
+         (customers_customer_id, phone, address_line1, address_line2, 
           city_name, district_name, province_name, postal_code, delivery_notes, created_at) 
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ${getSriLankanTimestamp()})`,
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ${getSriLankanTimestamp()})`,
         [
-          orderId,
           customerId,
           addressData.phone,
           addressData.address_line1,
@@ -105,12 +104,12 @@ const ShippingAddress = {
     }
   },
 
-  // Get shipping address by order ID
-  async getByOrderId(orderId) {
+  // Get shipping address by ID
+  async getById(addressId) {
     try {
       const [rows] = await db.query(
-        'SELECT * FROM shipping_addresses WHERE order_id = ?',
-        [orderId]
+        'SELECT * FROM shipping_addresses WHERE id = ?',
+        [addressId]
       );
       return rows[0] || null;
     } catch (error) {
@@ -122,7 +121,7 @@ const ShippingAddress = {
   async delete(addressId, customerId) {
     try {
       const [result] = await db.query(
-        'DELETE FROM shipping_addresses WHERE id = ? AND customers_customer_id = ? AND order_id IS NULL',
+        'DELETE FROM shipping_addresses WHERE id = ? AND customers_customer_id = ?',
         [addressId, customerId]
       );
       return result.affectedRows > 0;

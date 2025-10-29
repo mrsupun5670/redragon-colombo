@@ -35,12 +35,34 @@ const orderController = {
       
       const payment_method_id = paymentMethods[0].id;
       
-      // Insert order
+      // Create shipping address first
+      let shipping_address_id = null;
+      if (shipping_info) {
+        const [addressResult] = await connection.query(
+          `INSERT INTO shipping_addresses (
+            customers_customer_id, phone, address_line1, address_line2, 
+            city_name, district_name, province_name, postal_code, created_at
+          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, NOW())`,
+          [
+            customer_id,
+            shipping_info.phone,
+            shipping_info.addressLine1,
+            shipping_info.addressLine2,
+            shipping_info.city,
+            shipping_info.district,
+            shipping_info.province,
+            shipping_info.postalCode
+          ]
+        );
+        shipping_address_id = addressResult.insertId;
+      }
+      
+      // Insert order with shipping_address_id
       const [orderResult] = await connection.query(
         `INSERT INTO orders (
           order_number, customer_id, subtotal, shipping_fee, discount, total, 
-          payment_method_id, payment_status, order_status, created_at, updated_at
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, 'pending', 'pending', NOW(), NOW())`,
+          payment_method_id, payment_status, order_status, shipping_address_id, created_at, updated_at
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, 'pending', 'pending', ?, NOW(), NOW())`,
         [
           order_number,
           customer_id,
@@ -48,7 +70,8 @@ const orderController = {
           shipping_fee,
           payment_fee, // Using payment_fee as discount field for now
           total,
-          payment_method_id
+          payment_method_id,
+          shipping_address_id
         ]
       );
       
@@ -69,28 +92,6 @@ const orderController = {
             item.price,
             item.quantity,
             item.subtotal
-          ]
-        );
-      }
-      
-      // Save shipping address
-      if (shipping_info) {
-        await connection.query(
-          `INSERT INTO shipping_addresses (
-            order_id, customers_customer_id, phone,
-            address_line1, address_line2, city_name, district_name, 
-            province_name, postal_code, created_at
-          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())`,
-          [
-            order_id,
-            customer_id,
-            shipping_info.phone,
-            shipping_info.addressLine1,
-            shipping_info.addressLine2,
-            shipping_info.city,
-            shipping_info.district,
-            shipping_info.province,
-            shipping_info.postalCode
           ]
         );
       }
