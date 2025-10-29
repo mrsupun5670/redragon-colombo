@@ -11,19 +11,6 @@ import CustomerList from "../components/features/admin/customers/CustomerList";
 import RefundList from "../components/features/admin/refunds/RefundList";
 import DeliverySettings from "../components/features/admin/delivery/DeliverySettings";
 import SalesCharts from "../components/features/admin/sales/SalesCharts";
-import React, { useState, useEffect } from "react";
-import { Menu } from "lucide-react";
-import AdminSidebar from "../components/features/admin/AdminSidebar";
-import Dashboard from "../components/features/admin/Dashboard";
-import ProductList from "../components/features/admin/products/ProductList";
-import AddProduct from "../components/features/admin/products/AddProduct";
-import CategoriesTab from "../components/features/admin/products/CategoriesTab";
-import BrandsTab from "../components/features/admin/products/BrandsTab";
-import OrderList from "../components/features/admin/orders/OrderList";
-import CustomerList from "../components/features/admin/customers/CustomerList";
-import RefundList from "../components/features/admin/refunds/RefundList";
-import DeliverySettings from "../components/features/admin/delivery/DeliverySettings";
-import SalesCharts from "../components/features/admin/sales/SalesCharts";
 import PromoList from "../components/features/admin/promotions/PromoList";
 
 const AdminDashboard = () => {

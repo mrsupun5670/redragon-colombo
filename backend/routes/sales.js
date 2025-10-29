@@ -18,4 +18,9 @@ router.get('/metrics', adminAuth, salesController.getSalesMetrics);
 // @access  Admin
 router.get('/chart-data', adminAuth, salesController.getChartData);
 
+// @route   GET /api/sales/top-products
+// @desc    Get top 10 performing products ordered by quantity sold
+// @access  Admin
+router.get('/top-products', adminAuth, salesController.getTopProducts);
+
 module.exports = router;

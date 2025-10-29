@@ -134,6 +134,29 @@ const salesController = {
         error: process.env.NODE_ENV === 'development' ? error.message : undefined
       });
     }
+  },
+
+  // Get top 10 performing products
+  getTopProducts: async (req, res) => {
+    try {
+      // Fetch top products
+      const topProducts = await Sales.getTopProducts();
+
+      // Return response
+      res.json({
+        success: true,
+        data: {
+          products: topProducts
+        }
+      });
+    } catch (error) {
+      console.error('Error in getTopProducts:', error);
+      res.status(500).json({
+        success: false,
+        message: 'Failed to fetch top products',
+        error: process.env.NODE_ENV === 'development' ? error.message : undefined
+      });
+    }
   }
 };
 

@@ -21,6 +21,8 @@ const SalesCharts = () => {
   const [loadingMetrics, setLoadingMetrics] = useState(false);
   const [chartData, setChartData] = useState([]);
   const [loadingChart, setLoadingChart] = useState(false);
+  const [topProducts, setTopProducts] = useState([]);
+  const [loadingTopProducts, setLoadingTopProducts] = useState(false);
 
   // Fetch metrics, categories, and chart data based on time period
   useEffect(() => {
@@ -29,6 +31,7 @@ const SalesCharts = () => {
         setLoadingMetrics(true);
         setLoadingCategories(true);
         setLoadingChart(true);
+        setLoadingTopProducts(true);
 
         // Fetch metrics
         const metricsResponse = await adminApi.get(
@@ -67,15 +70,26 @@ const SalesCharts = () => {
         } else {
           setChartData([]);
         }
+
+        // Fetch top products
+        const topProductsResponse = await adminApi.get('/sales/top-products');
+
+        if (topProductsResponse.success && topProductsResponse.data) {
+          setTopProducts(topProductsResponse.data.products || []);
+        } else {
+          setTopProducts([]);
+        }
       } catch (error) {
         console.error("Error fetching data:", error);
         setCategoriesSalesData([]);
         setTotalCategoriesSales(0);
         setChartData([]);
+        setTopProducts([]);
       } finally {
         setLoadingMetrics(false);
         setLoadingCategories(false);
         setLoadingChart(false);
+        setLoadingTopProducts(false);
       }
     };
 
@@ -146,44 +160,6 @@ const SalesCharts = () => {
         }))
       : [];
 
-  // Top performing products
-  const topProducts = [
-    {
-      rank: 1,
-      name: "Redragon K552",
-      sold: 245,
-      revenue: "Rs. 367,500",
-      profit: "Rs. 85,750",
-    },
-    {
-      rank: 2,
-      name: "Logitech G502",
-      sold: 189,
-      revenue: "Rs. 302,400",
-      profit: "Rs. 72,576",
-    },
-    {
-      rank: 3,
-      name: "Razer BlackWidow",
-      sold: 156,
-      revenue: "Rs. 312,000",
-      profit: "Rs. 74,880",
-    },
-    {
-      rank: 4,
-      name: "SteelSeries Arctis",
-      sold: 128,
-      revenue: "Rs. 256,000",
-      profit: "Rs. 61,440",
-    },
-    {
-      rank: 5,
-      name: "Corsair K70 RGB",
-      sold: 112,
-      revenue: "Rs. 224,000",
-      profit: "Rs. 53,760",
-    },
-  ];
 
   return (
     <div className="space-y-4 md:space-y-6">
@@ -448,65 +424,75 @@ const SalesCharts = () => {
           <h3 className="text-lg md:text-xl font-bold text-gray-900 mb-3 md:mb-4">
             Top Performing Products
           </h3>
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead>
-                <tr className="border-b border-gray-200">
-                  <th className="text-left py-2 md:py-3 text-xs md:text-sm font-semibold text-gray-600">
-                    Rank
-                  </th>
-                  <th className="text-left py-2 md:py-3 text-xs md:text-sm font-semibold text-gray-600">
-                    Product
-                  </th>
-                  <th className="text-center py-2 md:py-3 text-xs md:text-sm font-semibold text-gray-600 hidden sm:table-cell">
-                    Sold
-                  </th>
-                  <th className="text-right py-2 md:py-3 text-xs md:text-sm font-semibold text-gray-600 hidden md:table-cell">
-                    Revenue
-                  </th>
-                  <th className="text-right py-2 md:py-3 text-xs md:text-sm font-semibold text-gray-600">
-                    Profit
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {topProducts.map((product) => (
-                  <tr
-                    key={product.rank}
-                    className="border-b border-gray-100 hover:bg-gray-50"
-                  >
-                    <td className="py-2 md:py-3">
-                      <div
-                        className={`w-6 h-6 md:w-8 md:h-8 rounded-lg ${
-                          product.rank === 1
-                            ? "bg-gradient-to-br from-yellow-400 to-orange-500"
-                            : product.rank === 2
-                            ? "bg-gradient-to-br from-gray-300 to-gray-400"
-                            : product.rank === 3
-                            ? "bg-gradient-to-br from-orange-400 to-orange-600"
-                            : "bg-gradient-to-br from-blue-400 to-blue-600"
-                        } flex items-center justify-center text-white font-bold text-xs md:text-sm`}
-                      >
-                        {product.rank}
-                      </div>
-                    </td>
-                    <td className="py-2 md:py-3 text-xs md:text-sm font-medium text-gray-900 truncate max-w-[120px] md:max-w-none">
-                      {product.name}
-                    </td>
-                    <td className="text-center py-2 md:py-3 text-xs md:text-sm font-semibold text-gray-700 hidden sm:table-cell">
-                      {product.sold}
-                    </td>
-                    <td className="text-right py-2 md:py-3 text-xs md:text-sm font-bold text-gray-900 hidden md:table-cell whitespace-nowrap">
-                      {product.revenue}
-                    </td>
-                    <td className="text-right py-2 md:py-3 text-xs md:text-sm font-bold text-green-600 whitespace-nowrap">
-                      {product.profit}
-                    </td>
+          {loadingTopProducts ? (
+            <div className="flex items-center justify-center py-8">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-red-500"></div>
+            </div>
+          ) : topProducts.length > 0 ? (
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead>
+                  <tr className="border-b border-gray-200">
+                    <th className="text-left py-2 md:py-3 text-xs md:text-sm font-semibold text-gray-600">
+                      Rank
+                    </th>
+                    <th className="text-left py-2 md:py-3 text-xs md:text-sm font-semibold text-gray-600">
+                      Product Name
+                    </th>
+                    <th className="text-center py-2 md:py-3 text-xs md:text-sm font-semibold text-gray-600 hidden sm:table-cell">
+                      Sold Qty
+                    </th>
+                    <th className="text-right py-2 md:py-3 text-xs md:text-sm font-semibold text-gray-600 hidden md:table-cell">
+                      Revenue
+                    </th>
+                    <th className="text-right py-2 md:py-3 text-xs md:text-sm font-semibold text-gray-600">
+                      Profit
+                    </th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+                <tbody>
+                  {topProducts.map((product, index) => (
+                    <tr
+                      key={product.id}
+                      className="border-b border-gray-100 hover:bg-gray-50"
+                    >
+                      <td className="py-2 md:py-3">
+                        <div
+                          className={`w-6 h-6 md:w-8 md:h-8 rounded-lg ${
+                            index === 0
+                              ? "bg-gradient-to-br from-yellow-400 to-orange-500"
+                              : index === 1
+                              ? "bg-gradient-to-br from-gray-300 to-gray-400"
+                              : index === 2
+                              ? "bg-gradient-to-br from-orange-400 to-orange-600"
+                              : "bg-gradient-to-br from-blue-400 to-blue-600"
+                          } flex items-center justify-center text-white font-bold text-xs md:text-sm`}
+                        >
+                          {index + 1}
+                        </div>
+                      </td>
+                      <td className="py-2 md:py-3 text-xs md:text-sm font-medium text-gray-900 truncate max-w-[120px] md:max-w-none">
+                        {product.name}
+                      </td>
+                      <td className="text-center py-2 md:py-3 text-xs md:text-sm font-semibold text-gray-700 hidden sm:table-cell">
+                        {product.sold_quantity}
+                      </td>
+                      <td className="text-right py-2 md:py-3 text-xs md:text-sm font-bold text-gray-900 hidden md:table-cell whitespace-nowrap">
+                        Rs. {product.total_revenue.toLocaleString("en-LK", { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
+                      </td>
+                      <td className="text-right py-2 md:py-3 text-xs md:text-sm font-bold text-green-600 whitespace-nowrap">
+                        Rs. {product.total_profit.toLocaleString("en-LK", { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          ) : (
+            <div className="text-center py-8">
+              <p className="text-gray-500">No product data available</p>
+            </div>
+          )}
         </motion.div>
       </div>
     </div>
