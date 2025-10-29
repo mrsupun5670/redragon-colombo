@@ -13,14 +13,12 @@ const AdminRouteGuard = ({ children }) => {
   useEffect(() => {
     // If there's an admin token in localStorage, immediately redirect
     if (adminToken) {
-      console.log('Admin token found in localStorage, redirecting to admin panel...');
       navigate('/admin', { replace: true });
       return;
     }
     
     // If admin is authenticated through context, redirect
     if (!loading && admin) {
-      console.log('Admin detected via context, redirecting to admin panel...');
       navigate('/admin', { replace: true });
     }
   }, [admin, loading, navigate, adminToken]);

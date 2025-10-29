@@ -19,7 +19,6 @@ const Checkout = () => {
   const { cartItems, cartSubtotal, totalWeight, clearCart } = useContext(CartContext);
   
   const [step, setStep] = useState(1); // 1: Shipping, 2: Payment, 3: Review
-  const [sameAsShipping, setSameAsShipping] = useState(true);
   const [paymentMethod, setPaymentMethod] = useState("");
   const [deliveryZones, setDeliveryZones] = useState([]);
   const [selectedZone, setSelectedZone] = useState(null);
@@ -51,13 +50,6 @@ const Checkout = () => {
     country: "Sri Lanka",
   });
 
-  const [billingInfo, setBillingInfo] = useState({
-    firstName: "",
-    lastName: "",
-    address: "",
-    city: "",
-    postalCode: "",
-  });
 
   const [cardInfo, setCardInfo] = useState({
     cardNumber: "",
@@ -67,6 +59,14 @@ const Checkout = () => {
   });
 
   // Fetch delivery zones, payment methods, and location data on mount
+  // Redirect to cart if cart is empty
+  useEffect(() => {
+    if (cartItems.length === 0) {
+      navigate('/cart', { replace: true });
+      return;
+    }
+  }, [cartItems, navigate]);
+
   useEffect(() => {
     fetchDeliveryZones();
     fetchPaymentMethods();
@@ -244,7 +244,6 @@ const Checkout = () => {
   // Helper function to populate location dropdowns with proper sequencing
   const populateLocationDropdowns = async (addressData) => {
     try {
-      console.log('Populating location dropdowns with:', addressData);
       
       // Ensure provinces are loaded
       let provincesData = provinces;
@@ -473,6 +472,21 @@ const Checkout = () => {
         }
         */
         
+        // Convert shipping info to correct format with names instead of IDs
+        const processedShippingInfo = {
+          firstName: shippingInfo.firstName,
+          lastName: shippingInfo.lastName,
+          email: shippingInfo.email,
+          phone: shippingInfo.phone,
+          addressLine1: shippingInfo.addressLine1,
+          addressLine2: shippingInfo.addressLine2,
+          city: cities.find(c => c.city_id == shippingInfo.city)?.city_name || '',
+          district: districts.find(d => d.id == shippingInfo.district)?.name || '',
+          province: provinces.find(p => p.id == shippingInfo.province)?.name || '',
+          postalCode: shippingInfo.postalCode,
+          country: shippingInfo.country
+        };
+
         // Save order to database instead
         const orderData = {
           order_number: orderId,
@@ -481,7 +495,7 @@ const Checkout = () => {
           payment_fee: paymentFee,
           total: totalAmount,
           payment_method: paymentMethod,
-          shipping_info: shippingInfo,
+          shipping_info: processedShippingInfo,
           items: cartItems.map(item => ({
             product_id: item.id,
             product_name: item.name,
@@ -1137,6 +1151,21 @@ const Checkout = () => {
                         const orderId = `ORD${Date.now()}`;
                         const totalAmount = (cartSubtotal + deliveryCharge + paymentFee).toFixed(2);
                         
+                        // Convert shipping info to correct format with names instead of IDs
+                        const processedShippingInfo = {
+                          firstName: shippingInfo.firstName,
+                          lastName: shippingInfo.lastName,
+                          email: shippingInfo.email,
+                          phone: shippingInfo.phone,
+                          addressLine1: shippingInfo.addressLine1,
+                          addressLine2: shippingInfo.addressLine2,
+                          city: cities.find(c => c.city_id == shippingInfo.city)?.city_name || '',
+                          district: districts.find(d => d.id == shippingInfo.district)?.name || '',
+                          province: provinces.find(p => p.id == shippingInfo.province)?.name || '',
+                          postalCode: shippingInfo.postalCode,
+                          country: shippingInfo.country
+                        };
+
                         // Save bank transfer order to database
                         const orderData = {
                           order_number: orderId,
@@ -1145,7 +1174,7 @@ const Checkout = () => {
                           payment_fee: paymentFee,
                           total: totalAmount,
                           payment_method: paymentMethod,
-                          shipping_info: shippingInfo,
+                          shipping_info: processedShippingInfo,
                           items: cartItems.map(item => ({
                             product_id: item.id,
                             product_name: item.name,

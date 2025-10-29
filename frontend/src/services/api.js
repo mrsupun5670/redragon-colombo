@@ -225,5 +225,25 @@ export const wishlistAPI = {
   removeFromWishlist: (productId) => api.delete(`/wishlist/remove/${productId}`),
 };
 
+// Create public API instance for promo validation (like product fetching)
+const publicPromoAPI = axios.create({
+  baseURL: process.env.REACT_APP_API_URL || 'http://localhost:5001/api',
+  headers: {
+    'Content-Type': 'application/json',
+  },
+});
+
+// Promo API functions
+export const promoAPI = {
+  // Validate promo code (public endpoint like product fetching)
+  validatePromoCode: (promoCode) => publicPromoAPI.post('/promo/validate', { promo_code: promoCode }),
+  
+  // Admin functions (require admin auth)
+  getAllPromoCodes: () => api.get('/promo'),
+  createPromoCode: (data) => api.post('/promo', data),
+  updatePromoCode: (id, data) => api.put(`/promo/${id}`, data),
+  deletePromoCode: (id) => api.delete(`/promo/${id}`),
+};
+
 
 export default api;

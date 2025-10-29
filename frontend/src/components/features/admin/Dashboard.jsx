@@ -69,10 +69,6 @@ const Dashboard = ({ setActiveTab }) => {
   }
 
   const { stats, topProducts, topCustomers, recentOrders, ordersChart, lowStockProducts } = dashboardData || {};
-
-  console.log("recent orders", recentOrders);
-  console.log("top products", topProducts);
-  console.log("top customers", topCustomers);
   
   // Create stats cards from API data
   const statsCards = [
@@ -161,10 +157,6 @@ const Dashboard = ({ setActiveTab }) => {
   const ordersChartData = processRecentOrdersForChart(recentOrders);
   const maxRevenue = Math.max(...ordersChartData.map(d => d.revenue), 1);
   
-  console.log('Chart data sample:', ordersChartData.slice(0, 5));
-  console.log('Max revenue for scaling:', maxRevenue);
-  
-  console.log('Orders chart data:', ordersChartData);
 
   return (
     <div className="space-y-6 md:space-y-8">
@@ -297,7 +289,6 @@ const Dashboard = ({ setActiveTab }) => {
               ordersChartData.map((data, index) => {
                 const maxHeight = 200; // Fixed max height in pixels
                 const barHeightPx = data.revenue > 0 ? Math.max((data.revenue / maxRevenue) * maxHeight, 20) : 4;
-                console.log(`Bar ${index}: orders=${data.orders}, revenue=${data.revenue}, height=${barHeightPx}px`);
                 return (
                   <div key={index} className="flex-1 flex flex-col items-center justify-end group min-w-[8px]">
                     <div

@@ -5,7 +5,7 @@ class Wishlist {
   static async getOrCreateForCustomer(customer_id) {
     try {
       // First check if customer already has a wishlist
-      const [existing] = await db.execute(
+      const [existing] = await db.executeWithRetry(
         'SELECT * FROM wishlists WHERE customer_id = ?',
         [customer_id]
       );
@@ -15,13 +15,13 @@ class Wishlist {
       }
 
       // Create new wishlist for customer
-      const [result] = await db.execute(
+      const [result] = await db.executeWithRetry(
         'INSERT INTO wishlists (customer_id, created_at, updated_at) VALUES (?, NOW(), NOW())',
         [customer_id]
       );
 
       // Return the newly created wishlist
-      const [newWishlist] = await db.execute(
+      const [newWishlist] = await db.executeWithRetry(
         'SELECT * FROM wishlists WHERE id = ?',
         [result.insertId]
       );
@@ -64,7 +64,7 @@ class Wishlist {
         ORDER BY w.created_at DESC, pi.is_primary DESC
       `;
 
-      const [rows] = await db.execute(query, [customer_id]);
+      const [rows] = await db.executeWithRetry(query, [customer_id]);
 
       if (rows.length === 0) {
         return { wishlist: null, items: [] };
@@ -130,7 +130,7 @@ class Wishlist {
       const wishlist = await this.getOrCreateForCustomer(customer_id);
 
       // Check if item already exists
-      const [existing] = await db.execute(
+      const [existing] = await db.executeWithRetry(
         'SELECT * FROM wishlist_items WHERE wishlist_id = ? AND product_id = ?',
         [wishlist.id, product_id]
       );
@@ -140,13 +140,13 @@ class Wishlist {
       }
 
       // Add item to wishlist
-      const [result] = await db.execute(
+      const [result] = await db.executeWithRetry(
         'INSERT INTO wishlist_items (wishlist_id, product_id) VALUES (?, ?)',
         [wishlist.id, product_id]
       );
 
       // Update wishlist updated_at
-      await db.execute(
+      await db.executeWithRetry(
         'UPDATE wishlists SET updated_at = NOW() WHERE id = ?',
         [wishlist.id]
       );
@@ -161,7 +161,7 @@ class Wishlist {
   static async removeItem(customer_id, product_id) {
     try {
       // Get customer's wishlist
-      const [wishlist] = await db.execute(
+      const [wishlist] = await db.executeWithRetry(
         'SELECT * FROM wishlists WHERE customer_id = ?',
         [customer_id]
       );
@@ -171,7 +171,7 @@ class Wishlist {
       }
 
       // Remove item from wishlist
-      const [result] = await db.execute(
+      const [result] = await db.executeWithRetry(
         'DELETE FROM wishlist_items WHERE wishlist_id = ? AND product_id = ?',
         [wishlist[0].id, product_id]
       );
@@ -181,7 +181,7 @@ class Wishlist {
       }
 
       // Update wishlist updated_at
-      await db.execute(
+      await db.executeWithRetry(
         'UPDATE wishlists SET updated_at = NOW() WHERE id = ?',
         [wishlist[0].id]
       );
@@ -202,7 +202,7 @@ class Wishlist {
         WHERE w.customer_id = ? AND wi.product_id = ?
       `;
 
-      const [rows] = await db.execute(query, [customer_id, product_id]);
+      const [rows] = await db.executeWithRetry(query, [customer_id, product_id]);
       return rows.length > 0;
     } catch (error) {
       throw error;
@@ -219,7 +219,7 @@ class Wishlist {
         WHERE w.customer_id = ?
       `;
 
-      const [rows] = await db.execute(query, [customer_id]);
+      const [rows] = await db.executeWithRetry(query, [customer_id]);
       return rows[0].count;
     } catch (error) {
       throw error;

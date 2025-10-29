@@ -8,7 +8,7 @@ class Category {
         SELECT * FROM main_categories 
         ORDER BY name ASC
       `;
-      const result = await db.execute(query);
+      const result = await db.executeWithRetry(query);
       
       if (!result || !Array.isArray(result) || result.length === 0) {
         console.error('Database query returned invalid result:', result);
@@ -32,7 +32,7 @@ class Category {
         LEFT JOIN main_categories mc ON sc.main_category_id = mc.id
         ORDER BY mc.name ASC, sc.name ASC
       `;
-      const [rows] = await db.execute(query);
+      const [rows] = await db.executeWithRetry(query);
       return rows || [];
       
     } catch (error) {
@@ -49,7 +49,7 @@ class Category {
         WHERE main_category_id = ?
         ORDER BY name ASC
       `;
-      const [rows] = await db.execute(query, [mainCategoryId]);
+      const [rows] = await db.executeWithRetry(query, [mainCategoryId]);
       return rows;
     } catch (error) {
       throw error;
@@ -60,7 +60,7 @@ class Category {
   static async getMainCategoryById(categoryId) {
     try {
       const query = 'SELECT * FROM main_categories WHERE id = ?';
-      const [rows] = await db.execute(query, [categoryId]);
+      const [rows] = await db.executeWithRetry(query, [categoryId]);
       return rows[0] || null;
     } catch (error) {
       throw error;
@@ -76,7 +76,7 @@ class Category {
         LEFT JOIN main_categories mc ON sc.main_category_id = mc.id
         WHERE sc.id = ?
       `;
-      const [rows] = await db.execute(query, [categoryId]);
+      const [rows] = await db.executeWithRetry(query, [categoryId]);
       return rows[0] || null;
     } catch (error) {
       throw error;
@@ -91,7 +91,7 @@ class Category {
         INSERT INTO main_categories (name, description, icon)
         VALUES (?, ?, ?)
       `;
-      const [result] = await db.execute(query, [name, description || null, icon || null]);
+      const [result] = await db.executeWithRetry(query, [name, description || null, icon || null]);
       return {
         id: result.insertId,
         name,
@@ -111,7 +111,7 @@ class Category {
         INSERT INTO sub_categories (name, description, main_category_id)
         VALUES (?, ?, ?)
       `;
-      const [result] = await db.execute(query, [name, description || null, main_category_id]);
+      const [result] = await db.executeWithRetry(query, [name, description || null, main_category_id]);
       return {
         id: result.insertId,
         name,
@@ -132,7 +132,7 @@ class Category {
         SET name = ?, description = ?, icon = ?, updated_at = CURRENT_TIMESTAMP
         WHERE id = ?
       `;
-      const [result] = await db.execute(query, [name, description || null, icon || null, categoryId]);
+      const [result] = await db.executeWithRetry(query, [name, description || null, icon || null, categoryId]);
       
       if (result.affectedRows === 0) {
         return null;
@@ -153,7 +153,7 @@ class Category {
         SET name = ?, description = ?, main_category_id = ?, updated_at = CURRENT_TIMESTAMP
         WHERE id = ?
       `;
-      const [result] = await db.execute(query, [name, description || null, main_category_id, categoryId]);
+      const [result] = await db.executeWithRetry(query, [name, description || null, main_category_id, categoryId]);
       
       if (result.affectedRows === 0) {
         return null;
@@ -170,7 +170,7 @@ class Category {
     try {
       // Check if category is used by any products
       const checkProductQuery = 'SELECT COUNT(*) as count FROM products WHERE main_category_id = ?';
-      const [productResult] = await db.execute(checkProductQuery, [categoryId]);
+      const [productResult] = await db.executeWithRetry(checkProductQuery, [categoryId]);
       
       if (productResult[0].count > 0) {
         throw new Error('Cannot delete main category. It is being used by products.');
@@ -178,14 +178,14 @@ class Category {
 
       // Check if category has sub categories
       const checkSubQuery = 'SELECT COUNT(*) as count FROM sub_categories WHERE main_category_id = ?';
-      const [subResult] = await db.execute(checkSubQuery, [categoryId]);
+      const [subResult] = await db.executeWithRetry(checkSubQuery, [categoryId]);
       
       if (subResult[0].count > 0) {
         throw new Error('Cannot delete main category. It has sub categories.');
       }
 
       const query = 'DELETE FROM main_categories WHERE id = ?';
-      const [result] = await db.execute(query, [categoryId]);
+      const [result] = await db.executeWithRetry(query, [categoryId]);
       
       return result.affectedRows > 0;
     } catch (error) {
@@ -198,14 +198,14 @@ class Category {
     try {
       // Check if category is used by any products
       const checkQuery = 'SELECT COUNT(*) as count FROM products WHERE sub_category_id = ?';
-      const [checkResult] = await db.execute(checkQuery, [categoryId]);
+      const [checkResult] = await db.executeWithRetry(checkQuery, [categoryId]);
       
       if (checkResult[0].count > 0) {
         throw new Error('Cannot delete sub category. It is being used by products.');
       }
 
       const query = 'DELETE FROM sub_categories WHERE id = ?';
-      const [result] = await db.execute(query, [categoryId]);
+      const [result] = await db.executeWithRetry(query, [categoryId]);
       
       return result.affectedRows > 0;
     } catch (error) {
@@ -224,7 +224,7 @@ class Category {
         params.push(excludeId);
       }
       
-      const [rows] = await db.execute(query, params);
+      const [rows] = await db.executeWithRetry(query, params);
       return rows[0].count > 0;
     } catch (error) {
       throw error;
@@ -242,7 +242,7 @@ class Category {
         params.push(excludeId);
       }
       
-      const [rows] = await db.execute(query, params);
+      const [rows] = await db.executeWithRetry(query, params);
       return rows[0].count > 0;
     } catch (error) {
       throw error;

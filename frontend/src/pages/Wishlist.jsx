@@ -18,6 +18,7 @@ import FuturisticProductCard from "../components/common/FuturisticProductCard";
 import ErrorPopup from "../components/common/ErrorPopup";
 import SuccessPopup from "../components/common/SuccessPopup";
 import { useAuth } from "../context/AuthContext";
+import { useCart } from "../hooks/useCart";
 import { wishlistAPI } from "../services/api";
 
 const Wishlist = () => {
@@ -26,6 +27,7 @@ const Wishlist = () => {
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
   const { isAuthenticated } = useAuth();
+  const { addToCart: addToCartContext } = useCart();
 
   // Load wishlist on component mount
   useEffect(() => {
@@ -87,9 +89,17 @@ const Wishlist = () => {
     }
   };
 
-  // Add to cart (placeholder)
-  const addToCart = (product) => {
-    setSuccess(`${product.name} added to cart!`);
+  // Add to cart
+  const addToCart = async (product) => {
+    try {
+      console.log('Adding product to cart:', product);
+      await addToCartContext(product, 1);
+      setSuccess(`${product.name} added to cart!`);
+      console.log('Product added successfully');
+    } catch (error) {
+      console.error('Error adding to cart:', error);
+      setError(error.message || 'Failed to add product to cart');
+    }
   };
 
   // Share wishlist (placeholder)
@@ -274,7 +284,7 @@ const Wishlist = () => {
                         <motion.button
                           whileHover={{ scale: 1.05 }}
                           whileTap={{ scale: 0.95 }}
-                          onClick={() => addToCart(item)}
+                          onClick={() => addToCartContext(item, 1)}
                           className="flex-1 bg-gradient-to-r from-red-500 to-red-600 text-white py-2 rounded-lg font-bold text-xs uppercase flex items-center justify-center gap-1 shadow-lg"
                         >
                           <ShoppingCart className="w-3 h-3" />
