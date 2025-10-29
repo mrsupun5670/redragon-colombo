@@ -6,7 +6,7 @@ class ProductImage {
     try {
       // If this is set as primary, remove primary flag from other images
       if (isPrimary) {
-        await db.execute(
+        await db.executeWithRetry(
           'UPDATE product_image_uploads SET is_primary = 0 WHERE product_id = ?',
           [productId]
         );
@@ -16,7 +16,7 @@ class ProductImage {
         INSERT INTO product_image_uploads (product_id, image_path, is_primary, public_id)
         VALUES (?, ?, ?, ?)
       `;
-      const [result] = await db.execute(query, [productId, imagePath, isPrimary ? 1 : 0, publicId]);
+      const [result] = await db.executeWithRetry(query, [productId, imagePath, isPrimary ? 1 : 0, publicId]);
       return result;
     } catch (error) {
       throw error;
@@ -31,7 +31,7 @@ class ProductImage {
         WHERE product_id = ? 
         ORDER BY is_primary DESC, created_at ASC
       `;
-      const [rows] = await db.execute(query, [productId]);
+      const [rows] = await db.executeWithRetry(query, [productId]);
       return rows;
     } catch (error) {
       throw error;
@@ -46,7 +46,7 @@ class ProductImage {
         WHERE product_id = ? AND is_primary = 1 
         LIMIT 1
       `;
-      const [rows] = await db.execute(query, [productId]);
+      const [rows] = await db.executeWithRetry(query, [productId]);
       return rows[0] || null;
     } catch (error) {
       throw error;
@@ -57,7 +57,7 @@ class ProductImage {
   static async getById(imageId) {
     try {
       const query = 'SELECT * FROM product_image_uploads WHERE id = ?';
-      const [rows] = await db.execute(query, [imageId]);
+      const [rows] = await db.executeWithRetry(query, [imageId]);
       return rows[0] || null;
     } catch (error) {
       throw error;
@@ -68,7 +68,7 @@ class ProductImage {
   static async delete(imageId) {
     try {
       const query = 'DELETE FROM product_image_uploads WHERE id = ?';
-      const [result] = await db.execute(query, [imageId]);
+      const [result] = await db.executeWithRetry(query, [imageId]);
       return result;
     } catch (error) {
       throw error;
@@ -79,14 +79,14 @@ class ProductImage {
   static async setPrimary(imageId, productId) {
     try {
       // Remove primary flag from all images of this product
-      await db.execute(
+      await db.executeWithRetry(
         'UPDATE product_image_uploads SET is_primary = 0 WHERE product_id = ?',
         [productId]
       );
 
       // Set this image as primary
       const query = 'UPDATE product_image_uploads SET is_primary = 1 WHERE id = ? AND product_id = ?';
-      const [result] = await db.execute(query, [imageId, productId]);
+      const [result] = await db.executeWithRetry(query, [imageId, productId]);
       return result;
     } catch (error) {
       throw error;

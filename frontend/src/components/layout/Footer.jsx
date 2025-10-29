@@ -3,6 +3,13 @@ import { motion } from 'framer-motion';
 import { MapPin, Phone, Mail, Facebook, Instagram, Twitter } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
+// Custom TikTok icon component
+const TikTokIcon = ({ className }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="currentColor">
+    <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1-.10z"/>
+  </svg>
+);
+
 const Footer = () => {
   const navigate = useNavigate();
 
@@ -123,25 +130,25 @@ const Footer = () => {
             <h3 className="font-black mb-3 text-gray-900 uppercase text-sm mt-6">FOLLOW US</h3>
             <div className="flex items-center gap-3">
               <motion.a
-                href="#"
+                href="https://www.facebook.com/redragoncolombo"
                 whileHover={{ scale: 1.1, y: -2 }}
                 className="w-10 h-10 bg-white rounded-lg flex items-center justify-center text-gray-700 hover:text-white hover:bg-blue-600 border border-gray-300 transition-all shadow-sm"
               >
                 <Facebook className="w-5 h-5" />
               </motion.a>
               <motion.a
-                href="#"
+                href="https://www.instagram.com/redragoncolombo/"
                 whileHover={{ scale: 1.1, y: -2 }}
                 className="w-10 h-10 bg-white rounded-lg flex items-center justify-center text-gray-700 hover:text-white hover:bg-pink-600 border border-gray-300 transition-all shadow-sm"
               >
                 <Instagram className="w-5 h-5" />
               </motion.a>
               <motion.a
-                href="#"
+                href="https://www.tiktok.com/@redragoncolombo"
                 whileHover={{ scale: 1.1, y: -2 }}
-                className="w-10 h-10 bg-white rounded-lg flex items-center justify-center text-gray-700 hover:text-white hover:bg-blue-400 border border-gray-300 transition-all shadow-sm"
+                className="w-10 h-10 bg-white rounded-lg flex items-center justify-center text-gray-700 hover:text-white hover:bg-black border border-gray-300 transition-all shadow-sm"
               >
-                <Twitter className="w-5 h-5" />
+                <TikTokIcon className="w-5 h-5" />
               </motion.a>
             </div>
           </div>

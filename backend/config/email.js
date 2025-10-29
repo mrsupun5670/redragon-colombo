@@ -114,9 +114,175 @@ const sendPasswordResetEmail = async (email, resetCode, userName) => {
   return await sendEmail(email, 'Password Reset Code - Redragon Colombo', html);
 };
 
+const sendOrderInvoiceEmail = async (customerEmail, orderData) => {
+  const {
+    order_number,
+    customer_name,
+    total,
+    subtotal,
+    shipping_fee,
+    payment_fee,
+    created_at,
+    payment_method_name,
+    items,
+    address,
+    city_name,
+    district_name,
+    province_name,
+    postal_code,
+    shipping_phone
+  } = orderData;
+
+  const orderDate = new Date(created_at).toLocaleDateString('en-US', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit'
+  });
+
+  const itemsHtml = items?.map(item => `
+    <tr style="border-bottom: 1px solid #eee;">
+      <td style="padding: 12px; border-right: 1px solid #eee;">${item.product_name}</td>
+      <td style="padding: 12px; text-align: center; border-right: 1px solid #eee;">${item.quantity}</td>
+      <td style="padding: 12px; text-align: right; border-right: 1px solid #eee;">Rs. ${parseFloat(item.price).toLocaleString()}</td>
+      <td style="padding: 12px; text-align: right;">Rs. ${parseFloat(item.subtotal).toLocaleString()}</td>
+    </tr>
+  `).join('') || '<tr><td colspan="4" style="padding: 12px; text-align: center; color: #666;">No items</td></tr>';
+
+  const html = `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>Order Invoice - ${order_number}</title>
+      <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; margin: 0; padding: 0; background-color: #f4f4f4; }
+        .container { max-width: 700px; margin: 0 auto; padding: 20px; background-color: #ffffff; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+        .header { text-align: center; padding: 20px 0; border-bottom: 2px solid #e74c3c; }
+        .logo { color: #e74c3c; font-size: 28px; font-weight: bold; }
+        .invoice-info { display: flex; justify-content: space-between; margin: 20px 0; }
+        .info-section { flex: 1; padding: 0 10px; }
+        .info-title { font-weight: bold; color: #333; margin-bottom: 10px; font-size: 16px; }
+        .table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+        .table th { background-color: #e74c3c; color: white; padding: 12px; text-align: left; }
+        .table td { padding: 12px; border-bottom: 1px solid #eee; }
+        .totals { margin-top: 20px; text-align: right; }
+        .totals table { margin-left: auto; }
+        .totals td { padding: 8px 15px; }
+        .total-row { background-color: #e74c3c; color: white; font-weight: bold; }
+        .footer { text-align: center; padding: 20px 0; border-top: 1px solid #eee; color: #666; font-size: 14px; margin-top: 30px; }
+        .success-box { background-color: #d4edda; border: 1px solid #c3e6cb; color: #155724; padding: 15px; border-radius: 5px; margin: 20px 0; text-align: center; }
+        @media (max-width: 600px) {
+          .invoice-info { flex-direction: column; }
+          .info-section { margin-bottom: 20px; }
+        }
+      </style>
+    </head>
+    <body>
+      <div class="container">
+        <div class="header">
+          <div class="logo">Redragon Colombo</div>
+          <p style="margin: 10px 0 0 0; color: #666;">Gaming Gear Store</p>
+        </div>
+        
+        <div class="success-box">
+          <h2 style="margin: 0 0 10px 0;">Order Confirmed!</h2>
+          <p style="margin: 0;">Thank you for your order. We'll process it shortly.</p>
+        </div>
+        
+        <div class="invoice-info">
+          <div class="info-section">
+            <div class="info-title">Invoice Details</div>
+            <p><strong>Order Number:</strong> ${order_number}</p>
+            <p><strong>Order Date:</strong> ${orderDate}</p>
+            <p><strong>Payment Method:</strong> ${payment_method_name}</p>
+          </div>
+          
+          <div class="info-section">
+            <div class="info-title">Customer Information</div>
+            <p><strong>Name:</strong> ${customer_name}</p>
+            <p><strong>Email:</strong> ${customerEmail}</p>
+            <p><strong>Phone:</strong> ${shipping_phone || 'N/A'}</p>
+          </div>
+        </div>
+        
+        <div style="margin: 20px 0;">
+          <div class="info-title">Shipping Address</div>
+          <p style="margin: 5px 0;">${address || 'N/A'}</p>
+          ${postal_code ? `<p style="margin: 5px 0;"><strong>Postal Code:</strong> ${postal_code}</p>` : ''}
+        </div>
+        
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Product</th>
+              <th style="text-align: center;">Quantity</th>
+              <th style="text-align: right;">Unit Price</th>
+              <th style="text-align: right;">Total</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${itemsHtml}
+          </tbody>
+        </table>
+        
+        <div class="totals">
+          <table>
+            <tr>
+              <td><strong>Subtotal:</strong></td>
+              <td style="text-align: right;">Rs. ${parseFloat(subtotal).toLocaleString()}</td>
+            </tr>
+            <tr>
+              <td><strong>Shipping Fee:</strong></td>
+              <td style="text-align: right;">Rs. ${parseFloat(shipping_fee || 0).toLocaleString()}</td>
+            </tr>
+            ${payment_fee > 0 ? `
+            <tr>
+              <td><strong>Payment Fee:</strong></td>
+              <td style="text-align: right;">Rs. ${parseFloat(payment_fee).toLocaleString()}</td>
+            </tr>
+            ` : ''}
+            <tr class="total-row">
+              <td><strong>Total Amount:</strong></td>
+              <td style="text-align: right;"><strong>Rs. ${parseFloat(total).toLocaleString()}</strong></td>
+            </tr>
+          </table>
+        </div>
+        
+        <div style="background-color: #f8f9fa; padding: 20px; border-radius: 5px; margin: 30px 0;">
+          <h3 style="margin: 0 0 15px 0; color: #333;">What happens next?</h3>
+          <ul style="margin: 0; padding-left: 20px;">
+            <li>We'll review and confirm your order</li>
+            <li>Your items will be prepared for shipping</li>
+            <li>You'll receive tracking information once shipped</li>
+            <li>Estimated delivery: 3-5 business days</li>
+          </ul>
+        </div>
+        
+        <div style="text-align: center; margin: 20px 0;">
+          <p><strong>Questions about your order?</strong></p>
+          <p>Contact us at <a href="mailto:info@redragoncolombo.lk" style="color: #e74c3c;">info@redragoncolombo.lk</a></p>
+          <p>Or call: <a href="tel:+94777123456" style="color: #e74c3c;">+94 77 712 3456</a></p>
+        </div>
+        
+        <div class="footer">
+          <p>&copy; 2024 Redragon Colombo. All rights reserved.</p>
+          <p>This is an automated email. Please keep it for your records.</p>
+        </div>
+      </div>
+    </body>
+    </html>
+  `;
+
+  return await sendEmail(customerEmail, `Order Confirmation - ${order_number}`, html);
+};
+
 module.exports = {
   transporter,
   sendEmail,
   sendPasswordResetEmail,
+  sendOrderInvoiceEmail,
   verifyTransporter
 };

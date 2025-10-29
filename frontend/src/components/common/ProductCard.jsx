@@ -24,7 +24,6 @@ const ProductCard = ({ product }) => {
     if (e?.target?.closest('button')) {
       return;
     }
-    console.log('ProductCard - Navigating to product:', product.id, 'Product data:', product);
     navigate(`/product/${product.id}`);
   };
 
@@ -38,7 +37,6 @@ const ProductCard = ({ product }) => {
       await addToCart(product, 1);
       
       // Show success feedback (you could add a toast notification here)
-      console.log('Added to cart:', product.name);
     } catch (error) {
       console.error('Error adding to cart:', error);
       // Show error feedback

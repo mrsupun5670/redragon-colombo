@@ -40,8 +40,7 @@ const OrderList = () => {
           params.append('search', debouncedSearchQuery.trim());
         }
 
-        const response = await adminApi.get(`/orders/admin/all?${params.toString()}`);
-        
+        const response = await adminApi.get(`/orders/admin/all?${params.toString()}`);        
         if (response.success) {
           setOrders(response.data);
           setError(null);
@@ -73,8 +72,9 @@ const OrderList = () => {
           customer_notes: response.data.customer_notes,
           payment_method_name: response.data.payment_method_name,
           // Add any missing fields from the detailed response
-          address: 'Address not available', // You might need to add shipping address to the API
-          phone: response.data.customer_phone || 'Phone not available'
+          address: response.data.address || 'Address not available', // You might need to add shipping address to the API
+          phone: response.data.customer_phone || 'Phone not available',
+          postal_code: response.data.postal_code || 'N/A',
         };
         setSelectedOrder(detailedOrder);
       }

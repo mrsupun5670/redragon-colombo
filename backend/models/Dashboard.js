@@ -7,7 +7,7 @@ const Dashboard = {
     const currentMonthStart = new Date(now.getFullYear(), now.getMonth(), 1);
     const lastMonthStart = new Date(now.getFullYear(), now.getMonth() - 1, 1);
     
-    const [rows] = await pool.query(`
+    const [rows] = await pool.queryWithRetry(`
       SELECT 
         COALESCE(SUM(CASE WHEN created_at >= ? THEN total END), 0) as current_revenue,
         COALESCE(SUM(CASE WHEN created_at >= ? AND created_at < ? THEN total END), 0) as last_month_revenue,
@@ -27,7 +27,7 @@ const Dashboard = {
     const currentMonthStart = new Date(now.getFullYear(), now.getMonth(), 1);
     const lastMonthStart = new Date(now.getFullYear(), now.getMonth() - 1, 1);
     
-    const [rows] = await pool.query(`
+    const [rows] = await pool.queryWithRetry(`
       SELECT 
         COUNT(*) as total_orders,
         COUNT(CASE WHEN created_at >= ? THEN 1 END) as current_month_orders,
@@ -49,7 +49,7 @@ const Dashboard = {
     const currentMonthStart = new Date(now.getFullYear(), now.getMonth(), 1);
     const lastMonthStart = new Date(now.getFullYear(), now.getMonth() - 1, 1);
     
-    const [rows] = await pool.query(`
+    const [rows] = await pool.queryWithRetry(`
       SELECT 
         COUNT(*) as total_customers,
         COUNT(CASE WHEN created_at >= ? THEN 1 END) as current_month_customers,
@@ -64,7 +64,7 @@ const Dashboard = {
 
   // Get product statistics
   getProductStats: async () => {
-    const [rows] = await pool.query(`
+    const [rows] = await pool.queryWithRetry(`
       SELECT 
         COUNT(*) as total_products,
         COUNT(CASE WHEN is_active = 1 THEN 1 END) as active_products,
@@ -81,7 +81,7 @@ const Dashboard = {
 
   // Get top selling products with primary image
   getTopProducts: async (limit = 10) => {
-    const [rows] = await pool.query(`
+    const [rows] = await pool.queryWithRetry(`
       SELECT 
         p.id,
         p.name,
@@ -108,7 +108,7 @@ const Dashboard = {
 
   // Get top customers by spending
   getTopCustomers: async (limit = 10) => {
-    const [rows] = await pool.query(`
+    const [rows] = await pool.queryWithRetry(`
       SELECT 
         c.customer_id as id,
         c.first_name,
@@ -138,7 +138,7 @@ const Dashboard = {
 
   // Get recent orders
   getRecentOrders: async (limit = 15) => {
-    const [rows] = await pool.query(`
+    const [rows] = await pool.queryWithRetry(`
       SELECT 
         o.id,
         o.order_number,
@@ -164,7 +164,7 @@ const Dashboard = {
 
   // Get orders chart data (last 30 days)
   getOrdersChart: async () => {
-    const [rows] = await pool.query(`
+    const [rows] = await pool.queryWithRetry(`
       SELECT 
         DATE(created_at) as order_date,
         COUNT(*) as order_count,
@@ -180,7 +180,7 @@ const Dashboard = {
 
   // Get category performance
   getCategoryStats: async (limit = 10) => {
-    const [rows] = await pool.query(`
+    const [rows] = await pool.queryWithRetry(`
       SELECT 
         mc.id,
         mc.name,
@@ -203,7 +203,7 @@ const Dashboard = {
 
   // Get brand performance - check if brands table has logo_url column
   getBrandStats: async (limit = 10) => {
-    const [rows] = await pool.query(`
+    const [rows] = await pool.queryWithRetry(`
       SELECT 
         b.id,
         b.name,
@@ -227,7 +227,7 @@ const Dashboard = {
 
   // Get low stock products
   getLowStockProducts: async (limit = 15) => {
-    const [rows] = await pool.query(`
+    const [rows] = await pool.queryWithRetry(`
       SELECT 
         p.id,
         p.name,
@@ -249,7 +249,7 @@ const Dashboard = {
 
   // Get order status breakdown
   getOrderStatusBreakdown: async () => {
-    const [rows] = await pool.query(`
+    const [rows] = await pool.queryWithRetry(`
       SELECT 
         order_status,
         COUNT(*) as count,
@@ -265,7 +265,7 @@ const Dashboard = {
 
   // Get payment method statistics
   getPaymentMethodStats: async () => {
-    const [rows] = await pool.query(`
+    const [rows] = await pool.queryWithRetry(`
       SELECT 
         pm.name,
         pm.slug,
@@ -283,7 +283,7 @@ const Dashboard = {
 
   // Get monthly growth comparison (last 12 months)
   getMonthlyGrowth: async () => {
-    const [rows] = await pool.query(`
+    const [rows] = await pool.queryWithRetry(`
       SELECT 
         YEAR(created_at) as year,
         MONTH(created_at) as month,
@@ -302,7 +302,7 @@ const Dashboard = {
 
   // Get quick stats for widgets
   getQuickStats: async () => {
-    const [rows] = await pool.query(`
+    const [rows] = await pool.queryWithRetry(`
       SELECT 
         (SELECT COUNT(*) FROM orders WHERE DATE(created_at) = CURDATE()) as today_orders,
         (SELECT COUNT(*) FROM orders WHERE order_status = 'pending') as pending_orders,
@@ -316,7 +316,7 @@ const Dashboard = {
 
   // Get live data for real-time updates
   getLiveData: async () => {
-    const [rows] = await pool.query(`
+    const [rows] = await pool.queryWithRetry(`
       SELECT 
         (SELECT COUNT(*) FROM orders WHERE created_at >= DATE_SUB(NOW(), INTERVAL 1 HOUR)) as orders_last_hour,
         (SELECT COUNT(*) FROM orders WHERE created_at >= DATE_SUB(NOW(), INTERVAL 24 HOUR)) as orders_last_24h,

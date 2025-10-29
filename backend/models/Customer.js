@@ -4,7 +4,7 @@ const { getSriLankanTimestamp } = require('../utils/timezone');
 const Customer = {
   // Create new customer with parameterized queries (SQL injection protection)
   create: async (newCustomer) => {
-    const [result] = await pool.query(
+    const [result] = await pool.queryWithRetry(
       'INSERT INTO customers (first_name, last_name, email, phone, password_hash) VALUES (?, ?, ?, ?, ?)',
       [newCustomer.first_name, newCustomer.last_name, newCustomer.email, newCustomer.phone, newCustomer.password_hash]
     );
@@ -13,19 +13,19 @@ const Customer = {
 
   // Find customer by email (parameterized query)
   findByEmail: async (email) => {
-    const [rows] = await pool.query('SELECT * FROM customers WHERE email = ?', [email]);
+    const [rows] = await pool.queryWithRetry('SELECT * FROM customers WHERE email = ?', [email]);
     return rows;
   },
 
   // Find customer by ID (parameterized query)
   findById: async (id) => {
-    const [rows] = await pool.query('SELECT * FROM customers WHERE customer_id = ?', [id]);
+    const [rows] = await pool.queryWithRetry('SELECT * FROM customers WHERE customer_id = ?', [id]);
     return rows;
   },
 
   // Find customer by phone
   findByPhone: async (phone) => {
-    const [rows] = await pool.query('SELECT * FROM customers WHERE phone = ?', [phone]);
+    const [rows] = await pool.queryWithRetry('SELECT * FROM customers WHERE phone = ?', [phone]);
     return rows;
   },
 
@@ -42,7 +42,7 @@ const Customer = {
 
     values.push(id);
 
-    const [result] = await pool.query(
+    const [result] = await pool.queryWithRetry(
       `UPDATE customers SET ${fields.join(', ')}, updated_at = CURRENT_TIMESTAMP WHERE customer_id = ?`,
       values
     );
@@ -51,7 +51,7 @@ const Customer = {
 
   // Set password reset code
   setPasswordResetCode: async (email, resetCode, expiresAt) => {
-    const [result] = await pool.query(
+    const [result] = await pool.queryWithRetry(
       'UPDATE customers SET reset_code = ?, reset_code_expires = ? WHERE email = ?',
       [resetCode, expiresAt, email]
     );
@@ -60,7 +60,7 @@ const Customer = {
 
   // Find customer by reset code
   findByResetCode: async (code) => {
-    const [rows] = await pool.query(
+    const [rows] = await pool.queryWithRetry(
       'SELECT * FROM customers WHERE reset_code = ? AND reset_code_expires > NOW()',
       [code]
     );
@@ -69,7 +69,7 @@ const Customer = {
 
   // Clear password reset code
   clearPasswordResetCode: async (id) => {
-    const [result] = await pool.query(
+    const [result] = await pool.queryWithRetry(
       'UPDATE customers SET reset_code = NULL, reset_code_expires = NULL WHERE customer_id = ?',
       [id]
     );
@@ -78,7 +78,7 @@ const Customer = {
 
   // Update password
   updatePassword: async (id, newPasswordHash) => {
-    const [result] = await pool.query(
+    const [result] = await pool.queryWithRetry(
       'UPDATE customers SET password_hash = ?, updated_at = CURRENT_TIMESTAMP WHERE customer_id = ?',
       [newPasswordHash, id]
     );
@@ -150,7 +150,7 @@ const Customer = {
       
       params.push(parseInt(limit), parseInt(offset));
       
-      const [rows] = await pool.query(query, params);
+      const [rows] = await pool.queryWithRetry(query, params);
       return rows;
     } catch (error) {
       throw error;
@@ -180,7 +180,7 @@ const Customer = {
         GROUP BY c.customer_id
       `;
       
-      const [rows] = await pool.query(query, [customerId]);
+      const [rows] = await pool.queryWithRetry(query, [customerId]);
       return rows.length > 0 ? rows[0] : null;
     } catch (error) {
       throw error;
@@ -206,7 +206,7 @@ const Customer = {
         LIMIT ? OFFSET ?
       `;
       
-      const [rows] = await pool.query(query, [customerId, parseInt(limit), parseInt(offset)]);
+      const [rows] = await pool.queryWithRetry(query, [customerId, parseInt(limit), parseInt(offset)]);
       return rows;
     } catch (error) {
       throw error;
@@ -221,7 +221,7 @@ const Customer = {
         SET is_active = ?, updated_at = CURRENT_TIMESTAMP 
         WHERE customer_id = ?
       `;
-      const [result] = await pool.query(query, [isActive ? 1 : 0, customerId]);
+      const [result] = await pool.queryWithRetry(query, [isActive ? 1 : 0, customerId]);
       return result.affectedRows > 0;
     } catch (error) {
       throw error;
@@ -236,7 +236,7 @@ const Customer = {
         SET email_verified = ?, updated_at = CURRENT_TIMESTAMP 
         WHERE customer_id = ?
       `;
-      const [result] = await pool.query(query, [isVerified ? 1 : 0, customerId]);
+      const [result] = await pool.queryWithRetry(query, [isVerified ? 1 : 0, customerId]);
       return result.affectedRows > 0;
     } catch (error) {
       throw error;
@@ -257,7 +257,7 @@ const Customer = {
         FROM customers
       `;
       
-      const [rows] = await pool.query(query);
+      const [rows] = await pool.queryWithRetry(query);
       return rows[0];
     } catch (error) {
       throw error;

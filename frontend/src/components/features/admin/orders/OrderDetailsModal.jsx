@@ -61,6 +61,7 @@ const OrderDetailsModal = ({ order, onClose, setOrders }) => {
               <h3 className="text-lg font-bold mb-2">Customer Details</h3>
               <p><strong>Name:</strong> {order.customer}</p>
               <p><strong>Address:</strong> {order.address}</p>
+              <p><strong>Postal Code:</strong> {order.postal_code}</p>
               <p><strong>Phone:</strong> {order.phone}</p>
             </div>
             <div>

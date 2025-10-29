@@ -15,7 +15,7 @@ class Product {
         WHERE p.is_active = 1 AND p.is_featured = 1
         GROUP BY p.id
       `;
-      const [rows] = await db.execute(query);
+      const [rows] = await db.executeWithRetry(query);
       return rows;
     } catch (error) {
       throw error;
@@ -37,7 +37,7 @@ class Product {
         ORDER BY p.created_at DESC
         LIMIT 10
       `;
-      const [rows] = await db.execute(query);
+      const [rows] = await db.executeWithRetry(query);
       return rows;
     } catch (error) {
       console.error('Get new arrivals error:', error);
@@ -59,7 +59,7 @@ class Product {
         WHERE LOWER(b.name) = LOWER(?) AND p.is_active = 1
         ORDER BY p.created_at DESC
       `;
-      const [rows] = await db.execute(query, [brandName]);
+      const [rows] = await db.executeWithRetry(query, [brandName]);
       return rows;
     } catch (error) {
       throw error;
@@ -82,7 +82,7 @@ class Product {
         ORDER BY p.created_at DESC
         LIMIT ? OFFSET ?
       `;
-      const [rows] = await db.execute(query, [limit, offset]);
+      const [rows] = await db.executeWithRetry(query, [limit, offset]);
       return rows;
     } catch (error) {
       throw error;
@@ -99,7 +99,7 @@ class Product {
         LEFT JOIN sub_categories sc ON p.sub_category_id = sc.id
         WHERE p.id = ? AND p.is_active = 1
       `;
-      const [rows] = await db.execute(query, [productId]);
+      const [rows] = await db.executeWithRetry(query, [productId]);
       
       if (rows.length === 0) {
         return null;
@@ -113,7 +113,7 @@ class Product {
         WHERE product_id = ? 
         ORDER BY is_primary DESC, created_at ASC
       `;
-      const [images] = await db.execute(imageQuery, [productId]);
+      const [images] = await db.executeWithRetry(imageQuery, [productId]);
       product.images = images;
       
       return product;
@@ -133,7 +133,7 @@ class Product {
         LEFT JOIN sub_categories sc ON p.sub_category_id = sc.id
         WHERE p.id = ?
       `;
-      const [rows] = await db.execute(query, [productId]);
+      const [rows] = await db.executeWithRetry(query, [productId]);
       
       if (rows.length === 0) {
         return null;
@@ -147,7 +147,7 @@ class Product {
         WHERE product_id = ? 
         ORDER BY is_primary DESC, created_at ASC
       `;
-      const [images] = await db.execute(imageQuery, [productId]);
+      const [images] = await db.executeWithRetry(imageQuery, [productId]);
       product.images = images;
       
       return product;
@@ -171,7 +171,7 @@ class Product {
         ORDER BY p.created_at DESC
         LIMIT ? OFFSET ?
       `;
-      const [rows] = await db.execute(query, [limit, offset]);
+      const [rows] = await db.executeWithRetry(query, [limit, offset]);
       return rows;
     } catch (error) {
       throw error;
@@ -207,7 +207,7 @@ class Product {
         productData.is_featured || 0
       ];
       
-      const [result] = await db.execute(query, values);
+      const [result] = await db.executeWithRetry(query, values);
       return result;
     } catch (error) {
       throw error;
@@ -246,7 +246,7 @@ class Product {
         productId
       ];
       
-      const [result] = await db.execute(query, values);
+      const [result] = await db.executeWithRetry(query, values);
       return result;
     } catch (error) {
       throw error;
@@ -257,7 +257,7 @@ class Product {
   static async delete(productId) {
     try {
       const query = 'UPDATE products SET is_active = 0 WHERE id = ?';
-      const [result] = await db.execute(query, [productId]);
+      const [result] = await db.executeWithRetry(query, [productId]);
       return result;
     } catch (error) {
       throw error;
@@ -281,7 +281,7 @@ class Product {
           ? 'SELECT id FROM products WHERE slug = ? AND id != ?'
           : 'SELECT id FROM products WHERE slug = ?';
         const params = id ? [slug, id] : [slug];
-        const [rows] = await db.execute(query, params);
+        const [rows] = await db.executeWithRetry(query, params);
 
         if (rows.length === 0) {
           return slug;

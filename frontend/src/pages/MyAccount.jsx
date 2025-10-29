@@ -27,7 +27,7 @@ import Footer from '../components/layout/Footer';
 import ParticleEffect from '../components/common/ParticleEffect';
 import RefundRequestModal from '../components/common/RefundRequestModal';
 import EditProfileModal from '../components/common/EditProfileModal';
-import { authAPI, userUtils, orderAPI } from '../services/api';
+import { authAPI, userUtils, orderAPI, addressAPI } from '../services/api';
 import { useNavigate } from 'react-router-dom';
 
 
@@ -90,6 +90,7 @@ const MyAccount = () => {
 
       // Get current user info from API
       const response = await authAPI.getCurrentUser();
+    
       const user = response.data.user || response.data;
       
       if (!user) {
@@ -97,29 +98,40 @@ const MyAccount = () => {
         return;
       }
       
-      // Calculate member duration
-      let memberSince = 'New member';
-      if (user.created_at) {
-        const joinedDate = new Date(user.created_at);
-        const now = new Date();
-        
-        // Check if the date is valid
-        if (!isNaN(joinedDate.getTime())) {
-          const diffTime = Math.abs(now - joinedDate);
-          const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-          const diffMonths = Math.floor(diffDays / 30);
-          const diffYears = Math.floor(diffMonths / 12);
+      // Format member since date from address data
+      let memberSince = 'Unknown';
+
+      // Fetch shipping address data
+      let addressData = {
+        address: '',
+        city: '',
+        postalCode: ''
+      };
+
+      try {
+        const addressResponse = await addressAPI.getDefaultAddress();
+
+        if (addressResponse.data.success) {
+          const addr = addressResponse.data.data;
+          addressData = {
+            address: `${addr.address_line1}${addr.address_line2 ? ', ' + addr.address_line2 : ''}, ${addr.city_name}, ${addr.district_name}, ${addr.province_name}`,
+            city: addr.city_name || '',
+            postalCode: addr.postal_code || ''
+          };
           
-          if (diffYears > 0) {
-            memberSince = `${diffYears} year${diffYears > 1 ? 's' : ''}`;
-          } else if (diffMonths > 0) {
-            memberSince = `${diffMonths} month${diffMonths > 1 ? 's' : ''}`;
-          } else if (diffDays > 0) {
-            memberSince = `${diffDays} day${diffDays > 1 ? 's' : ''}`;
-          } else {
-            memberSince = 'Today';
+          // Get member since date from address data
+          if (addr.created_at) {
+            const joinedDate = new Date(addr.created_at);
+            if (!isNaN(joinedDate.getTime())) {
+              memberSince = joinedDate.toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+              });
+            }
           }
         }
+      } catch (addressError) {        // Keep default empty values
       }
 
       const newUserData = {
@@ -127,9 +139,9 @@ const MyAccount = () => {
         lastName: user.last_name || user.lastName || '',
         email: user.email || '',
         phone: user.phone || '',
-        address: user.address || '',
-        city: user.city || '',
-        postalCode: user.postal_code || user.postalCode || '',
+        address: addressData.address,
+        city: addressData.city,
+        postalCode: addressData.postalCode,
         joinedDate: user.created_at,
         totalOrders: 0, // Will be fetched from orders API later
         totalSpent: 0, // Will be calculated from orders
@@ -173,12 +185,8 @@ const MyAccount = () => {
   const fetchOrders = async () => {
     try {
       setOrdersLoading(true);
-      console.log('Fetching orders...');
       const response = await orderAPI.getUserOrders();
-      console.log('Orders API response:', response);
-      console.log('Orders data:', response.data);
       if (response.data.success) {
-        console.log('Orders array:', response.data.data);
         const ordersData = response.data.data || [];
         setOrders(ordersData);
         
@@ -190,7 +198,6 @@ const MyAccount = () => {
           totalSpent: totalSpent
         }));
       } else {
-        console.log('API call unsuccessful:', response.data);
         setOrders([]);
       }
     } catch (error) {
