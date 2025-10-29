@@ -289,6 +289,43 @@ const Sales = {
       console.error('Error fetching chart data:', error);
       throw error;
     }
+  },
+
+  // Get top 10 performing products ordered by quantity sold
+  getTopProducts: async () => {
+    try {
+      const [topProducts] = await pool.query(`
+        SELECT
+          p.id,
+          p.name,
+          SUM(oi.quantity) as total_quantity,
+          SUM(oi.quantity * oi.price) as total_revenue,
+          SUM(oi.quantity * p.cost_price) as total_cost,
+          SUM(oi.quantity * oi.price) - SUM(oi.quantity * p.cost_price) as total_profit
+        FROM products p
+        LEFT JOIN order_items oi ON p.id = oi.product_id
+        LEFT JOIN orders o ON oi.order_id = o.id AND o.payment_status IN ('paid', 'pending')
+        WHERE p.is_active = 1
+        GROUP BY p.id, p.name
+        HAVING SUM(oi.quantity) > 0
+        ORDER BY total_quantity DESC
+        LIMIT 10
+      `);
+
+      // Format the response
+      const products = topProducts.map(prod => ({
+        id: prod.id,
+        name: prod.name,
+        sold_quantity: parseInt(prod.total_quantity || 0),
+        total_revenue: parseFloat(prod.total_revenue || 0),
+        total_profit: parseFloat(prod.total_profit || 0)
+      }));
+
+      return products;
+    } catch (error) {
+      console.error('Error fetching top products:', error);
+      throw error;
+    }
   }
 };
 
