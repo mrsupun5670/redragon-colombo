@@ -3,7 +3,6 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   User,
   Package,
-  History,
   RefreshCw,
   Settings,
   LogOut,
@@ -293,33 +292,11 @@ const MyAccount = () => {
     }
   ];
 
-  // Mock refunds data
-  const refunds = [
-    {
-      id: 1,
-      order_id: '#1245',
-      product_name: 'Defective Keyboard',
-      amount: 15000,
-      status: 'approved',
-      requested_at: '2024-01-12',
-      reason: 'Defective Product'
-    },
-    {
-      id: 2,
-      order_id: '#1240',
-      product_name: 'Wrong Mouse Model',
-      amount: 7550,
-      status: 'processed',
-      requested_at: '2024-01-08',
-      reason: 'Wrong Item Received'
-    }
-  ];
-
   const tabs = [
     { id: 'overview', label: 'Overview', icon: User, mobileLabel: 'Home' },
     { id: 'orders', label: 'My Orders', icon: Package, mobileLabel: 'Orders' },
-    { id: 'refunds', label: 'My Refunds', icon: RefreshCw, mobileLabel: 'Refunds' },
-    { id: 'settings', label: 'Settings', icon: Settings, mobileLabel: 'Settings' }
+    { id: 'settings', label: 'Settings', icon: Settings, mobileLabel: 'Settings' },
+    { id: 'logout', label: 'Logout', icon: LogOut, mobileLabel: 'Logout' }
   ];
 
   const getStatusColor = (status) => {
@@ -346,7 +323,7 @@ const MyAccount = () => {
         className="bg-gradient-to-r from-red-500 to-orange-500 rounded-xl sm:rounded-2xl p-4 sm:p-6 md:p-8 text-white"
       >
         <h2 className="text-xl sm:text-2xl md:text-3xl font-bold mb-1 sm:mb-2">Welcome back, {userData.firstName}!</h2>
-        <p className="text-sm sm:text-base text-white/90">Manage your orders, refunds, and account settings</p>
+        <p className="text-sm sm:text-base text-white/90">Manage your orders and account settings</p>
       </motion.div>
 
       {/* Quick Stats */}
@@ -779,50 +756,6 @@ const MyAccount = () => {
     );
   };
 
-  // Refunds Section
-  const RefundsSection = () => (
-    <div className="space-y-3 sm:space-y-4">
-      <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-4 sm:mb-6 px-1">My Refunds</h2>
-
-      {refunds.length > 0 ? (
-        refunds.map((refund, index) => (
-          <motion.div
-            key={index}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: index * 0.1 }}
-            className="bg-white rounded-xl p-4 sm:p-5 md:p-6 shadow-lg border-2 border-gray-100"
-          >
-            <div className="flex flex-col gap-3">
-              <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-3">
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 mb-2 flex-wrap">
-                    <h3 className="text-base sm:text-lg font-bold text-gray-900">Refund #{refund.id}</h3>
-                    <span className={`px-2 sm:px-3 py-1 rounded-full text-xs font-semibold ${getStatusColor(refund.status)} whitespace-nowrap`}>
-                      {refund.status.charAt(0).toUpperCase() + refund.status.slice(1)}
-                    </span>
-                  </div>
-                  <p className="text-xs sm:text-sm text-gray-600 mb-1">Order: {refund.order_id}</p>
-                  <p className="text-xs sm:text-sm text-gray-600 mb-1 break-words">Product: {refund.product_name}</p>
-                  <p className="text-xs sm:text-sm text-gray-500">Reason: {refund.reason}</p>
-                  <p className="text-xs sm:text-sm text-gray-500">Requested: {new Date(refund.requested_at).toLocaleDateString()}</p>
-                </div>
-                <div className="sm:text-right border-t sm:border-t-0 pt-3 sm:pt-0">
-                  <p className="text-xs sm:text-sm text-gray-500 mb-1">Refund Amount</p>
-                  <p className="text-xl sm:text-2xl font-bold text-green-600">Rs. {refund.amount.toLocaleString()}</p>
-                </div>
-              </div>
-            </div>
-          </motion.div>
-        ))
-      ) : (
-        <div className="bg-white rounded-xl p-8 sm:p-12 text-center shadow-lg border-2 border-gray-100">
-          <RefreshCw className="w-12 h-12 sm:w-16 sm:h-16 text-gray-300 mx-auto mb-3 sm:mb-4" />
-          <p className="text-gray-500 text-base sm:text-lg">No refund requests yet</p>
-        </div>
-      )}
-    </div>
-  );
 
   // Settings Section
   const SettingsSection = () => (
@@ -922,22 +855,6 @@ const MyAccount = () => {
         </form>
       </motion.div>
 
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.2 }}
-        className="bg-white rounded-xl p-4 sm:p-5 md:p-6 shadow-lg border-2 border-gray-100"
-      >
-        <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-2 sm:mb-4">Logout</h3>
-        <p className="text-sm sm:text-base text-gray-600 mb-3 sm:mb-4">Sign out of your account on this device</p>
-        <button 
-          onClick={handleLogout}
-          className="flex items-center gap-2 w-full bg-red-500 hover:bg-red-600 text-white py-2.5 sm:py-3 rounded-lg font-bold transition-all justify-center text-sm sm:text-base"
-        >
-          <LogOut className="w-4 h-4 sm:w-5 sm:h-5" />
-          Logout
-        </button>
-      </motion.div>
     </div>
   );
 
@@ -947,10 +864,11 @@ const MyAccount = () => {
         return <OverviewSection />;
       case 'orders':
         return <OrdersSection />;
-      case 'refunds':
-        return <RefundsSection />;
       case 'settings':
         return <SettingsSection />;
+      case 'logout':
+        handleLogout();
+        return null;
       default:
         return <OverviewSection />;
     }
