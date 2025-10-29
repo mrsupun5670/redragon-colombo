@@ -47,13 +47,20 @@ const Products = () => {
   const [subCategoryOpen, setSubCategoryOpen] = useState(false);
   const [brandOpen, setBrandOpen] = useState(false);
 
-  // Set category from URL
+  // Set category and brand from URL
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     const category = params.get("category");
+    const brand = params.get("brand");
+    
     if (category) {
       setSelectedCategories([category]);
       setCategoryOpen(true);
+    }
+    
+    if (brand) {
+      setSelectedBrands([brand]);
+      setBrandOpen(true);
     }
   }, [location.search]);
 
