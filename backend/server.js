@@ -108,6 +108,7 @@ app.use("/api/wishlist", wishlistRoutes);
 app.use("/api/customers", customerRoutes);
 app.use("/api/dashboard", dashboardRoutes);
 app.use("/api/sales", salesRoutes);
+app.use("/api/promo", promoRoutes);
 
 app.get("/", (req, res) => {
   res.json({ message: "Welcome to Redragon Shop API" });
