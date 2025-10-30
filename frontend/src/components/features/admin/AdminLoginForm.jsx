@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Lock, User, Eye, EyeOff } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
@@ -6,17 +6,21 @@ import { useAdminAuth } from '../../../context/AdminAuthContext';
 import ErrorPopup from '../../common/ErrorPopup';
 import SuccessPopup from '../../common/SuccessPopup';
 
-const AdminLoginForm = () => {
+const AdminLoginForm = ({ error: initialError }) => {
   const [formData, setFormData] = useState({
     username: '',
     password: ''
   });
-  const [error, setError] = useState(null);
+  const [error, setError] = useState(initialError);
   const [success, setSuccess] = useState(null);
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
   const { login } = useAdminAuth();
+
+  useEffect(() => {
+    setError(initialError);
+  }, [initialError]);
 
   const { username, password } = formData;
 

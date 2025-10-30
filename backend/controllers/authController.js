@@ -16,21 +16,30 @@ exports.getMe = async (req, res) => {
 
     if (userType === 'admin') {
       // Get admin data
-      user = await Admin.findById(userId);
-      if (!user) {
-        return res.status(404).json({ 
+      try {
+        user = await Admin.findById(userId);
+        
+        if (!user) {
+          return res.status(404).json({ 
+            success: false,
+            message: 'Admin not found' 
+          });
+        }
+
+        userData = {
+          id: user.id,
+          username: user.username.trim(), // Clean username of whitespace characters
+          email: user.email,
+          type: 'admin',
+          isActive: user.is_active
+        };
+      } catch (adminError) {
+        console.error('Admin lookup error:', adminError);
+        return res.status(500).json({ 
           success: false,
-          message: 'Admin not found' 
+          message: 'Error fetching admin data' 
         });
       }
-
-      userData = {
-        id: user.id,
-        username: user.username,
-        email: user.email,
-        type: 'admin',
-        isActive: user.is_active
-      };
     } else {
       // Get customer data
       const customers = await Customer.findById(userId);
@@ -427,7 +436,7 @@ exports.adminLogin = async (req, res) => {
     // Create JWT payload
     const payload = {
       id: admin.id,
-      username: admin.username,
+      username: admin.username.trim(), // Clean username of whitespace characters
       email: admin.email,
       type: 'admin'
     };
@@ -442,7 +451,7 @@ exports.adminLogin = async (req, res) => {
       token,
       user: {
         id: admin.id,
-        username: admin.username,
+        username: admin.username.trim(), // Clean username of whitespace characters  
         email: admin.email,
         type: 'admin'
       }

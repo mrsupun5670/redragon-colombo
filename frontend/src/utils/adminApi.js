@@ -3,7 +3,7 @@ import axios from 'axios';
 const API_BASE_URL = 'http://localhost:5001/api';
 
 const getAdminToken = () => {
-  return localStorage.getItem('adminToken') || localStorage.getItem('token');
+  return localStorage.getItem('adminToken');
 };
 
 const apiClient = axios.create({
@@ -14,11 +14,9 @@ const apiClient = axios.create({
 apiClient.interceptors.request.use(
   (config) => {
     const token = getAdminToken();
-    console.log('🔍 AdminApi request interceptor - Token:', token ? `EXISTS (${token.substring(0, 10)}...)` : 'NONE');
     if (token) {
       config.headers = config.headers || {};
       config.headers['Authorization'] = `Bearer ${token}`;
-      console.log('🔍 Set Authorization header:', config.headers['Authorization']);
     }
     return config;
   },
@@ -34,7 +32,6 @@ apiClient.interceptors.response.use(
   },
   (error) => {
     // DON'T AUTO-CLEAR TOKEN OR REDIRECT - let the auth context handle it
-    console.log('🔍 AdminApi error:', error.response?.status);
     return Promise.reject(error);
   }
 );
