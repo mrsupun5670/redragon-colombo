@@ -108,10 +108,10 @@ class Category {
     try {
       const { name, description, main_category_id } = categoryData;
       const query = `
-        INSERT INTO sub_categories (name, description, main_category_id)
-        VALUES (?, ?, ?)
+        INSERT INTO sub_categories (name, description, main_category_id, slug)
+        VALUES (?, ?, ?, ?)
       `;
-      const [result] = await db.executeWithRetry(query, [name, description || null, main_category_id]);
+      const [result] = await db.executeWithRetry(query, [name, description || null, main_category_id, name.toLowerCase().replace(/\s+/g, '-')]);
       return {
         id: result.insertId,
         name,
