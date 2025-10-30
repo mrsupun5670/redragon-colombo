@@ -14,8 +14,11 @@ const apiClient = axios.create({
 apiClient.interceptors.request.use(
   (config) => {
     const token = getAdminToken();
+    console.log('🔍 AdminApi request interceptor - Token:', token ? `EXISTS (${token.substring(0, 10)}...)` : 'NONE');
     if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
+      config.headers = config.headers || {};
+      config.headers['Authorization'] = `Bearer ${token}`;
+      console.log('🔍 Set Authorization header:', config.headers['Authorization']);
     }
     return config;
   },
@@ -30,10 +33,8 @@ apiClient.interceptors.response.use(
     return response;
   },
   (error) => {
-    if (error.response?.status === 401 || error.response?.status === 403) {
-      localStorage.removeItem('adminToken');
-      window.location.href = '/admin/login';
-    }
+    // DON'T AUTO-CLEAR TOKEN OR REDIRECT - let the auth context handle it
+    console.log('🔍 AdminApi error:', error.response?.status);
     return Promise.reject(error);
   }
 );
