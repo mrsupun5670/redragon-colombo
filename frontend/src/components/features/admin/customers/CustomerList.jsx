@@ -150,26 +150,30 @@ const CustomerList = () => {
   }
 
   return (
-    <div className="bg-blue-50 rounded-2xl shadow-lg p-8">
-      <div className="flex justify-between items-center mb-4">
-        <div className="flex space-x-4">
+    <div className="bg-blue-50 rounded-2xl shadow-lg p-4 md:p-8">
+      {/* Mobile-responsive filter and search layout */}
+      <div className="flex flex-col gap-4 md:flex-row md:justify-between md:items-center mb-6">
+        {/* Status Filter Chips - Horizontally scrollable on mobile */}
+        <div className="flex gap-2 overflow-x-auto pb-2 md:pb-0" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
           {statusFilters.map(status => (
-            <button 
+            <button
               key={status}
               onClick={() => setFilteredStatus(status)}
-              className={`px-4 py-2 rounded-lg font-semibold ${filteredStatus === status ? 'bg-red-600 text-white' : 'bg-blue-100 text-blue-800'}`}>
+              className={`px-4 py-2 rounded-lg font-semibold whitespace-nowrap flex-shrink-0 text-sm md:text-base transition-all ${filteredStatus === status ? 'bg-red-600 text-white' : 'bg-blue-100 text-blue-800 hover:bg-blue-200'}`}>
               {status.charAt(0).toUpperCase() + status.slice(1)}
             </button>
           ))}
         </div>
-        <div className="relative w-96">
+
+        {/* Search Bar - Full width on mobile, fixed width on desktop */}
+        <div className="relative w-full md:w-96">
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
           <input
             type="text"
             placeholder="Search by Name, Email or Mobile"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-12 pr-4 py-3 text-gray-800 bg-blue-100 border-2 border-blue-200 rounded-lg text-base"
+            className="w-full pl-12 pr-4 py-3 text-sm md:text-base text-gray-800 bg-blue-100 border-2 border-blue-200 rounded-lg focus:outline-none focus:border-blue-300 focus:ring-2 focus:ring-blue-200"
           />
           {searchQuery !== debouncedSearchQuery && (
             <div className="absolute right-4 top-1/2 -translate-y-1/2">
@@ -178,73 +182,77 @@ const CustomerList = () => {
           )}
         </div>
       </div>
-      <table className="w-full text-left">
-        <thead>
-          <tr className="border-b border-blue-200">
-            <th className="p-4">Name</th>
-            <th className="p-4">Email</th>
-            <th className="p-4">Phone</th>
-            <th className="p-4">Total Orders</th>
-            <th className="p-4">Total Spent</th>
-            <th className="p-4">Status</th>
-            <th className="p-4">Verified</th>
-          </tr>
-        </thead>
-        <tbody>
-          {customers.length === 0 ? (
-            <tr>
-              <td colSpan="7" className="p-8 text-center text-gray-500">
-                {debouncedSearchQuery ? 'No customers found matching your search.' : 'No customers found.'}
-              </td>
+
+      {/* Horizontally scrollable table on mobile */}
+      <div className="overflow-x-auto -mx-4 md:mx-0 md:rounded-xl">
+        <table className="w-full text-left">
+          <thead>
+            <tr className="border-b border-blue-200 bg-blue-100/50">
+              <th className="p-3 md:p-4 text-xs md:text-sm font-semibold text-gray-700 whitespace-nowrap">Name</th>
+              <th className="p-3 md:p-4 text-xs md:text-sm font-semibold text-gray-700 whitespace-nowrap">Email</th>
+              <th className="p-3 md:p-4 text-xs md:text-sm font-semibold text-gray-700 whitespace-nowrap">Phone</th>
+              <th className="p-3 md:p-4 text-xs md:text-sm font-semibold text-gray-700 whitespace-nowrap">Total Orders</th>
+              <th className="p-3 md:p-4 text-xs md:text-sm font-semibold text-gray-700 whitespace-nowrap">Total Spent</th>
+              <th className="p-3 md:p-4 text-xs md:text-sm font-semibold text-gray-700 whitespace-nowrap">Status</th>
+              <th className="p-3 md:p-4 text-xs md:text-sm font-semibold text-gray-700 whitespace-nowrap">Verified</th>
             </tr>
-          ) : (
-            customers.map((customer, index) => (
-              <motion.tr
-                key={customer.id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.1 }}
-                onClick={() => handleRowClick(customer)}
-                className="border-b border-blue-200 hover:bg-blue-100 cursor-pointer"
-              >
-                <td className="p-4">{customer.full_name}</td>
-                <td className="p-4">{customer.email}</td>
-                <td className="p-4">{customer.phone}</td>
-                <td className="p-4">{customer.total_orders}</td>
-                <td className="p-4">Rs. {parseFloat(customer.total_spent).toLocaleString()}</td>
-                <td className="p-4">
-                  <motion.span
-                    onClick={(e) => handleStatusClick(e, customer)}
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                    className={`px-3 py-1 rounded-full text-xs font-semibold cursor-pointer transition-all ${
-                      customer.is_active
-                        ? 'bg-green-100 text-green-800 hover:bg-green-200'
-                        : 'bg-red-100 text-red-800 hover:bg-red-200'
-                    }`}
-                  >
-                    {customer.is_active ? 'Active' : 'Inactive'}
-                  </motion.span>
+          </thead>
+          <tbody>
+            {customers.length === 0 ? (
+              <tr>
+                <td colSpan="7" className="p-8 text-center text-sm text-gray-500">
+                  {debouncedSearchQuery ? 'No customers found matching your search.' : 'No customers found.'}
                 </td>
-                <td className="p-4">
-                  <div className="flex items-center">
-                    {customer.email_verified ? (
-                      <CheckCircle className="w-5 h-5 text-green-500" />
-                    ) : (
-                      <XCircle className="w-5 h-5 text-red-500" />
-                    )}
-                    <span className={`ml-2 text-xs font-semibold ${
-                      customer.email_verified ? 'text-green-600' : 'text-red-600'
-                    }`}>
-                      {customer.email_verified ? 'Verified' : 'Unverified'}
-                    </span>
-                  </div>
-                </td>
-              </motion.tr>
-            ))
-          )}
-        </tbody>
-      </table>
+              </tr>
+            ) : (
+              customers.map((customer, index) => (
+                <motion.tr
+                  key={customer.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: index * 0.1 }}
+                  onClick={() => handleRowClick(customer)}
+                  className="border-b border-blue-200 hover:bg-blue-100 cursor-pointer transition-colors"
+                >
+                  <td className="p-3 md:p-4 text-xs md:text-sm font-medium whitespace-nowrap">{customer.full_name}</td>
+                  <td className="p-3 md:p-4 text-xs md:text-sm whitespace-nowrap">{customer.email}</td>
+                  <td className="p-3 md:p-4 text-xs md:text-sm whitespace-nowrap">{customer.phone}</td>
+                  <td className="p-3 md:p-4 text-xs md:text-sm text-center whitespace-nowrap">{customer.total_orders}</td>
+                  <td className="p-3 md:p-4 text-xs md:text-sm font-medium whitespace-nowrap">Rs. {parseFloat(customer.total_spent).toLocaleString()}</td>
+                  <td className="p-3 md:p-4 text-xs md:text-sm">
+                    <motion.span
+                      onClick={(e) => handleStatusClick(e, customer)}
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                      className={`px-2 md:px-3 py-1 rounded-full font-semibold cursor-pointer transition-all whitespace-nowrap inline-block ${
+                        customer.is_active
+                          ? 'bg-green-100 text-green-800 hover:bg-green-200'
+                          : 'bg-red-100 text-red-800 hover:bg-red-200'
+                      }`}
+                    >
+                      {customer.is_active ? 'Active' : 'Inactive'}
+                    </motion.span>
+                  </td>
+                  <td className="p-3 md:p-4 text-xs md:text-sm">
+                    <div className="flex items-center gap-1 whitespace-nowrap">
+                      {customer.email_verified ? (
+                        <CheckCircle className="w-4 md:w-5 h-4 md:h-5 text-green-500 flex-shrink-0" />
+                      ) : (
+                        <XCircle className="w-4 md:w-5 h-4 md:h-5 text-red-500 flex-shrink-0" />
+                      )}
+                      <span className={`font-semibold hidden md:inline ${
+                        customer.email_verified ? 'text-green-600' : 'text-red-600'
+                      }`}>
+                        {customer.email_verified ? 'Verified' : 'Unverified'}
+                      </span>
+                    </div>
+                  </td>
+                </motion.tr>
+              ))
+            )}
+          </tbody>
+        </table>
+      </div>
 
       {/* Loading overlay when fetching customer details */}
       {selectedCustomerLoading && (

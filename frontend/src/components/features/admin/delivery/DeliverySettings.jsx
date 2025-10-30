@@ -29,12 +29,21 @@ const DeliverySettings = () => {
     try {
       setLoading(true);
       const response = await adminApi.get("/delivery/zones/admin");
-      // Handle both array response and wrapped response
-      const zones = Array.isArray(response.data) ? response.data : response.data?.data || [];
-      setDeliveryZones(zones);
+      // Response format: { success: true, data: [...zones] }
+      if (response.data.success && response.data.data) {
+        setDeliveryZones(response.data.data);
+      } else if (Array.isArray(response.data)) {
+        // Fallback for array response
+        setDeliveryZones(response.data);
+      } else {
+        setDeliveryZones([]);
+      }
     } catch (error) {
       console.error("Error fetching delivery zones:", error.response || error);
-      const errorMessage = error.response?.data?.msg || error.response?.data?.message || "Failed to fetch delivery zones";
+      const errorMessage =
+        error.response?.data?.msg ||
+        error.response?.data?.message ||
+        "Failed to fetch delivery zones";
       setError(errorMessage);
     } finally {
       setLoading(false);
@@ -57,7 +66,10 @@ const DeliverySettings = () => {
       fetchDeliveryZones();
     } catch (error) {
       console.error("Error adding zone:", error.response || error);
-      const errorMessage = error.response?.data?.msg || error.response?.data?.message || "Failed to add delivery zone";
+      const errorMessage =
+        error.response?.data?.msg ||
+        error.response?.data?.message ||
+        "Failed to add delivery zone";
       setError(errorMessage);
     } finally {
       setLoading(false);
@@ -75,7 +87,10 @@ const DeliverySettings = () => {
       fetchDeliveryZones();
     } catch (error) {
       console.error("Error updating zone:", error.response || error);
-      const errorMessage = error.response?.data?.msg || error.response?.data?.message || "Failed to update delivery zone";
+      const errorMessage =
+        error.response?.data?.msg ||
+        error.response?.data?.message ||
+        "Failed to update delivery zone";
       setError(errorMessage);
     } finally {
       setLoading(false);
@@ -93,7 +108,10 @@ const DeliverySettings = () => {
       fetchDeliveryZones();
     } catch (error) {
       console.error("Error deleting zone:", error.response || error);
-      const errorMessage = error.response?.data?.msg || error.response?.data?.message || "Failed to delete delivery zone";
+      const errorMessage =
+        error.response?.data?.msg ||
+        error.response?.data?.message ||
+        "Failed to delete delivery zone";
       setError(errorMessage);
     } finally {
       setLoading(false);
@@ -127,7 +145,9 @@ const DeliverySettings = () => {
       <div className="flex items-center justify-between mb-8">
         <div>
           <h1 className="text-4xl font-bold text-gray-900">Delivery Zones</h1>
-          <p className="text-gray-500 mt-2">Manage delivery zones and weight-based shipping charges</p>
+          <p className="text-gray-500 mt-2">
+            Manage delivery zones and weight-based shipping charges
+          </p>
         </div>
       </div>
 
@@ -136,7 +156,10 @@ const DeliverySettings = () => {
         <div className="flex justify-between items-center gap-4">
           <div>
             <p className="text-gray-600 font-medium">
-              Total Zones: <span className="font-bold text-lg text-red-500">{deliveryZones.length}</span>
+              Total Zones:{" "}
+              <span className="font-bold text-lg text-red-500">
+                {deliveryZones.length}
+              </span>
             </p>
           </div>
           <button
@@ -156,8 +179,12 @@ const DeliverySettings = () => {
         ) : deliveryZones.length === 0 ? (
           <div className="text-center py-12 bg-gray-50 rounded-xl border-2 border-dashed border-gray-300">
             <TruckIcon className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-            <p className="text-gray-500 text-lg font-medium">No delivery zones created yet</p>
-            <p className="text-gray-400 mt-1">Click "Add Delivery Zone" button to create your first zone</p>
+            <p className="text-gray-500 text-lg font-medium">
+              No delivery zones created yet
+            </p>
+            <p className="text-gray-400 mt-1">
+              Click "Add Delivery Zone" button to create your first zone
+            </p>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

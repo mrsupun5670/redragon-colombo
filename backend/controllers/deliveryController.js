@@ -16,10 +16,17 @@ exports.getDeliveryZones = async (req, res) => {
 exports.getAllDeliveryZones = async (req, res) => {
   try {
     const zones = await DeliveryZone.findAllForAdmin();
-    res.json(zones);
+    console.log('📦 Fetched delivery zones for admin:', zones);
+    res.json({
+      success: true,
+      data: zones || []
+    });
   } catch (error) {
-    console.error('Error fetching delivery zones:', error);
-    res.status(500).json({ msg: 'Failed to fetch delivery zones' });
+    console.error('❌ Error fetching delivery zones:', error);
+    res.status(500).json({
+      success: false,
+      msg: 'Failed to fetch delivery zones'
+    });
   }
 };
 
