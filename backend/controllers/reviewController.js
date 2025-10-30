@@ -103,7 +103,7 @@ exports.createReview = async (req, res) => {
         id: review.id,
         product_id: review.product_id,
         customer_id: review.customer_id,
-        customer_name: review.customer_name,
+        customer_name: review.first_name ? `${review.first_name} ${review.last_name}` : 'Anonymous',
         rating: review.rating,
         review_text: review.review_text,
         created_at: review.created_at
@@ -185,7 +185,7 @@ exports.updateReview = async (req, res) => {
         id: updatedReview.id,
         product_id: updatedReview.product_id,
         customer_id: updatedReview.customer_id,
-        customer_name: updatedReview.customer_name,
+        customer_name: updatedReview.first_name ? `${updatedReview.first_name} ${updatedReview.last_name}` : 'Anonymous',
         rating: updatedReview.rating,
         review_text: updatedReview.review_text,
         created_at: updatedReview.created_at

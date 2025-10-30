@@ -24,14 +24,7 @@ class ProductReview {
   // Get review by ID
   static async findById(id) {
     const [rows] = await db.queryWithRetry(
-      `SELECT
-        pr.id,
-        pr.product_id,
-        pr.customer_id,
-        pr.rating,
-        pr.review_text,
-        pr.created_at,
-        COALESCE(CONCAT(c.first_name, ' ', c.last_name), 'Anonymous') as customer_name
+      `SELECT pr.*, c.first_name, c.last_name
        FROM product_reviews pr
        LEFT JOIN customers c ON pr.customer_id = c.customer_id
        WHERE pr.id = ?`,

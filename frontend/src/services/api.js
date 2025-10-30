@@ -260,16 +260,16 @@ export const promoAPI = {
 
 // Review API functions
 export const reviewAPI = {
-  // Get reviews for a product (public endpoint)
+  // Get reviews for a product
   getProductReviews: (productId) => api.get(`/reviews/product/${productId}`),
 
   // Create a review (requires authentication)
   createReview: (reviewData) => api.post('/reviews', reviewData),
 
-  // Update a review (requires authentication)
+  // Update a review
   updateReview: (reviewId, reviewData) => api.put(`/reviews/${reviewId}`, reviewData),
 
-  // Delete a review (requires authentication)
+  // Delete a review
   deleteReview: (reviewId) => api.delete(`/reviews/${reviewId}`),
 };
 
