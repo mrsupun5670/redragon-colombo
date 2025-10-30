@@ -758,19 +758,28 @@ const SingleProductView = () => {
                       </h3>
                       <div className="flex items-center gap-2">
                         <div className="flex">
-                          {[...Array(5)].map((_, idx) => (
-                            <Star
-                              key={idx}
-                              className={`w-4 h-4 sm:w-5 sm:h-5 ${
-                                idx < Math.floor(product.rating)
-                                  ? "fill-yellow-400 text-yellow-400"
-                                  : "text-gray-300"
-                              }`}
-                            />
-                          ))}
+                          {[...Array(5)].map((_, idx) => {
+                            // Calculate average rating from reviews
+                            const averageRating = reviews.length > 0
+                              ? (reviews.reduce((sum, review) => sum + parseInt(review.rating), 0) / reviews.length)
+                              : 0;
+
+                            return (
+                              <Star
+                                key={idx}
+                                className={`w-4 h-4 sm:w-5 sm:h-5 ${
+                                  idx < Math.floor(averageRating)
+                                    ? "fill-yellow-400 text-yellow-400"
+                                    : "text-gray-300"
+                                }`}
+                              />
+                            );
+                          })}
                         </div>
                         <span className="text-base sm:text-lg font-bold text-gray-900">
-                          {product.rating} out of 5
+                          {reviews.length > 0
+                            ? (reviews.reduce((sum, review) => sum + parseInt(review.rating), 0) / reviews.length).toFixed(1)
+                            : "0.0"} out of 5
                         </span>
                         <span className="text-sm text-gray-500">
                           ({reviews.length} {reviews.length === 1 ? "review" : "reviews"})
