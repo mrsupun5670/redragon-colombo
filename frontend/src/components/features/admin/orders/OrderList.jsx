@@ -161,26 +161,30 @@ const OrderList = () => {
   }
 
   return (
-    <div className="bg-blue-50 rounded-2xl shadow-lg p-8">
-      <div className="flex justify-between items-center mb-4">
-        <div className="flex space-x-4">
+    <div className="bg-blue-50 rounded-2xl shadow-lg p-4 md:p-8">
+      {/* Mobile-responsive filter and search layout */}
+      <div className="flex flex-col gap-4 md:flex-row md:justify-between md:items-center mb-6">
+        {/* Status Filter Chips - Horizontally scrollable on mobile */}
+        <div className="flex gap-2 overflow-x-auto pb-2 md:pb-0" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
           {statusFilters.map(status => (
-            <button 
+            <button
               key={status}
               onClick={() => setFilteredStatus(status)}
-              className={`px-4 py-2 rounded-lg font-semibold ${filteredStatus === status ? 'bg-red-600 text-white' : 'bg-blue-100 text-blue-800'}`}>
+              className={`px-4 py-2 rounded-lg font-semibold whitespace-nowrap flex-shrink-0 text-sm md:text-base transition-all ${filteredStatus === status ? 'bg-red-600 text-white' : 'bg-blue-100 text-blue-800 hover:bg-blue-200'}`}>
               {status.charAt(0).toUpperCase() + status.slice(1)}
             </button>
           ))}
         </div>
-        <div className="relative w-96">
+
+        {/* Search Bar - Full width on mobile, fixed width on desktop */}
+        <div className="relative w-full md:w-96">
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
           <input
             type="text"
             placeholder="Search by Order # or Customer"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-12 pr-4 py-3 text-gray-800 bg-blue-100 border-2 border-blue-200 rounded-lg text-base"
+            className="w-full pl-12 pr-4 py-3 text-sm md:text-base text-gray-800 bg-blue-100 border-2 border-blue-200 rounded-lg focus:outline-none focus:border-blue-300 focus:ring-2 focus:ring-blue-200"
           />
           {searchQuery !== debouncedSearchQuery && (
             <div className="absolute right-4 top-1/2 -translate-y-1/2">
@@ -189,54 +193,58 @@ const OrderList = () => {
           )}
         </div>
       </div>
-      <table className="w-full text-left">
-        <thead>
-          <tr className="border-b border-blue-200">
-            <th className="p-4">Order #</th>
-            <th className="p-4">Customer</th>
-            <th className="p-4">Date</th>
-            <th className="p-4">Total (Rs.)</th>
-            <th className="p-4">Status</th>
-          </tr>
-        </thead>
-        <tbody>
-          {transformedOrders.length === 0 ? (
-            <tr>
-              <td colSpan="5" className="p-8 text-center text-gray-500">
-                {searchQuery ? 'No orders found matching your search.' : 'No orders found.'}
-              </td>
+
+      {/* Horizontally scrollable table on mobile */}
+      <div className="overflow-x-auto -mx-4 md:mx-0 md:rounded-xl">
+        <table className="w-full text-left">
+          <thead>
+            <tr className="border-b border-blue-200 bg-blue-100/50">
+              <th className="p-3 md:p-4 text-xs md:text-sm font-semibold text-gray-700 whitespace-nowrap">Order #</th>
+              <th className="p-3 md:p-4 text-xs md:text-sm font-semibold text-gray-700 whitespace-nowrap">Customer</th>
+              <th className="p-3 md:p-4 text-xs md:text-sm font-semibold text-gray-700 whitespace-nowrap">Date</th>
+              <th className="p-3 md:p-4 text-xs md:text-sm font-semibold text-gray-700 whitespace-nowrap">Total (Rs.)</th>
+              <th className="p-3 md:p-4 text-xs md:text-sm font-semibold text-gray-700 whitespace-nowrap">Status</th>
             </tr>
-          ) : (
-            transformedOrders.map((order, index) => (
-              <motion.tr
-                key={order.id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.1 }}
-                className="border-b border-blue-200 hover:bg-blue-100 cursor-pointer"
-                onClick={() => handleOrderClick(order)}
-              >
-                <td className="p-4">{order.order_number || order.id}</td>
-                <td className="p-4">{order.customer}</td>
-                <td className="p-4">{order.date}</td>
-                <td className="p-4">Rs. {order.total.toLocaleString()}</td>
-                <td className="p-4">
-                  <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
-                    order.status === 'Pending' ? 'bg-yellow-100 text-yellow-800' : 
-                    order.status === 'Confirmed' ? 'bg-blue-100 text-blue-800' :
-                    order.status === 'Processing' ? 'bg-orange-100 text-orange-800' : 
-                    order.status === 'Shipped' ? 'bg-purple-100 text-purple-800' : 
-                    order.status === 'Delivered' ? 'bg-green-100 text-green-800' :
-                    'bg-red-100 text-red-800'
-                  }`}>
-                    {order.status}
-                  </span>
+          </thead>
+          <tbody>
+            {transformedOrders.length === 0 ? (
+              <tr>
+                <td colSpan="5" className="p-8 text-center text-sm text-gray-500">
+                  {searchQuery ? 'No orders found matching your search.' : 'No orders found.'}
                 </td>
-              </motion.tr>
-            ))
-          )}
-        </tbody>
-      </table>
+              </tr>
+            ) : (
+              transformedOrders.map((order, index) => (
+                <motion.tr
+                  key={order.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: index * 0.1 }}
+                  className="border-b border-blue-200 hover:bg-blue-100 cursor-pointer transition-colors"
+                  onClick={() => handleOrderClick(order)}
+                >
+                  <td className="p-3 md:p-4 text-xs md:text-sm font-medium whitespace-nowrap">{order.order_number || order.id}</td>
+                  <td className="p-3 md:p-4 text-xs md:text-sm whitespace-nowrap">{order.customer}</td>
+                  <td className="p-3 md:p-4 text-xs md:text-sm whitespace-nowrap">{order.date}</td>
+                  <td className="p-3 md:p-4 text-xs md:text-sm font-medium whitespace-nowrap">Rs. {order.total.toLocaleString()}</td>
+                  <td className="p-3 md:p-4 text-xs md:text-sm">
+                    <span className={`px-2 md:px-3 py-1 rounded-full font-semibold whitespace-nowrap inline-block ${
+                      order.status === 'Pending' ? 'bg-yellow-100 text-yellow-800' :
+                      order.status === 'Confirmed' ? 'bg-blue-100 text-blue-800' :
+                      order.status === 'Processing' ? 'bg-orange-100 text-orange-800' :
+                      order.status === 'Shipped' ? 'bg-purple-100 text-purple-800' :
+                      order.status === 'Delivered' ? 'bg-green-100 text-green-800' :
+                      'bg-red-100 text-red-800'
+                    }`}>
+                      {order.status}
+                    </span>
+                  </td>
+                </motion.tr>
+              ))
+            )}
+          </tbody>
+        </table>
+      </div>
       
       {/* Loading overlay when fetching order details */}
       {selectedOrderLoading && (
