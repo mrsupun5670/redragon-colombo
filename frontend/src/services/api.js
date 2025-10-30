@@ -250,7 +250,7 @@ const publicPromoAPI = axios.create({
 export const promoAPI = {
   // Validate promo code (public endpoint like product fetching)
   validatePromoCode: (promoCode) => publicPromoAPI.post('/promo/validate', { promo_code: promoCode }),
-  
+
   // Admin functions (require admin auth)
   getAllPromoCodes: () => api.get('/promo'),
   createPromoCode: (data) => api.post('/promo', data),
@@ -258,5 +258,19 @@ export const promoAPI = {
   deletePromoCode: (id) => api.delete(`/promo/${id}`),
 };
 
+// Review API functions
+export const reviewAPI = {
+  // Get reviews for a product (public endpoint)
+  getProductReviews: (productId) => api.get(`/reviews/product/${productId}`),
+
+  // Create a review (requires authentication)
+  createReview: (reviewData) => api.post('/reviews', reviewData),
+
+  // Update a review (requires authentication)
+  updateReview: (reviewId, reviewData) => api.put(`/reviews/${reviewId}`, reviewData),
+
+  // Delete a review (requires authentication)
+  deleteReview: (reviewId) => api.delete(`/reviews/${reviewId}`),
+};
 
 export default api;

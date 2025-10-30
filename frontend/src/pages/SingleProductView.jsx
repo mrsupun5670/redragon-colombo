@@ -26,7 +26,7 @@ import WhatsAppButton from "../components/common/WhatsAppButton";
 import ParticleEffect from "../components/common/ParticleEffect";
 import ErrorPopup from "../components/common/ErrorPopup";
 import SuccessPopup from "../components/common/SuccessPopup";
-import { productAPI, wishlistAPI } from "../services/api";
+import { productAPI, wishlistAPI, reviewAPI } from "../services/api";
 import CartContext from "../context/CartContext";
 import { useAuth } from "../context/AuthContext";
 
@@ -48,6 +48,8 @@ const SingleProductView = () => {
   const [showImageModal, setShowImageModal] = useState(false);
   const [success, setSuccess] = useState(null);
   const [popupError, setPopupError] = useState(null);
+  const [reviews, setReviews] = useState([]);
+  const [reviewsLoading, setReviewsLoading] = useState(false);
 
   // Fetch product data on component mount
   useEffect(() => {
@@ -105,6 +107,28 @@ const SingleProductView = () => {
 
     checkWishlistStatus();
   }, [product, isAuthenticated]);
+
+  // Fetch product reviews
+  useEffect(() => {
+    const fetchReviews = async () => {
+      if (!product || !product.id) return;
+
+      try {
+        setReviewsLoading(true);
+        const response = await reviewAPI.getProductReviews(product.id);
+        if (response.data.success) {
+          setReviews(response.data.data || []);
+        }
+      } catch (error) {
+        console.error('Error fetching reviews:', error);
+        setReviews([]);
+      } finally {
+        setReviewsLoading(false);
+      }
+    };
+
+    fetchReviews();
+  }, [product]);
 
   // Product images from the API data (primary image and additional images)
   const productImages = product && product.images && product.images.length > 0
@@ -734,52 +758,97 @@ const SingleProductView = () => {
                       </h3>
                       <div className="flex items-center gap-2">
                         <div className="flex">
-                          {[...Array(5)].map((_, idx) => (
-                            <Star
-                              key={idx}
-                              className={`w-4 h-4 sm:w-5 sm:h-5 ${
-                                idx < Math.floor(product.rating)
-                                  ? "fill-yellow-400 text-yellow-400"
-                                  : "text-gray-300"
-                              }`}
-                            />
-                          ))}
+                          {[...Array(5)].map((_, idx) => {
+                            // Calculate average rating from reviews
+                            const averageRating = reviews.length > 0
+                              ? (reviews.reduce((sum, review) => sum + parseInt(review.rating), 0) / reviews.length)
+                              : 0;
+
+                            return (
+                              <Star
+                                key={idx}
+                                className={`w-4 h-4 sm:w-5 sm:h-5 ${
+                                  idx < Math.floor(averageRating)
+                                    ? "fill-yellow-400 text-yellow-400"
+                                    : "text-gray-300"
+                                }`}
+                              />
+                            );
+                          })}
                         </div>
                         <span className="text-base sm:text-lg font-bold text-gray-900">
-                          {product.rating} out of 5
+                          {reviews.length > 0
+                            ? (reviews.reduce((sum, review) => sum + parseInt(review.rating), 0) / reviews.length).toFixed(1)
+                            : "0.0"} out of 5
                         </span>
                         <span className="text-sm text-gray-500">
-                          ({product.reviews || 0} reviews)
+                          ({reviews.length} {reviews.length === 1 ? "review" : "reviews"})
                         </span>
                       </div>
                     </div>
-                    <button className="bg-red-500 hover:bg-red-600 text-white px-4 sm:px-6 py-2 sm:py-3 rounded-lg sm:rounded-xl font-bold text-sm sm:text-base transition-all">
-                      Write a Review
-                    </button>
                   </div>
 
-                  {/* Sample Review */}
-                  <div className="border border-gray-200 rounded-lg sm:rounded-xl p-4 sm:p-6 space-y-3">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="font-bold text-sm sm:text-base text-gray-900">John Doe</p>
-                        <p className="text-xs sm:text-sm text-gray-500">Verified Purchase</p>
-                      </div>
-                      <div className="flex">
-                        {[...Array(5)].map((_, idx) => (
-                          <Star
-                            key={idx}
-                            className="w-3 h-3 sm:w-4 sm:h-4 fill-yellow-400 text-yellow-400"
-                          />
-                        ))}
-                      </div>
+                  {/* Reviews List or Empty State */}
+                  {reviewsLoading ? (
+                    <div className="flex items-center justify-center py-8">
+                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-red-500"></div>
                     </div>
-                    <p className="text-sm sm:text-base text-gray-700">
-                      Excellent product! Highly recommend for gaming enthusiasts. The build
-                      quality is amazing and performance is top-notch.
-                    </p>
-                    <p className="text-xs text-gray-500">2 weeks ago</p>
-                  </div>
+                  ) : reviews.length === 0 ? (
+                    <div className="text-center py-8">
+                      <p className="text-gray-500 text-base mb-4">No reviews yet</p>
+                      <p className="text-gray-400 text-sm">Be the first to review this product!</p>
+                    </div>
+                  ) : (
+                    <div className="space-y-3 sm:space-y-4">
+                      {reviews.map((review) => {
+                        // Format the date
+                        const reviewDate = new Date(review.created_at);
+                        const formattedDate = reviewDate.toLocaleDateString('en-US', {
+                          year: 'numeric',
+                          month: 'short',
+                          day: 'numeric',
+                        });
+                        const formattedTime = reviewDate.toLocaleTimeString('en-US', {
+                          hour: '2-digit',
+                          minute: '2-digit',
+                        });
+
+                        return (
+                          <div
+                            key={review.id}
+                            className="border border-gray-200 rounded-lg sm:rounded-xl p-4 sm:p-6 space-y-3 hover:shadow-md transition-shadow"
+                          >
+                            <div className="flex items-center justify-between">
+                              <div>
+                                <p className="font-bold text-sm sm:text-base text-gray-900">
+                                  {review.customer_name || "Anonymous Customer"}
+                                </p>
+                                <p className="text-xs sm:text-sm text-gray-500">Verified Purchase</p>
+                              </div>
+                              <div className="flex gap-1">
+                                {[...Array(5)].map((_, idx) => (
+                                  <Star
+                                    key={idx}
+                                    className={`w-3 h-3 sm:w-4 sm:h-4 ${
+                                      idx < parseInt(review.rating)
+                                        ? "fill-yellow-400 text-yellow-400"
+                                        : "text-gray-300"
+                                    }`}
+                                  />
+                                ))}
+                              </div>
+                            </div>
+                            <p className="text-sm sm:text-base text-gray-700 leading-relaxed">
+                              {review.review_text}
+                            </p>
+                            <p className="text-xs text-gray-500">
+                              {formattedDate} at {formattedTime}
+                            </p>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
                 </div>
               )}
             </motion.div>
