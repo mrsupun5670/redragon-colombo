@@ -1,0 +1,2586 @@
+[
+{
+    "type": "header",
+    "version": "5.2.2",
+    "comment": "Export to JSON plugin for PHPMyAdmin"
+},
+{
+    "type": "database",
+    "name": "u331468302_redragon"
+},
+{
+    "type": "table",
+    "name": "admins",
+    "database": "u331468302_redragon",
+    "data": 
+[
+{
+    "id": "1",
+    "username": "admin\r\n",
+    "email": "admin@gmail.com",
+    "password_hash": "$2a$12$rIhKJPR3UxmUlx67MzpHquo8q9qf\/KQzguiMdeHem0AyghRtvrNV.",
+    "is_active": "1",
+    "last_login": "2025-10-29 05:07:56"
+}
+]
+
+}
+,{
+    "type": "table",
+    "name": "brands",
+    "database": "u331468302_redragon",
+    "data": 
+[
+{
+    "id": "2",
+    "name": "HP",
+    "slug": "hp",
+    "logo_url": "https:\/\/res.cloudinary.com\/dgcautrc4\/image\/upload\/v1761273897\/redragon-brands\/ac4k56trajxezr1yu91z.png",
+    "is_active": "1"
+},
+{
+    "id": "3",
+    "name": "Lenovo",
+    "slug": "lenovo",
+    "logo_url": "https:\/\/res.cloudinary.com\/dgcautrc4\/image\/upload\/v1761274000\/redragon-brands\/gms6nxadxvnla1nbxmuv.png",
+    "is_active": "1"
+},
+{
+    "id": "4",
+    "name": "Apple",
+    "slug": "apple",
+    "logo_url": "https:\/\/res.cloudinary.com\/dgcautrc4\/image\/upload\/v1761273818\/redragon-brands\/dqud1qdjtd6mtc3ysepu.png",
+    "is_active": "1"
+},
+{
+    "id": "5",
+    "name": "Asus",
+    "slug": "asus",
+    "logo_url": "https:\/\/res.cloudinary.com\/dgcautrc4\/image\/upload\/v1761273845\/redragon-brands\/pvdj9iygy700rutcygpd.png",
+    "is_active": "1"
+},
+{
+    "id": "6",
+    "name": "Acer",
+    "slug": "acer",
+    "logo_url": "https:\/\/res.cloudinary.com\/dgcautrc4\/image\/upload\/v1761039029\/redragon-brands\/dt16jsa3oabpmoukjfvf.png",
+    "is_active": "1"
+},
+{
+    "id": "7",
+    "name": "MSI",
+    "slug": "msi",
+    "logo_url": "https:\/\/res.cloudinary.com\/dgcautrc4\/image\/upload\/v1761274166\/redragon-brands\/p5r571nfcejvozaf3utk.png",
+    "is_active": "1"
+},
+{
+    "id": "10",
+    "name": "Kingston",
+    "slug": "kingston",
+    "logo_url": "https:\/\/res.cloudinary.com\/dgcautrc4\/image\/upload\/v1761273945\/redragon-brands\/cpa7wmqfndbzi7unga9m.png",
+    "is_active": "1"
+},
+{
+    "id": "11",
+    "name": "Redragon",
+    "slug": "redragon",
+    "logo_url": "https:\/\/res.cloudinary.com\/dgcautrc4\/image\/upload\/v1761274465\/redragon-brands\/gvjhvi5wvkegfqcqgj0j.png",
+    "is_active": "1"
+},
+{
+    "id": "12",
+    "name": "Samsung",
+    "slug": "",
+    "logo_url": "https:\/\/res.cloudinary.com\/dgcautrc4\/image\/upload\/v1761274526\/redragon-brands\/oue4haoetggenqd4uhip.png",
+    "is_active": "1"
+}
+]
+
+}
+,{
+    "type": "table",
+    "name": "carts",
+    "database": "u331468302_redragon",
+    "data": 
+[
+{
+    "id": "1",
+    "customer_id": "6",
+    "created_at": "2025-10-22 17:12:46",
+    "updated_at": "2025-10-22 17:14:01"
+},
+{
+    "id": "2",
+    "customer_id": "5",
+    "created_at": "2025-10-22 17:16:04",
+    "updated_at": "2025-10-22 17:26:41"
+},
+{
+    "id": "3",
+    "customer_id": "2",
+    "created_at": "2025-10-23 02:08:21",
+    "updated_at": "2025-10-23 02:08:21"
+},
+{
+    "id": "4",
+    "customer_id": "7",
+    "created_at": "2025-10-24 09:14:51",
+    "updated_at": "2025-10-24 09:14:51"
+},
+{
+    "id": "5",
+    "customer_id": "9",
+    "created_at": "2025-10-28 15:27:51",
+    "updated_at": "2025-10-28 15:27:51"
+},
+{
+    "id": "6",
+    "customer_id": "10",
+    "created_at": "2025-10-29 05:39:15",
+    "updated_at": "2025-10-29 05:39:15"
+}
+]
+
+}
+,{
+    "type": "table",
+    "name": "cart_items",
+    "database": "u331468302_redragon",
+    "data": 
+[
+{
+    "id": "16",
+    "cart_id": "2",
+    "product_id": "26",
+    "quantity": "1"
+},
+{
+    "id": "23",
+    "cart_id": "6",
+    "product_id": "26",
+    "quantity": "1"
+}
+]
+
+}
+,{
+    "type": "table",
+    "name": "cities",
+    "database": "u331468302_redragon",
+    "data": 
+[
+{
+    "city_id": "1",
+    "city_name": "Kandy",
+    "district_id": "1"
+},
+{
+    "city_id": "2",
+    "city_name": "Peradeniya",
+    "district_id": "1"
+},
+{
+    "city_id": "3",
+    "city_name": "Gampola",
+    "district_id": "1"
+},
+{
+    "city_id": "4",
+    "city_name": "Kadugannawa",
+    "district_id": "1"
+},
+{
+    "city_id": "5",
+    "city_name": "Pilimatalawa",
+    "district_id": "1"
+},
+{
+    "city_id": "6",
+    "city_name": "Nawalapitiya",
+    "district_id": "1"
+},
+{
+    "city_id": "7",
+    "city_name": "Wattegama",
+    "district_id": "1"
+},
+{
+    "city_id": "8",
+    "city_name": "Akurana",
+    "district_id": "1"
+},
+{
+    "city_id": "9",
+    "city_name": "Katugastota",
+    "district_id": "1"
+},
+{
+    "city_id": "10",
+    "city_name": "Digana",
+    "district_id": "1"
+},
+{
+    "city_id": "11",
+    "city_name": "Matale",
+    "district_id": "2"
+},
+{
+    "city_id": "12",
+    "city_name": "Dambulla",
+    "district_id": "2"
+},
+{
+    "city_id": "13",
+    "city_name": "Sigiriya",
+    "district_id": "2"
+},
+{
+    "city_id": "14",
+    "city_name": "Galewela",
+    "district_id": "2"
+},
+{
+    "city_id": "15",
+    "city_name": "Ukuwela",
+    "district_id": "2"
+},
+{
+    "city_id": "16",
+    "city_name": "Rattota",
+    "district_id": "2"
+},
+{
+    "city_id": "17",
+    "city_name": "Pallepola",
+    "district_id": "2"
+},
+{
+    "city_id": "18",
+    "city_name": "Nalanda",
+    "district_id": "2"
+},
+{
+    "city_id": "19",
+    "city_name": "Kekirawa",
+    "district_id": "2"
+},
+{
+    "city_id": "20",
+    "city_name": "Nuwara Eliya",
+    "district_id": "3"
+},
+{
+    "city_id": "21",
+    "city_name": "Hatton",
+    "district_id": "3"
+},
+{
+    "city_id": "22",
+    "city_name": "Talawakele",
+    "district_id": "3"
+},
+{
+    "city_id": "23",
+    "city_name": "Bandarawela",
+    "district_id": "3"
+},
+{
+    "city_id": "24",
+    "city_name": "Welimada",
+    "district_id": "3"
+},
+{
+    "city_id": "25",
+    "city_name": "Ragala",
+    "district_id": "3"
+},
+{
+    "city_id": "26",
+    "city_name": "Maskeliya",
+    "district_id": "3"
+},
+{
+    "city_id": "27",
+    "city_name": "Bogawantalawa",
+    "district_id": "3"
+},
+{
+    "city_id": "28",
+    "city_name": "Haputale",
+    "district_id": "3"
+},
+{
+    "city_id": "29",
+    "city_name": "Batticaloa",
+    "district_id": "4"
+},
+{
+    "city_id": "30",
+    "city_name": "Kattankudy",
+    "district_id": "4"
+},
+{
+    "city_id": "31",
+    "city_name": "Kaluwanchikudy",
+    "district_id": "4"
+},
+{
+    "city_id": "32",
+    "city_name": "Valachchenai",
+    "district_id": "4"
+},
+{
+    "city_id": "33",
+    "city_name": "Eravur",
+    "district_id": "4"
+},
+{
+    "city_id": "34",
+    "city_name": "Chenkalady",
+    "district_id": "4"
+},
+{
+    "city_id": "35",
+    "city_name": "Oddamavadi",
+    "district_id": "4"
+},
+{
+    "city_id": "36",
+    "city_name": "Araipattai",
+    "district_id": "4"
+},
+{
+    "city_id": "37",
+    "city_name": "Ampara",
+    "district_id": "5"
+},
+{
+    "city_id": "38",
+    "city_name": "Kalmunai",
+    "district_id": "5"
+},
+{
+    "city_id": "39",
+    "city_name": "Sainthamaruthu",
+    "district_id": "5"
+},
+{
+    "city_id": "40",
+    "city_name": "Akkaraipattu",
+    "district_id": "5"
+},
+{
+    "city_id": "41",
+    "city_name": "Sammanthurai",
+    "district_id": "5"
+},
+{
+    "city_id": "42",
+    "city_name": "Pottuvil",
+    "district_id": "5"
+},
+{
+    "city_id": "43",
+    "city_name": "Uhana",
+    "district_id": "5"
+},
+{
+    "city_id": "44",
+    "city_name": "Damana",
+    "district_id": "5"
+},
+{
+    "city_id": "45",
+    "city_name": "Mahaoya",
+    "district_id": "5"
+},
+{
+    "city_id": "46",
+    "city_name": "Addalachchenai",
+    "district_id": "5"
+},
+{
+    "city_id": "47",
+    "city_name": "Trincomalee",
+    "district_id": "6"
+},
+{
+    "city_id": "48",
+    "city_name": "Kinniya",
+    "district_id": "6"
+},
+{
+    "city_id": "49",
+    "city_name": "Mutur",
+    "district_id": "6"
+},
+{
+    "city_id": "50",
+    "city_name": "Kantale",
+    "district_id": "6"
+},
+{
+    "city_id": "51",
+    "city_name": "Nilaveli",
+    "district_id": "6"
+},
+{
+    "city_id": "52",
+    "city_name": "Uppuveli",
+    "district_id": "6"
+},
+{
+    "city_id": "53",
+    "city_name": "Kuchchaveli",
+    "district_id": "6"
+},
+{
+    "city_id": "54",
+    "city_name": "China Bay",
+    "district_id": "6"
+},
+{
+    "city_id": "55",
+    "city_name": "Anuradhapura",
+    "district_id": "7"
+},
+{
+    "city_id": "56",
+    "city_name": "Kekirawa",
+    "district_id": "7"
+},
+{
+    "city_id": "57",
+    "city_name": "Tambuttegama",
+    "district_id": "7"
+},
+{
+    "city_id": "58",
+    "city_name": "Eppawala",
+    "district_id": "7"
+},
+{
+    "city_id": "59",
+    "city_name": "Galenbindunuwewa",
+    "district_id": "7"
+},
+{
+    "city_id": "60",
+    "city_name": "Mihintale",
+    "district_id": "7"
+},
+{
+    "city_id": "61",
+    "city_name": "Medawachchiya",
+    "district_id": "7"
+},
+{
+    "city_id": "62",
+    "city_name": "Nochchiyagama",
+    "district_id": "7"
+},
+{
+    "city_id": "63",
+    "city_name": "Thambuttegama",
+    "district_id": "7"
+},
+{
+    "city_id": "64",
+    "city_name": "Polonnaruwa",
+    "district_id": "8"
+},
+{
+    "city_id": "65",
+    "city_name": "Kaduruwela",
+    "district_id": "8"
+},
+{
+    "city_id": "66",
+    "city_name": "Hingurakgoda",
+    "district_id": "8"
+},
+{
+    "city_id": "67",
+    "city_name": "Medirigiriya",
+    "district_id": "8"
+},
+{
+    "city_id": "68",
+    "city_name": "Dimbulagala",
+    "district_id": "8"
+},
+{
+    "city_id": "69",
+    "city_name": "Welikanda",
+    "district_id": "8"
+},
+{
+    "city_id": "70",
+    "city_name": "Bakamuna",
+    "district_id": "8"
+},
+{
+    "city_id": "71",
+    "city_name": "Kurunegala",
+    "district_id": "9"
+},
+{
+    "city_id": "72",
+    "city_name": "Puttalam",
+    "district_id": "9"
+},
+{
+    "city_id": "73",
+    "city_name": "Chilaw",
+    "district_id": "9"
+},
+{
+    "city_id": "74",
+    "city_name": "Kuliyapitiya",
+    "district_id": "9"
+},
+{
+    "city_id": "75",
+    "city_name": "Narammala",
+    "district_id": "9"
+},
+{
+    "city_id": "76",
+    "city_name": "Wariyapola",
+    "district_id": "9"
+},
+{
+    "city_id": "77",
+    "city_name": "Pannala",
+    "district_id": "9"
+},
+{
+    "city_id": "78",
+    "city_name": "Melsiripura",
+    "district_id": "9"
+},
+{
+    "city_id": "79",
+    "city_name": "Giriulla",
+    "district_id": "9"
+},
+{
+    "city_id": "80",
+    "city_name": "Mawathagama",
+    "district_id": "9"
+},
+{
+    "city_id": "81",
+    "city_name": "Nikaweratiya",
+    "district_id": "9"
+},
+{
+    "city_id": "82",
+    "city_name": "Puttalam",
+    "district_id": "10"
+},
+{
+    "city_id": "83",
+    "city_name": "Chilaw",
+    "district_id": "10"
+},
+{
+    "city_id": "84",
+    "city_name": "Nattandiya",
+    "district_id": "10"
+},
+{
+    "city_id": "85",
+    "city_name": "Wennappuwa",
+    "district_id": "10"
+},
+{
+    "city_id": "86",
+    "city_name": "Marawila",
+    "district_id": "10"
+},
+{
+    "city_id": "87",
+    "city_name": "Dankotuwa",
+    "district_id": "10"
+},
+{
+    "city_id": "88",
+    "city_name": "Madampe",
+    "district_id": "10"
+},
+{
+    "city_id": "89",
+    "city_name": "Anamaduwa",
+    "district_id": "10"
+},
+{
+    "city_id": "90",
+    "city_name": "Kalpitiya",
+    "district_id": "10"
+},
+{
+    "city_id": "91",
+    "city_name": "Jaffna",
+    "district_id": "11"
+},
+{
+    "city_id": "92",
+    "city_name": "Nallur",
+    "district_id": "11"
+},
+{
+    "city_id": "93",
+    "city_name": "Chavakachcheri",
+    "district_id": "11"
+},
+{
+    "city_id": "94",
+    "city_name": "Point Pedro",
+    "district_id": "11"
+},
+{
+    "city_id": "95",
+    "city_name": "Karainagar",
+    "district_id": "11"
+},
+{
+    "city_id": "96",
+    "city_name": "Velanai",
+    "district_id": "11"
+},
+{
+    "city_id": "97",
+    "city_name": "Delft",
+    "district_id": "11"
+},
+{
+    "city_id": "98",
+    "city_name": "Kayts",
+    "district_id": "11"
+},
+{
+    "city_id": "99",
+    "city_name": "Kopay",
+    "district_id": "11"
+},
+{
+    "city_id": "100",
+    "city_name": "Kilinochchi",
+    "district_id": "12"
+},
+{
+    "city_id": "101",
+    "city_name": "Kandawalai",
+    "district_id": "12"
+},
+{
+    "city_id": "102",
+    "city_name": "Paranthan",
+    "district_id": "12"
+},
+{
+    "city_id": "103",
+    "city_name": "Poonakary",
+    "district_id": "12"
+},
+{
+    "city_id": "104",
+    "city_name": "Mannar",
+    "district_id": "13"
+},
+{
+    "city_id": "105",
+    "city_name": "Nanattan",
+    "district_id": "13"
+},
+{
+    "city_id": "106",
+    "city_name": "Madhu",
+    "district_id": "13"
+},
+{
+    "city_id": "107",
+    "city_name": "Pesalai",
+    "district_id": "13"
+},
+{
+    "city_id": "108",
+    "city_name": "Talaimannar",
+    "district_id": "13"
+},
+{
+    "city_id": "109",
+    "city_name": "Vavuniya",
+    "district_id": "14"
+},
+{
+    "city_id": "110",
+    "city_name": "Nedunkerni",
+    "district_id": "14"
+},
+{
+    "city_id": "111",
+    "city_name": "Settikulam",
+    "district_id": "14"
+},
+{
+    "city_id": "112",
+    "city_name": "Omanthai",
+    "district_id": "14"
+},
+{
+    "city_id": "113",
+    "city_name": "Mullaitivu",
+    "district_id": "15"
+},
+{
+    "city_id": "114",
+    "city_name": "Oddusuddan",
+    "district_id": "15"
+},
+{
+    "city_id": "115",
+    "city_name": "Puthukudiyiruppu",
+    "district_id": "15"
+},
+{
+    "city_id": "116",
+    "city_name": "Manthai East",
+    "district_id": "15"
+},
+{
+    "city_id": "117",
+    "city_name": "Ratnapura",
+    "district_id": "16"
+},
+{
+    "city_id": "118",
+    "city_name": "Balangoda",
+    "district_id": "16"
+},
+{
+    "city_id": "119",
+    "city_name": "Embilipitiya",
+    "district_id": "16"
+},
+{
+    "city_id": "120",
+    "city_name": "Pelmadulla",
+    "district_id": "16"
+},
+{
+    "city_id": "121",
+    "city_name": "Kuruwita",
+    "district_id": "16"
+},
+{
+    "city_id": "122",
+    "city_name": "Eheliyagoda",
+    "district_id": "16"
+},
+{
+    "city_id": "123",
+    "city_name": "Rakwana",
+    "district_id": "16"
+},
+{
+    "city_id": "124",
+    "city_name": "Nivithigala",
+    "district_id": "16"
+},
+{
+    "city_id": "125",
+    "city_name": "Kalawana",
+    "district_id": "16"
+},
+{
+    "city_id": "126",
+    "city_name": "Kegalle",
+    "district_id": "17"
+},
+{
+    "city_id": "127",
+    "city_name": "Mawanella",
+    "district_id": "17"
+},
+{
+    "city_id": "128",
+    "city_name": "Warakapola",
+    "district_id": "17"
+},
+{
+    "city_id": "129",
+    "city_name": "Rambukkana",
+    "district_id": "17"
+},
+{
+    "city_id": "130",
+    "city_name": "Galigamuwa",
+    "district_id": "17"
+},
+{
+    "city_id": "131",
+    "city_name": "Kitulgala",
+    "district_id": "17"
+},
+{
+    "city_id": "132",
+    "city_name": "Ruwanwella",
+    "district_id": "17"
+},
+{
+    "city_id": "133",
+    "city_name": "Yatiyantota",
+    "district_id": "17"
+},
+{
+    "city_id": "134",
+    "city_name": "Dehiowita",
+    "district_id": "17"
+},
+{
+    "city_id": "135",
+    "city_name": "Galle",
+    "district_id": "18"
+},
+{
+    "city_id": "136",
+    "city_name": "Hikkaduwa",
+    "district_id": "18"
+},
+{
+    "city_id": "137",
+    "city_name": "Ambalangoda",
+    "district_id": "18"
+},
+{
+    "city_id": "138",
+    "city_name": "Bentota",
+    "district_id": "18"
+},
+{
+    "city_id": "139",
+    "city_name": "Balapitiya",
+    "district_id": "18"
+},
+{
+    "city_id": "140",
+    "city_name": "Elpitiya",
+    "district_id": "18"
+},
+{
+    "city_id": "141",
+    "city_name": "Karapitiya",
+    "district_id": "18"
+},
+{
+    "city_id": "142",
+    "city_name": "Udugama",
+    "district_id": "18"
+},
+{
+    "city_id": "143",
+    "city_name": "Neluwa",
+    "district_id": "18"
+},
+{
+    "city_id": "144",
+    "city_name": "Nagoda",
+    "district_id": "18"
+},
+{
+    "city_id": "145",
+    "city_name": "Matara",
+    "district_id": "19"
+},
+{
+    "city_id": "146",
+    "city_name": "Weligama",
+    "district_id": "19"
+},
+{
+    "city_id": "147",
+    "city_name": "Mirissa",
+    "district_id": "19"
+},
+{
+    "city_id": "148",
+    "city_name": "Dickwella",
+    "district_id": "19"
+},
+{
+    "city_id": "149",
+    "city_name": "Deniyaya",
+    "district_id": "19"
+},
+{
+    "city_id": "150",
+    "city_name": "Akuressa",
+    "district_id": "19"
+},
+{
+    "city_id": "151",
+    "city_name": "Hakmana",
+    "district_id": "19"
+},
+{
+    "city_id": "152",
+    "city_name": "Kamburupitiya",
+    "district_id": "19"
+},
+{
+    "city_id": "153",
+    "city_name": "Devinuwara",
+    "district_id": "19"
+},
+{
+    "city_id": "154",
+    "city_name": "Hambantota",
+    "district_id": "20"
+},
+{
+    "city_id": "155",
+    "city_name": "Tangalle",
+    "district_id": "20"
+},
+{
+    "city_id": "156",
+    "city_name": "Tissamaharama",
+    "district_id": "20"
+},
+{
+    "city_id": "157",
+    "city_name": "Kataragama",
+    "district_id": "20"
+},
+{
+    "city_id": "158",
+    "city_name": "Ambalantota",
+    "district_id": "20"
+},
+{
+    "city_id": "159",
+    "city_name": "Beliatta",
+    "district_id": "20"
+},
+{
+    "city_id": "160",
+    "city_name": "Weeraketiya",
+    "district_id": "20"
+},
+{
+    "city_id": "161",
+    "city_name": "Suriyawewa",
+    "district_id": "20"
+},
+{
+    "city_id": "162",
+    "city_name": "Badulla",
+    "district_id": "21"
+},
+{
+    "city_id": "163",
+    "city_name": "Bandarawela",
+    "district_id": "21"
+},
+{
+    "city_id": "164",
+    "city_name": "Haputale",
+    "district_id": "21"
+},
+{
+    "city_id": "165",
+    "city_name": "Welimada",
+    "district_id": "21"
+},
+{
+    "city_id": "166",
+    "city_name": "Mahiyanganaya",
+    "district_id": "21"
+},
+{
+    "city_id": "167",
+    "city_name": "Passara",
+    "district_id": "21"
+},
+{
+    "city_id": "168",
+    "city_name": "Hali-Ela",
+    "district_id": "21"
+},
+{
+    "city_id": "169",
+    "city_name": "Diyatalawa",
+    "district_id": "21"
+},
+{
+    "city_id": "170",
+    "city_name": "Ella",
+    "district_id": "21"
+},
+{
+    "city_id": "171",
+    "city_name": "Demodara",
+    "district_id": "21"
+},
+{
+    "city_id": "172",
+    "city_name": "Monaragala",
+    "district_id": "22"
+},
+{
+    "city_id": "173",
+    "city_name": "Wellawaya",
+    "district_id": "22"
+},
+{
+    "city_id": "174",
+    "city_name": "Buttala",
+    "district_id": "22"
+},
+{
+    "city_id": "175",
+    "city_name": "Kataragama",
+    "district_id": "22"
+},
+{
+    "city_id": "176",
+    "city_name": "Bibile",
+    "district_id": "22"
+},
+{
+    "city_id": "177",
+    "city_name": "Medagama",
+    "district_id": "22"
+},
+{
+    "city_id": "178",
+    "city_name": "Thanamalwila",
+    "district_id": "22"
+},
+{
+    "city_id": "179",
+    "city_name": "Colombo",
+    "district_id": "23"
+},
+{
+    "city_id": "180",
+    "city_name": "Colombo 1 (Fort)",
+    "district_id": "23"
+},
+{
+    "city_id": "181",
+    "city_name": "Colombo 2 (Slave Island)",
+    "district_id": "23"
+},
+{
+    "city_id": "182",
+    "city_name": "Colombo 3 (Kollupitiya)",
+    "district_id": "23"
+},
+{
+    "city_id": "183",
+    "city_name": "Colombo 4 (Bambalapitiya)",
+    "district_id": "23"
+},
+{
+    "city_id": "184",
+    "city_name": "Colombo 5 (Narahenpita)",
+    "district_id": "23"
+},
+{
+    "city_id": "185",
+    "city_name": "Colombo 6 (Wellawatta)",
+    "district_id": "23"
+},
+{
+    "city_id": "186",
+    "city_name": "Colombo 7 (Cinnamon Gardens)",
+    "district_id": "23"
+},
+{
+    "city_id": "187",
+    "city_name": "Colombo 8 (Borella)",
+    "district_id": "23"
+},
+{
+    "city_id": "188",
+    "city_name": "Colombo 9 (Dematagoda)",
+    "district_id": "23"
+},
+{
+    "city_id": "189",
+    "city_name": "Colombo 10 (Maradana)",
+    "district_id": "23"
+},
+{
+    "city_id": "190",
+    "city_name": "Colombo 11 (Pettah)",
+    "district_id": "23"
+},
+{
+    "city_id": "191",
+    "city_name": "Colombo 12 (Hulftsdorp)",
+    "district_id": "23"
+},
+{
+    "city_id": "192",
+    "city_name": "Colombo 13 (Kotahena)",
+    "district_id": "23"
+},
+{
+    "city_id": "193",
+    "city_name": "Colombo 14 (Grandpass)",
+    "district_id": "23"
+},
+{
+    "city_id": "194",
+    "city_name": "Colombo 15 (Mutwal)",
+    "district_id": "23"
+},
+{
+    "city_id": "195",
+    "city_name": "Dehiwala",
+    "district_id": "23"
+},
+{
+    "city_id": "196",
+    "city_name": "Mount Lavinia",
+    "district_id": "23"
+},
+{
+    "city_id": "197",
+    "city_name": "Moratuwa",
+    "district_id": "23"
+},
+{
+    "city_id": "198",
+    "city_name": "Kotte",
+    "district_id": "23"
+},
+{
+    "city_id": "199",
+    "city_name": "Maharagama",
+    "district_id": "23"
+},
+{
+    "city_id": "200",
+    "city_name": "Kesbewa",
+    "district_id": "23"
+},
+{
+    "city_id": "201",
+    "city_name": "Piliyandala",
+    "district_id": "23"
+},
+{
+    "city_id": "202",
+    "city_name": "Homagama",
+    "district_id": "23"
+},
+{
+    "city_id": "203",
+    "city_name": "Panadura",
+    "district_id": "23"
+},
+{
+    "city_id": "204",
+    "city_name": "Bandaragama",
+    "district_id": "23"
+},
+{
+    "city_id": "205",
+    "city_name": "Avissawella",
+    "district_id": "23"
+},
+{
+    "city_id": "206",
+    "city_name": "Boralesgamuwa",
+    "district_id": "23"
+},
+{
+    "city_id": "207",
+    "city_name": "Nugegoda",
+    "district_id": "23"
+},
+{
+    "city_id": "208",
+    "city_name": "Rajagiriya",
+    "district_id": "23"
+},
+{
+    "city_id": "209",
+    "city_name": "Gampaha",
+    "district_id": "24"
+},
+{
+    "city_id": "210",
+    "city_name": "Negombo",
+    "district_id": "24"
+},
+{
+    "city_id": "211",
+    "city_name": "Katunayake",
+    "district_id": "24"
+},
+{
+    "city_id": "212",
+    "city_name": "Ja-Ela",
+    "district_id": "24"
+},
+{
+    "city_id": "213",
+    "city_name": "Wattala",
+    "district_id": "24"
+},
+{
+    "city_id": "214",
+    "city_name": "Kelaniya",
+    "district_id": "24"
+},
+{
+    "city_id": "215",
+    "city_name": "Peliyagoda",
+    "district_id": "24"
+},
+{
+    "city_id": "216",
+    "city_name": "Kadawatha",
+    "district_id": "24"
+},
+{
+    "city_id": "217",
+    "city_name": "Ragama",
+    "district_id": "24"
+},
+{
+    "city_id": "218",
+    "city_name": "Kiribathgoda",
+    "district_id": "24"
+},
+{
+    "city_id": "219",
+    "city_name": "Nittambuwa",
+    "district_id": "24"
+},
+{
+    "city_id": "220",
+    "city_name": "Veyangoda",
+    "district_id": "24"
+},
+{
+    "city_id": "221",
+    "city_name": "Minuwangoda",
+    "district_id": "24"
+},
+{
+    "city_id": "222",
+    "city_name": "Divulapitiya",
+    "district_id": "24"
+},
+{
+    "city_id": "223",
+    "city_name": "Mirigama",
+    "district_id": "24"
+},
+{
+    "city_id": "224",
+    "city_name": "Kalutara",
+    "district_id": "25"
+},
+{
+    "city_id": "225",
+    "city_name": "Panadura",
+    "district_id": "25"
+},
+{
+    "city_id": "226",
+    "city_name": "Horana",
+    "district_id": "25"
+},
+{
+    "city_id": "227",
+    "city_name": "Beruwala",
+    "district_id": "25"
+},
+{
+    "city_id": "228",
+    "city_name": "Aluthgama",
+    "district_id": "25"
+},
+{
+    "city_id": "229",
+    "city_name": "Matugama",
+    "district_id": "25"
+},
+{
+    "city_id": "230",
+    "city_name": "Agalawatta",
+    "district_id": "25"
+},
+{
+    "city_id": "231",
+    "city_name": "Bulathsinhala",
+    "district_id": "25"
+},
+{
+    "city_id": "232",
+    "city_name": "Ingiriya",
+    "district_id": "25"
+},
+{
+    "city_id": "233",
+    "city_name": "Palindanuwara",
+    "district_id": "25"
+}
+]
+
+}
+,{
+    "type": "table",
+    "name": "customers",
+    "database": "u331468302_redragon",
+    "data": 
+[
+{
+    "customer_id": "1",
+    "first_name": "Kasun\r\n",
+    "last_name": "Perera",
+    "email": "kasun@gmail.com",
+    "password_hash": "",
+    "phone": "0752010915",
+    "is_active": "1",
+    "email_verified": "0",
+    "created_at": "2025-10-15 00:05:24",
+    "updated_at": "2025-10-15 00:05:24",
+    "reset_code": "0",
+    "reset_code_expires": null
+},
+{
+    "customer_id": "2",
+    "first_name": "Test",
+    "last_name": "User",
+    "email": "test@example.com",
+    "password_hash": "$2a$12$S\/1g0TN.pNm0pAHSwM63m.HP2AodXdlHcBUpz1oZ1WwX8k\/GDsGy6",
+    "phone": "0771234567",
+    "is_active": "1",
+    "email_verified": "0",
+    "created_at": "2025-10-19 13:38:42",
+    "updated_at": "2025-10-23 02:08:01",
+    "reset_code": "0",
+    "reset_code_expires": null
+},
+{
+    "customer_id": "3",
+    "first_name": "John",
+    "last_name": "Doe",
+    "email": "john@example.com",
+    "password_hash": "$2b$12$UkxOVs.FoiPXDWDdaxoz9u9QdEUpiKFvUUphMMPEIOsFMU08u3Iba",
+    "phone": "0771234568",
+    "is_active": "1",
+    "email_verified": "0",
+    "created_at": "2025-10-19 13:43:42",
+    "updated_at": "2025-10-19 13:43:42",
+    "reset_code": "0",
+    "reset_code_expires": null
+},
+{
+    "customer_id": "4",
+    "first_name": "Browser",
+    "last_name": "Test",
+    "email": "browsertest@example.com",
+    "password_hash": "$2b$12$5olloMdIcD\/8E50DMIWC\/.feVTwHQf\/bE6uAhehmwh1pL9j.4wXDu",
+    "phone": "0771234599",
+    "is_active": "1",
+    "email_verified": "0",
+    "created_at": "2025-10-19 14:15:18",
+    "updated_at": "2025-10-19 14:15:18",
+    "reset_code": "0",
+    "reset_code_expires": null
+},
+{
+    "customer_id": "5",
+    "first_name": "Gihan",
+    "last_name": "Punarji",
+    "email": "gihanpunarji@gmail.com",
+    "password_hash": "$2b$12$\/CUSwx79vO1LxLNAOxKVs.8W7JOQ6EM87xPXqrna41ACAE3yyddm2",
+    "phone": "0715327065",
+    "is_active": "1",
+    "email_verified": "0",
+    "created_at": "2025-10-19 14:17:44",
+    "updated_at": "2025-10-27 17:07:10",
+    "reset_code": "303540",
+    "reset_code_expires": "2025-10-27 22:42:09"
+},
+{
+    "customer_id": "6",
+    "first_name": "Test",
+    "last_name": "CartUser",
+    "email": "testcart99@example.com",
+    "password_hash": "$2b$12$0.snirqYUtU5HbYJ3PlqkeBQQEnW2oSw53CZ6g4uurGXbBnDfR1.q",
+    "phone": "0771234999",
+    "is_active": "1",
+    "email_verified": "0",
+    "created_at": "2025-10-22 17:12:09",
+    "updated_at": "2025-10-22 17:12:09",
+    "reset_code": "0",
+    "reset_code_expires": null
+},
+{
+    "customer_id": "7",
+    "first_name": "Kamal",
+    "last_name": "Perera",
+    "email": "kamalperera@gmail.com",
+    "password_hash": "$2b$12$92SGSL85MCERwajkQ1cMhe4MTClOUVshvPlvjc6\/Yyi.GdrBf\/2O6",
+    "phone": "0711122333",
+    "is_active": "1",
+    "email_verified": "0",
+    "created_at": "2025-10-24 09:14:50",
+    "updated_at": "2025-10-24 09:14:50",
+    "reset_code": "0",
+    "reset_code_expires": null
+},
+{
+    "customer_id": "9",
+    "first_name": "Supun",
+    "last_name": "Gunasinghe",
+    "email": "supun9402@gmail.com",
+    "password_hash": "$2b$12$aSRm\/g7vM\/SMZ4E6FkmOK.RoLViN5X1AeSvUqTyTK.qwXNJvJsfJ.",
+    "phone": "0772010915",
+    "is_active": "1",
+    "email_verified": "0",
+    "created_at": "2025-10-28 15:27:50",
+    "updated_at": "2025-10-28 15:27:50",
+    "reset_code": null,
+    "reset_code_expires": null
+},
+{
+    "customer_id": "10",
+    "first_name": "kanil",
+    "last_name": "ganganath",
+    "email": "kanil@gmail.com",
+    "password_hash": "$2b$12$E0fEmuLJyLCxhQrijbItqe.\/GS5YdXgHLzltiZxHmup3t.lDGVuei",
+    "phone": "0715222123",
+    "is_active": "1",
+    "email_verified": "0",
+    "created_at": "2025-10-29 05:39:15",
+    "updated_at": "2025-10-29 05:39:15",
+    "reset_code": null,
+    "reset_code_expires": null
+}
+]
+
+}
+,{
+    "type": "table",
+    "name": "delivery_zones",
+    "database": "u331468302_redragon",
+    "data": 
+[
+{
+    "id": "1",
+    "zone_name": "Inside Colombo",
+    "base_charge": "300.00",
+    "extra_charge": "80.00",
+    "min_weight": "1.00"
+}
+]
+
+}
+,{
+    "type": "table",
+    "name": "districts",
+    "database": "u331468302_redragon",
+    "data": 
+[
+{
+    "id": "1",
+    "name": "Kandy",
+    "provinces_id": "1"
+},
+{
+    "id": "2",
+    "name": "Matale",
+    "provinces_id": "1"
+},
+{
+    "id": "3",
+    "name": "Nuwara Eliya",
+    "provinces_id": "1"
+},
+{
+    "id": "4",
+    "name": "Batticaloa",
+    "provinces_id": "2"
+},
+{
+    "id": "5",
+    "name": "Ampara",
+    "provinces_id": "2"
+},
+{
+    "id": "6",
+    "name": "Trincomalee",
+    "provinces_id": "2"
+},
+{
+    "id": "7",
+    "name": "Anuradhapura",
+    "provinces_id": "3"
+},
+{
+    "id": "8",
+    "name": "Polonnaruwa",
+    "provinces_id": "3"
+},
+{
+    "id": "9",
+    "name": "Kurunegala",
+    "provinces_id": "4"
+},
+{
+    "id": "10",
+    "name": "Puttalam",
+    "provinces_id": "4"
+},
+{
+    "id": "11",
+    "name": "Jaffna",
+    "provinces_id": "5"
+},
+{
+    "id": "12",
+    "name": "Kilinochchi",
+    "provinces_id": "5"
+},
+{
+    "id": "13",
+    "name": "Mannar",
+    "provinces_id": "5"
+},
+{
+    "id": "14",
+    "name": "Vavuniya",
+    "provinces_id": "5"
+},
+{
+    "id": "15",
+    "name": "Mullaitivu",
+    "provinces_id": "5"
+},
+{
+    "id": "16",
+    "name": "Ratnapura",
+    "provinces_id": "6"
+},
+{
+    "id": "17",
+    "name": "Kegalle",
+    "provinces_id": "6"
+},
+{
+    "id": "18",
+    "name": "Galle",
+    "provinces_id": "7"
+},
+{
+    "id": "19",
+    "name": "Matara",
+    "provinces_id": "7"
+},
+{
+    "id": "20",
+    "name": "Hambantota",
+    "provinces_id": "7"
+},
+{
+    "id": "21",
+    "name": "Badulla",
+    "provinces_id": "8"
+},
+{
+    "id": "22",
+    "name": "Monaragala",
+    "provinces_id": "8"
+},
+{
+    "id": "23",
+    "name": "Colombo",
+    "provinces_id": "9"
+},
+{
+    "id": "24",
+    "name": "Gampaha",
+    "provinces_id": "9"
+},
+{
+    "id": "25",
+    "name": "Kalutara",
+    "provinces_id": "9"
+}
+]
+
+}
+,{
+    "type": "table",
+    "name": "main_categories",
+    "database": "u331468302_redragon",
+    "data": 
+[
+{
+    "id": "1",
+    "name": "Laptops",
+    "slug": "laptops",
+    "description": "Wide range of gaming, business, and student laptops.",
+    "icon": "laptop",
+    "is_active": "1",
+    "created_at": "2025-10-10 18:32:18"
+},
+{
+    "id": "2",
+    "name": "Desktops & PCs",
+    "slug": "desktops-pcs",
+    "description": "Custom-built and branded desktop computers for work and gaming.",
+    "icon": "pc",
+    "is_active": "1",
+    "created_at": "2025-10-10 18:32:18"
+},
+{
+    "id": "3",
+    "name": "Monitors",
+    "slug": "monitors",
+    "description": "HD, 4K, and curved monitors for every setup.",
+    "icon": "monitor",
+    "is_active": "1",
+    "created_at": "2025-10-10 18:32:18"
+},
+{
+    "id": "4",
+    "name": "Computer Accessories",
+    "slug": "computer-accessories",
+    "description": "Keyboards, mice, headsets, and other essential peripherals.",
+    "icon": "keyboard-mouse",
+    "is_active": "1",
+    "created_at": "2025-10-10 18:32:18"
+},
+{
+    "id": "5",
+    "name": "Networking",
+    "slug": "networking",
+    "description": "Routers, network cables, and WiFi adapters.",
+    "icon": "wifi",
+    "is_active": "1",
+    "created_at": "2025-10-10 18:32:18"
+},
+{
+    "id": "6",
+    "name": "Storage Devices",
+    "slug": "storage-devices",
+    "description": "Hard drives, SSDs, and portable storage solutions.",
+    "icon": "hdd",
+    "is_active": "1",
+    "created_at": "2025-10-10 18:32:18"
+},
+{
+    "id": "7",
+    "name": "Components",
+    "slug": "components",
+    "description": "Graphic cards, processors, RAM, and other PC components.",
+    "icon": "cpu",
+    "is_active": "1",
+    "created_at": "2025-10-10 18:32:18"
+},
+{
+    "id": "8",
+    "name": "Software & Licenses",
+    "slug": "software-licenses",
+    "description": "Operating systems, antivirus, and productivity software.",
+    "icon": "software",
+    "is_active": "1",
+    "created_at": "2025-10-10 18:32:18"
+}
+]
+
+}
+,{
+    "type": "table",
+    "name": "orders",
+    "database": "u331468302_redragon",
+    "data": 
+[
+{
+    "id": "18",
+    "order_number": "ORD1761398588638",
+    "customer_id": "5",
+    "subtotal": "2000.00",
+    "shipping_fee": "316.00",
+    "discount": "60.00",
+    "total": "2376.00",
+    "payment_method_id": "2",
+    "payment_status": "pending",
+    "paid_at": null,
+    "order_status": "delivered",
+    "customer_notes": null,
+    "created_at": "2025-10-25 13:23:09",
+    "updated_at": "2025-10-29 04:40:59"
+},
+{
+    "id": "20",
+    "order_number": "ORD1761658869095",
+    "customer_id": "7",
+    "subtotal": "665000.00",
+    "shipping_fee": "300.00",
+    "discount": "93100.00",
+    "total": "758400.00",
+    "payment_method_id": "6",
+    "payment_status": "pending",
+    "paid_at": null,
+    "order_status": "delivered",
+    "customer_notes": null,
+    "created_at": "2025-10-28 13:41:09",
+    "updated_at": "2025-10-29 04:58:19"
+},
+{
+    "id": "21",
+    "order_number": "ORD1761716450075",
+    "customer_id": "10",
+    "subtotal": "2000.00",
+    "shipping_fee": "316.00",
+    "discount": "0.00",
+    "total": "2316.00",
+    "payment_method_id": "3",
+    "payment_status": "pending",
+    "paid_at": null,
+    "order_status": "pending",
+    "customer_notes": null,
+    "created_at": "2025-10-29 05:40:50",
+    "updated_at": "2025-10-29 05:40:50"
+}
+]
+
+}
+,{
+    "type": "table",
+    "name": "order_items",
+    "database": "u331468302_redragon",
+    "data": 
+[
+{
+    "id": "16",
+    "order_id": "18",
+    "product_id": "25",
+    "product_name": "MacBook Air 13 inch M4 Chip",
+    "product_image": "https:\/\/res.cloudinary.com\/dgcautrc4\/image\/upload\/v1761279795\/products\/l7mhxa8vwwpx1zowgmyi.jpg",
+    "price": "2000.00",
+    "quantity": "1",
+    "subtotal": "2000.00",
+    "created_at": "2025-10-25 13:23:09"
+},
+{
+    "id": "18",
+    "order_id": "20",
+    "product_id": "26",
+    "product_name": "Titan 18 HX AI A2XW",
+    "product_image": "https:\/\/res.cloudinary.com\/dgcautrc4\/image\/upload\/v1761284369\/products\/lrapkno0xobps1xbjlo7.png",
+    "price": "665000.00",
+    "quantity": "1",
+    "subtotal": "665000.00",
+    "created_at": "2025-10-28 13:41:09"
+},
+{
+    "id": "19",
+    "order_id": "21",
+    "product_id": "25",
+    "product_name": "MacBook Air 13 inch M4 Chip",
+    "product_image": "https:\/\/res.cloudinary.com\/dgcautrc4\/image\/upload\/v1761279795\/products\/l7mhxa8vwwpx1zowgmyi.jpg",
+    "price": "2000.00",
+    "quantity": "1",
+    "subtotal": "2000.00",
+    "created_at": "2025-10-29 05:40:50"
+}
+]
+
+}
+,{
+    "type": "table",
+    "name": "payment_methods",
+    "database": "u331468302_redragon",
+    "data": 
+[
+{
+    "id": "2",
+    "name": "Debit\/Credit Card",
+    "slug": "debit_card",
+    "percentage": "3",
+    "is_active": "1"
+},
+{
+    "id": "3",
+    "name": "Bank Transfer",
+    "slug": "bank_transfer",
+    "percentage": "0",
+    "is_active": "1"
+},
+{
+    "id": "6",
+    "name": "KOKO Payment",
+    "slug": "coco_payment\r\n",
+    "percentage": "14",
+    "is_active": "1"
+}
+]
+
+}
+,{
+    "type": "table",
+    "name": "products",
+    "database": "u331468302_redragon",
+    "data": 
+[
+{
+    "id": "25",
+    "name": "MacBook Air 13 inch M4 Chip",
+    "slug": "macbook-air-13-inch-m4-chip",
+    "sku": "SKU-1761279792799",
+    "description": "The MacBook Air 13 inch M4 Chip in Srilanka is Available at Rs 284000, updated on 2025-10-24 Featherlight power. Expect a stunning display, blazing speed, and all-day battery. Perfect for work or play, it's the ultimate portable companion. LuxuryX provides genuine Apple products with a 1 Year AppleCare warrenty flexible installment options, and free delivery or in-store pickup across Sri Lanka.",
+    "specifications": "{}",
+    "brand_id": "4",
+    "main_category_id": "1",
+    "sub_category_id": "3",
+    "price": "2500.00",
+    "sale_price": "2000.00",
+    "cost_price": "3000.00",
+    "stock_quantity": "10",
+    "color_id": null,
+    "is_active": "1",
+    "is_featured": "1",
+    "created_at": "2025-10-24 04:23:13",
+    "updated_at": "2025-10-25 12:49:24",
+    "weight": "1200"
+},
+{
+    "id": "26",
+    "name": "Titan 18 HX AI A2XW",
+    "slug": "titan-18-hx-ai-a2xw",
+    "sku": "SKU-1761282822275",
+    "description": "Standing proudly as a leader in gaming innovation, the Titan 18 HX AI has reached new heights, pushing the limits of performance with its top-tier, all-encompassing features. Its advanced cooling system delivers unmatched power, ensuring smooth performance even during the most demanding tasks. Encased in a strong yet lightweight magnesium-aluminum alloy chassis, this flagship device blends durability with portability, making it the top choice for gamers and creators aiming for excellence.",
+    "specifications": "{}",
+    "brand_id": "7",
+    "main_category_id": "1",
+    "sub_category_id": "1",
+    "price": "670000.00",
+    "sale_price": "665000.00",
+    "cost_price": "660000.00",
+    "stock_quantity": "40",
+    "color_id": null,
+    "is_active": "1",
+    "is_featured": "1",
+    "created_at": "2025-10-24 05:13:43",
+    "updated_at": "2025-10-27 11:29:20",
+    "weight": "950"
+},
+{
+    "id": "27",
+    "name": "Asus ROG Strix Gaming G16 G615JPR – i9",
+    "slug": "asus-rog-strix-gaming-g16-g615jpr-i9",
+    "sku": "SKU-1761362884228",
+    "description": "Asus ROG Strix G16 Hardcore Gaming Power\r\nThe Asus ROG Strix Gaming G16 G615JPR is built for serious gamers and creators with\r\nthe latest Intel Core i9-14900HX Processor and a bold, high-performance design.\r\n2.5K WQXGA Display with 240Hz – Ultra Smooth Visuals\r\nGame in breathtaking clarity on the 16″ 2.5K (2560 x 1600) WQXGA\r\ndisplay with an ultra-fast 240Hz refresh rate, delivering fluid visuals and sharp detail.\r\n\r\n",
+    "specifications": "{}",
+    "brand_id": "5",
+    "main_category_id": "1",
+    "sub_category_id": "1",
+    "price": "740000.00",
+    "sale_price": "735000.00",
+    "cost_price": "720000.00",
+    "stock_quantity": "15",
+    "color_id": null,
+    "is_active": "0",
+    "is_featured": "0",
+    "created_at": "2025-10-25 03:28:05",
+    "updated_at": "2025-10-26 16:03:54",
+    "weight": "950"
+}
+]
+
+}
+,{
+    "type": "table",
+    "name": "product_image_uploads",
+    "database": "u331468302_redragon",
+    "data": 
+[
+{
+    "id": "8",
+    "product_id": "20",
+    "image_path": "https:\/\/res.cloudinary.com\/dgcautrc4\/image\/upload\/v1761140677\/products\/lxlfqrg2vapqkzexlb2q.jpg",
+    "public_id": "products\/lxlfqrg2vapqkzexlb2q",
+    "is_primary": "1",
+    "created_at": "2025-10-22 13:44:38",
+    "updated_at": "2025-10-22 13:44:38"
+},
+{
+    "id": "9",
+    "product_id": "21",
+    "image_path": "https:\/\/res.cloudinary.com\/dgcautrc4\/image\/upload\/v1761140813\/products\/wqnvpxhfqzvckmlrbnzg.jpg",
+    "public_id": "products\/wqnvpxhfqzvckmlrbnzg",
+    "is_primary": "1",
+    "created_at": "2025-10-22 13:46:54",
+    "updated_at": "2025-10-22 13:46:54"
+},
+{
+    "id": "10",
+    "product_id": "22",
+    "image_path": "https:\/\/res.cloudinary.com\/dgcautrc4\/image\/upload\/v1761141291\/products\/a5bfsvhz9oc5ksxycwaq.jpg",
+    "public_id": "products\/a5bfsvhz9oc5ksxycwaq",
+    "is_primary": "1",
+    "created_at": "2025-10-22 13:54:53",
+    "updated_at": "2025-10-22 13:54:53"
+},
+{
+    "id": "11",
+    "product_id": "22",
+    "image_path": "https:\/\/res.cloudinary.com\/dgcautrc4\/image\/upload\/v1761141293\/products\/qyvnyviev5yj6xjm5rog.jpg",
+    "public_id": "products\/qyvnyviev5yj6xjm5rog",
+    "is_primary": "0",
+    "created_at": "2025-10-22 13:54:54",
+    "updated_at": "2025-10-22 13:54:54"
+},
+{
+    "id": "12",
+    "product_id": "22",
+    "image_path": "https:\/\/res.cloudinary.com\/dgcautrc4\/image\/upload\/v1761141294\/products\/e0hcehf1d8rdaq03e4ni.jpg",
+    "public_id": "products\/e0hcehf1d8rdaq03e4ni",
+    "is_primary": "0",
+    "created_at": "2025-10-22 13:54:55",
+    "updated_at": "2025-10-22 13:54:55"
+},
+{
+    "id": "13",
+    "product_id": "23",
+    "image_path": "https:\/\/res.cloudinary.com\/dgcautrc4\/image\/upload\/v1761142438\/products\/f6x3inx6xki65g0xlhmf.jpg",
+    "public_id": "products\/f6x3inx6xki65g0xlhmf",
+    "is_primary": "1",
+    "created_at": "2025-10-22 14:13:59",
+    "updated_at": "2025-10-22 14:13:59"
+},
+{
+    "id": "14",
+    "product_id": "23",
+    "image_path": "https:\/\/res.cloudinary.com\/dgcautrc4\/image\/upload\/v1761142439\/products\/qheswf123s3hsucz3fk7.jpg",
+    "public_id": "products\/qheswf123s3hsucz3fk7",
+    "is_primary": "0",
+    "created_at": "2025-10-22 14:14:01",
+    "updated_at": "2025-10-22 14:14:01"
+},
+{
+    "id": "15",
+    "product_id": "23",
+    "image_path": "https:\/\/res.cloudinary.com\/dgcautrc4\/image\/upload\/v1761142441\/products\/sezydqxcohp5pd3zfeys.png",
+    "public_id": "products\/sezydqxcohp5pd3zfeys",
+    "is_primary": "0",
+    "created_at": "2025-10-22 14:14:03",
+    "updated_at": "2025-10-22 14:14:03"
+},
+{
+    "id": "16",
+    "product_id": "25",
+    "image_path": "https:\/\/res.cloudinary.com\/dgcautrc4\/image\/upload\/v1761279795\/products\/l7mhxa8vwwpx1zowgmyi.jpg",
+    "public_id": "products\/l7mhxa8vwwpx1zowgmyi",
+    "is_primary": "1",
+    "created_at": "2025-10-24 04:23:16",
+    "updated_at": "2025-10-24 04:23:16"
+},
+{
+    "id": "17",
+    "product_id": "25",
+    "image_path": "https:\/\/res.cloudinary.com\/dgcautrc4\/image\/upload\/v1761279796\/products\/nzvexkgg68bxc5rgwweh.jpg",
+    "public_id": "products\/nzvexkgg68bxc5rgwweh",
+    "is_primary": "0",
+    "created_at": "2025-10-24 04:23:18",
+    "updated_at": "2025-10-24 04:23:18"
+},
+{
+    "id": "18",
+    "product_id": "25",
+    "image_path": "https:\/\/res.cloudinary.com\/dgcautrc4\/image\/upload\/v1761279798\/products\/rqkmt8oixuidlxpihjqm.jpg",
+    "public_id": "products\/rqkmt8oixuidlxpihjqm",
+    "is_primary": "0",
+    "created_at": "2025-10-24 04:23:19",
+    "updated_at": "2025-10-24 04:23:19"
+},
+{
+    "id": "19",
+    "product_id": "25",
+    "image_path": "https:\/\/res.cloudinary.com\/dgcautrc4\/image\/upload\/v1761279799\/products\/nmcoiwscsejyxgyvvhpf.jpg",
+    "public_id": "products\/nmcoiwscsejyxgyvvhpf",
+    "is_primary": "0",
+    "created_at": "2025-10-24 04:23:20",
+    "updated_at": "2025-10-24 04:23:20"
+},
+{
+    "id": "20",
+    "product_id": "26",
+    "image_path": "https:\/\/res.cloudinary.com\/dgcautrc4\/image\/upload\/v1761284369\/products\/lrapkno0xobps1xbjlo7.png",
+    "public_id": "products\/lrapkno0xobps1xbjlo7",
+    "is_primary": "1",
+    "created_at": "2025-10-24 05:39:30",
+    "updated_at": "2025-10-24 05:39:30"
+},
+{
+    "id": "21",
+    "product_id": "27",
+    "image_path": "https:\/\/res.cloudinary.com\/dgcautrc4\/image\/upload\/v1761362887\/products\/diannfmexmivng4hxjjo.jpg",
+    "public_id": "products\/diannfmexmivng4hxjjo",
+    "is_primary": "1",
+    "created_at": "2025-10-25 03:28:08",
+    "updated_at": "2025-10-25 03:28:08"
+},
+{
+    "id": "22",
+    "product_id": "27",
+    "image_path": "https:\/\/res.cloudinary.com\/dgcautrc4\/image\/upload\/v1761362889\/products\/j93tthkz5lgjj80h7btw.png",
+    "public_id": "products\/j93tthkz5lgjj80h7btw",
+    "is_primary": "0",
+    "created_at": "2025-10-25 03:28:11",
+    "updated_at": "2025-10-25 03:28:11"
+},
+{
+    "id": "23",
+    "product_id": "27",
+    "image_path": "https:\/\/res.cloudinary.com\/dgcautrc4\/image\/upload\/v1761362892\/products\/ddtmhhctdweihevtmas5.jpg",
+    "public_id": "products\/ddtmhhctdweihevtmas5",
+    "is_primary": "0",
+    "created_at": "2025-10-25 03:28:13",
+    "updated_at": "2025-10-25 03:28:13"
+}
+]
+
+}
+,{
+    "type": "table",
+    "name": "product_reviews",
+    "database": "u331468302_redragon",
+    "data": 
+[
+
+]
+
+}
+,{
+    "type": "table",
+    "name": "provinces",
+    "database": "u331468302_redragon",
+    "data": 
+[
+{
+    "id": "1",
+    "name": "Central"
+},
+{
+    "id": "2",
+    "name": "Eastern"
+},
+{
+    "id": "3",
+    "name": "North Central"
+},
+{
+    "id": "4",
+    "name": "North Western"
+},
+{
+    "id": "5",
+    "name": "Northern"
+},
+{
+    "id": "6",
+    "name": "Sabaragamuwa"
+},
+{
+    "id": "7",
+    "name": "Southern"
+},
+{
+    "id": "8",
+    "name": "Uva"
+},
+{
+    "id": "9",
+    "name": "Western"
+}
+]
+
+}
+,{
+    "type": "table",
+    "name": "refunds",
+    "database": "u331468302_redragon",
+    "data": 
+[
+
+]
+
+}
+,{
+    "type": "table",
+    "name": "shipping_addresses",
+    "database": "u331468302_redragon",
+    "data": 
+[
+{
+    "id": "27",
+    "order_id": null,
+    "phone": "0715327065",
+    "address_line1": "I 52\/ Pannala North",
+    "address_line2": "Ampagala",
+    "city_name": "132",
+    "district_name": "17",
+    "province_name": "6",
+    "postal_code": "51272",
+    "delivery_notes": null,
+    "created_at": "2025-10-25 13:23:09",
+    "customers_customer_id": "5"
+},
+{
+    "id": "30",
+    "order_id": null,
+    "phone": "0711122333",
+    "address_line1": "123 street",
+    "address_line2": "",
+    "city_name": "36",
+    "district_name": "4",
+    "province_name": "2",
+    "postal_code": "12345",
+    "delivery_notes": null,
+    "created_at": "2025-10-28 13:41:10",
+    "customers_customer_id": "7"
+},
+{
+    "id": "31",
+    "order_id": null,
+    "phone": "0715222123",
+    "address_line1": "No. 1234",
+    "address_line2": null,
+    "city_name": "Akurana",
+    "district_name": "Kandy",
+    "province_name": "Central",
+    "postal_code": "12344",
+    "delivery_notes": null,
+    "created_at": "2025-10-29 11:10:22",
+    "customers_customer_id": "10"
+},
+{
+    "id": "32",
+    "order_id": null,
+    "phone": "0715222123",
+    "address_line1": "No. 1234",
+    "address_line2": "",
+    "city_name": "8",
+    "district_name": "1",
+    "province_name": "1",
+    "postal_code": "12344",
+    "delivery_notes": null,
+    "created_at": "2025-10-29 05:40:50",
+    "customers_customer_id": "10"
+},
+{
+    "id": "33",
+    "order_id": null,
+    "phone": "0715222123",
+    "address_line1": "No. 1234",
+    "address_line2": null,
+    "city_name": "Akurana",
+    "district_name": "Kandy",
+    "province_name": "Central",
+    "postal_code": "12344",
+    "delivery_notes": null,
+    "created_at": "2025-10-29 11:12:16",
+    "customers_customer_id": "10"
+},
+{
+    "id": "34",
+    "order_id": null,
+    "phone": "0715222123",
+    "address_line1": "No. 1234",
+    "address_line2": null,
+    "city_name": "Anamaduwa",
+    "district_name": "Puttalam",
+    "province_name": "North Western",
+    "postal_code": "12344",
+    "delivery_notes": null,
+    "created_at": "2025-10-29 11:16:19",
+    "customers_customer_id": "10"
+},
+{
+    "id": "35",
+    "order_id": null,
+    "phone": "0715222123",
+    "address_line1": "No. 1234",
+    "address_line2": null,
+    "city_name": "Anamaduwa",
+    "district_name": "Puttalam",
+    "province_name": "North Western",
+    "postal_code": "12344",
+    "delivery_notes": null,
+    "created_at": "2025-10-29 11:17:11",
+    "customers_customer_id": "10"
+},
+{
+    "id": "36",
+    "order_id": null,
+    "phone": "0715222123",
+    "address_line1": "No. 1234",
+    "address_line2": null,
+    "city_name": "Anamaduwa",
+    "district_name": "Puttalam",
+    "province_name": "North Western",
+    "postal_code": "12344",
+    "delivery_notes": null,
+    "created_at": "2025-10-29 11:48:26",
+    "customers_customer_id": "10"
+}
+]
+
+}
+,{
+    "type": "table",
+    "name": "sub_categories",
+    "database": "u331468302_redragon",
+    "data": 
+[
+{
+    "id": "1",
+    "main_category_id": "1",
+    "name": "Gaming Laptops",
+    "slug": "gaming-laptops",
+    "description": "High-performance laptops for gaming.",
+    "is_active": "1",
+    "created_at": "2025-10-10 18:36:44",
+    "updated_at": "0000-00-00 00:00:00"
+},
+{
+    "id": "2",
+    "main_category_id": "1",
+    "name": "Business Laptops",
+    "slug": "business-laptops",
+    "description": "Reliable laptops for office and productivity.",
+    "is_active": "1",
+    "created_at": "2025-10-10 18:36:44",
+    "updated_at": "0000-00-00 00:00:00"
+},
+{
+    "id": "3",
+    "main_category_id": "1",
+    "name": "Student Laptops",
+    "slug": "student-laptops",
+    "description": "Budget-friendly laptops for students.",
+    "is_active": "1",
+    "created_at": "2025-10-10 18:36:44",
+    "updated_at": "0000-00-00 00:00:00"
+},
+{
+    "id": "4",
+    "main_category_id": "1",
+    "name": "2-in-1 Convertibles",
+    "slug": "convertible-laptops",
+    "description": "Touchscreen laptops with tablet mode.",
+    "is_active": "1",
+    "created_at": "2025-10-10 18:36:44",
+    "updated_at": "0000-00-00 00:00:00"
+},
+{
+    "id": "5",
+    "main_category_id": "2",
+    "name": "Gaming PCs",
+    "slug": "gaming-pcs",
+    "description": "Custom or branded desktops for gaming.",
+    "is_active": "1",
+    "created_at": "2025-10-10 18:36:44",
+    "updated_at": "0000-00-00 00:00:00"
+},
+{
+    "id": "6",
+    "main_category_id": "2",
+    "name": "Office PCs",
+    "slug": "office-pcs",
+    "description": "Desktops built for business and work environments.",
+    "is_active": "1",
+    "created_at": "2025-10-10 18:36:44",
+    "updated_at": "0000-00-00 00:00:00"
+},
+{
+    "id": "7",
+    "main_category_id": "2",
+    "name": "All-in-One PCs",
+    "slug": "all-in-one-pcs",
+    "description": "Compact all-in-one desktop computers.",
+    "is_active": "1",
+    "created_at": "2025-10-10 18:36:44",
+    "updated_at": "0000-00-00 00:00:00"
+},
+{
+    "id": "8",
+    "main_category_id": "3",
+    "name": "Full HD Monitors",
+    "slug": "full-hd-monitors",
+    "description": "1080p monitors for general use.",
+    "is_active": "1",
+    "created_at": "2025-10-10 18:36:44",
+    "updated_at": "0000-00-00 00:00:00"
+},
+{
+    "id": "9",
+    "main_category_id": "3",
+    "name": "4K Monitors",
+    "slug": "4k-monitors",
+    "description": "Ultra HD 4K monitors for designers and gamers.",
+    "is_active": "1",
+    "created_at": "2025-10-10 18:36:44",
+    "updated_at": "0000-00-00 00:00:00"
+},
+{
+    "id": "10",
+    "main_category_id": "3",
+    "name": "Curved Monitors",
+    "slug": "curved-monitors",
+    "description": "Immersive curved displays.",
+    "is_active": "1",
+    "created_at": "2025-10-10 18:36:44",
+    "updated_at": "0000-00-00 00:00:00"
+},
+{
+    "id": "11",
+    "main_category_id": "4",
+    "name": "Keyboards",
+    "slug": "keyboards",
+    "description": "Mechanical and membrane keyboards.",
+    "is_active": "1",
+    "created_at": "2025-10-10 18:36:44",
+    "updated_at": "0000-00-00 00:00:00"
+},
+{
+    "id": "12",
+    "main_category_id": "4",
+    "name": "Mice",
+    "slug": "mice",
+    "description": "Wired and wireless computer mice.",
+    "is_active": "1",
+    "created_at": "2025-10-10 18:36:44",
+    "updated_at": "0000-00-00 00:00:00"
+},
+{
+    "id": "13",
+    "main_category_id": "4",
+    "name": "Headsets",
+    "slug": "headsets",
+    "description": "Gaming and office headsets.",
+    "is_active": "1",
+    "created_at": "2025-10-10 18:36:44",
+    "updated_at": "0000-00-00 00:00:00"
+},
+{
+    "id": "14",
+    "main_category_id": "4",
+    "name": "Webcams",
+    "slug": "webcams",
+    "description": "HD and 4K webcams for streaming and calls.",
+    "is_active": "1",
+    "created_at": "2025-10-10 18:36:44",
+    "updated_at": "0000-00-00 00:00:00"
+},
+{
+    "id": "15",
+    "main_category_id": "5",
+    "name": "WiFi Routers",
+    "slug": "wifi-routers",
+    "description": "High-speed routers for home and office.",
+    "is_active": "1",
+    "created_at": "2025-10-10 18:36:44",
+    "updated_at": "0000-00-00 00:00:00"
+},
+{
+    "id": "16",
+    "main_category_id": "5",
+    "name": "Network Cables",
+    "slug": "network-cables",
+    "description": "Ethernet and LAN cables.",
+    "is_active": "1",
+    "created_at": "2025-10-10 18:36:44",
+    "updated_at": "0000-00-00 00:00:00"
+},
+{
+    "id": "17",
+    "main_category_id": "5",
+    "name": "Adapters & Modems",
+    "slug": "adapters-modems",
+    "description": "USB WiFi adapters and DSL modems.",
+    "is_active": "1",
+    "created_at": "2025-10-10 18:36:44",
+    "updated_at": "0000-00-00 00:00:00"
+},
+{
+    "id": "18",
+    "main_category_id": "6",
+    "name": "External Hard Drives",
+    "slug": "external-hard-drives",
+    "description": "Portable HDDs and SSDs.",
+    "is_active": "1",
+    "created_at": "2025-10-10 18:36:44",
+    "updated_at": "0000-00-00 00:00:00"
+},
+{
+    "id": "19",
+    "main_category_id": "6",
+    "name": "Solid State Drives (SSD)",
+    "slug": "ssd",
+    "description": "Fast SSD storage options.",
+    "is_active": "1",
+    "created_at": "2025-10-10 18:36:44",
+    "updated_at": "0000-00-00 00:00:00"
+},
+{
+    "id": "20",
+    "main_category_id": "6",
+    "name": "USB Flash Drives",
+    "slug": "usb-flash-drives",
+    "description": "Compact flash storage devices.",
+    "is_active": "1",
+    "created_at": "2025-10-10 18:36:44",
+    "updated_at": "0000-00-00 00:00:00"
+},
+{
+    "id": "21",
+    "main_category_id": "6",
+    "name": "Memory Cards",
+    "slug": "memory-cards",
+    "description": "SD and microSD cards.",
+    "is_active": "1",
+    "created_at": "2025-10-10 18:36:44",
+    "updated_at": "0000-00-00 00:00:00"
+},
+{
+    "id": "22",
+    "main_category_id": "7",
+    "name": "Processors (CPU)",
+    "slug": "processors",
+    "description": "Latest Intel and AMD CPUs.",
+    "is_active": "1",
+    "created_at": "2025-10-10 18:36:44",
+    "updated_at": "0000-00-00 00:00:00"
+},
+{
+    "id": "23",
+    "main_category_id": "7",
+    "name": "Graphics Cards (GPU)",
+    "slug": "graphics-cards",
+    "description": "NVIDIA and AMD GPUs.",
+    "is_active": "1",
+    "created_at": "2025-10-10 18:36:44",
+    "updated_at": "0000-00-00 00:00:00"
+},
+{
+    "id": "24",
+    "main_category_id": "7",
+    "name": "Motherboards",
+    "slug": "motherboards",
+    "description": "Boards for Intel and AMD platforms.",
+    "is_active": "1",
+    "created_at": "2025-10-10 18:36:44",
+    "updated_at": "0000-00-00 00:00:00"
+},
+{
+    "id": "25",
+    "main_category_id": "7",
+    "name": "Memory (RAM)",
+    "slug": "memory-ram",
+    "description": "DDR4 and DDR5 memory modules.",
+    "is_active": "1",
+    "created_at": "2025-10-10 18:36:44",
+    "updated_at": "0000-00-00 00:00:00"
+},
+{
+    "id": "26",
+    "main_category_id": "7",
+    "name": "Power Supplies (PSU)",
+    "slug": "power-supplies",
+    "description": "Reliable PSUs for systems.",
+    "is_active": "1",
+    "created_at": "2025-10-10 18:36:44",
+    "updated_at": "0000-00-00 00:00:00"
+},
+{
+    "id": "27",
+    "main_category_id": "4",
+    "name": "Cooling Systems",
+    "slug": "cooling-systems",
+    "description": "Air and liquid CPU coolers.",
+    "is_active": "1",
+    "created_at": "2025-10-10 18:36:44",
+    "updated_at": "2025-10-21 17:02:45"
+},
+{
+    "id": "28",
+    "main_category_id": "8",
+    "name": "Operating Systems",
+    "slug": "operating-systems",
+    "description": "Windows, Linux, and macOS licenses.",
+    "is_active": "1",
+    "created_at": "2025-10-10 18:36:44",
+    "updated_at": "0000-00-00 00:00:00"
+},
+{
+    "id": "29",
+    "main_category_id": "8",
+    "name": "Antivirus & Security",
+    "slug": "antivirus-security",
+    "description": "Protective software for devices.",
+    "is_active": "1",
+    "created_at": "2025-10-10 18:36:44",
+    "updated_at": "0000-00-00 00:00:00"
+},
+{
+    "id": "30",
+    "main_category_id": "8",
+    "name": "Office & Productivity",
+    "slug": "office-productivity",
+    "description": "Microsoft Office and similar tools.",
+    "is_active": "1",
+    "created_at": "2025-10-10 18:36:44",
+    "updated_at": "0000-00-00 00:00:00"
+}
+]
+
+}
+,{
+    "type": "table",
+    "name": "wishlists",
+    "database": "u331468302_redragon",
+    "data": 
+[
+{
+    "id": "1",
+    "customer_id": "5",
+    "created_at": "2025-10-26 03:32:59",
+    "updated_at": "2025-10-26 03:32:59"
+},
+{
+    "id": "2",
+    "customer_id": "7",
+    "created_at": "2025-10-26 05:21:10",
+    "updated_at": "2025-10-26 05:53:11"
+}
+]
+
+}
+,{
+    "type": "table",
+    "name": "wishlist_items",
+    "database": "u331468302_redragon",
+    "data": 
+[
+
+]
+
+}
+]
