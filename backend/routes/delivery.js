@@ -5,16 +5,16 @@ const { auth, adminAuth } = require('../middleware/auth');
 
 // ========== DELIVERY ZONES ==========
 
+// Admin routes (CRUD operations) - Define specific routes BEFORE generic ones
+router.get('/zones/admin', adminAuth, deliveryController.getAllDeliveryZones);
+router.post('/zones', adminAuth, deliveryController.createDeliveryZone);
+router.get('/zones/:id', adminAuth, deliveryController.getDeliveryZoneById);
+router.put('/zones/:id', adminAuth, deliveryController.updateDeliveryZone);
+router.delete('/zones/:id', adminAuth, deliveryController.deleteDeliveryZone);
+
 // Public routes (for customers)
 router.get('/zones', deliveryController.getDeliveryZones);
 router.post('/calculate-delivery', deliveryController.calculateDeliveryCharge);
-
-// Admin routes (CRUD operations)
-router.get('/zones/admin', adminAuth, deliveryController.getAllDeliveryZones);
-router.get('/zones/:id', adminAuth, deliveryController.getDeliveryZoneById);
-router.post('/zones', adminAuth, deliveryController.createDeliveryZone);
-router.put('/zones/:id', adminAuth, deliveryController.updateDeliveryZone);
-router.delete('/zones/:id', adminAuth, deliveryController.deleteDeliveryZone);
 
 // ========== PAYMENT METHODS ==========
 

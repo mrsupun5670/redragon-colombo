@@ -8,9 +8,15 @@ const api = axios.create({
 });
 
 // Token management utilities
-const getToken = () => localStorage.getItem('token');
+const getToken = () => {
+  // Check for admin token first (adminToken), then regular user token
+  return localStorage.getItem('adminToken') || localStorage.getItem('token');
+};
 const setToken = (token) => localStorage.setItem('token', token);
-const removeToken = () => localStorage.removeItem('token');
+const removeToken = () => {
+  localStorage.removeItem('token');
+  localStorage.removeItem('adminToken');
+};
 
 // Request interceptor to add token to requests
 api.interceptors.request.use(
@@ -33,12 +39,19 @@ api.interceptors.response.use(
     // Handle unauthorized errors (401)
     if (error.response?.status === 401) {
       // Token expired or invalid - remove token and redirect to login
+      const wasAdminLoggedIn = localStorage.getItem('adminToken');
       removeToken();
       localStorage.removeItem('user');
-      
+
       // Only redirect if not already on login page
-      if (window.location.pathname !== '/login' && window.location.pathname !== '/admin/login') {
-        window.location.href = '/login';
+      const currentPath = window.location.pathname;
+      const isAdminPath = currentPath.startsWith('/admin');
+      const isAdminLoginPage = currentPath === '/admin/login';
+      const isCustomerLoginPage = currentPath === '/login';
+
+      if (!isAdminLoginPage && !isCustomerLoginPage) {
+        // Redirect to appropriate login page
+        window.location.href = isAdminPath || wasAdminLoggedIn ? '/admin/login' : '/login';
       }
     }
     return Promise.reject(error);
