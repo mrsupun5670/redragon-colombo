@@ -91,7 +91,7 @@ const AutoScrollBrands = ({ brands }) => {
               <img
                 src={brand.logo}
                 alt={brand.name}
-                className="max-w-full max-h-full object-contain filter grayscale group-hover:grayscale-0 transition-all duration-300 opacity-70 group-hover:opacity-100"
+                className="max-w-full max-h-full object-contain transition-all duration-300 opacity-90 group-hover:opacity-100"
                 style={{ width: 'auto', height: 'auto', maxHeight: '80px' }}
               />
             </div>
