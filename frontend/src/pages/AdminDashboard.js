@@ -105,6 +105,13 @@ const AdminDashboard = () => {
             <CustomerList />
           </div>
         );
+      case "promotions":
+        return (
+          <div>
+            <h1 className="text-4xl font-bold mb-8">Promotion Management</h1>
+            <PromoList />
+          </div>
+        );
       case "refunds":
         return (
           <div>
