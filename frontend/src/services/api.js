@@ -15,7 +15,7 @@ const getToken = () => {
 const setToken = (token) => localStorage.setItem('token', token);
 const removeToken = () => {
   localStorage.removeItem('token');
-  localStorage.removeItem('adminToken');
+  // Don't remove adminToken - let AdminAuthContext handle that
 };
 
 // Request interceptor to add token to requests
@@ -36,23 +36,25 @@ api.interceptors.request.use(
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    // Handle unauthorized errors (401)
+    // Handle unauthorized errors (401) - but only for customer authentication
     if (error.response?.status === 401) {
-      // Token expired or invalid - remove token and redirect to login
-      const wasAdminLoggedIn = localStorage.getItem('adminToken');
-      removeToken();
-      localStorage.removeItem('user');
-
-      // Only redirect if not already on login page
       const currentPath = window.location.pathname;
       const isAdminPath = currentPath.startsWith('/admin');
       const isAdminLoginPage = currentPath === '/admin/login';
       const isCustomerLoginPage = currentPath === '/login';
+      
+      // Only handle customer token removal, let AdminAuthContext handle admin tokens
+      if (!isAdminPath) {
+        // Only remove customer token, not adminToken
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
 
-      if (!isAdminLoginPage && !isCustomerLoginPage) {
-        // Redirect to appropriate login page
-        window.location.href = isAdminPath || wasAdminLoggedIn ? '/admin/login' : '/login';
+        // Only redirect customer routes
+        if (!isCustomerLoginPage) {
+          window.location.href = '/login';
+        }
       }
+      // For admin paths, let AdminAuthContext handle the 401 errors
     }
     return Promise.reject(error);
   }
@@ -184,7 +186,7 @@ export const userUtils = {
   },
   
   clearAuthData: () => {
-    removeToken();
+    removeToken(); // Only removes 'token', not 'adminToken'
     localStorage.removeItem('user');
   },
   

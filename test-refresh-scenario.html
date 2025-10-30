@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Admin Refresh Scenario</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .section { margin: 20px 0; padding: 15px; border: 1px solid #ccc; border-radius: 8px; }
+        .step { margin: 10px 0; }
+        .success { color: green; font-weight: bold; }
+        .error { color: red; font-weight: bold; }
+        .info { color: blue; }
+        button { padding: 10px 15px; margin: 5px; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; }
+        button:hover { background: #0056b3; }
+        pre { background: #f5f5f5; padding: 10px; border-radius: 4px; overflow-x: auto; }
+    </style>
+</head>
+<body>
+    <h1>🧪 Admin Refresh Scenario Test</h1>
+    <p>This test simulates the exact scenario where admin tokens disappear on refresh.</p>
+    
+    <div class="section">
+        <h2>Step 1: Admin Login</h2>
+        <button onclick="doAdminLogin()">Login as Admin</button>
+        <div id="login-result"></div>
+    </div>
+    
+    <div class="section">
+        <h2>Step 2: Check Current Storage</h2>
+        <button onclick="checkStorage()">Check localStorage</button>
+        <div id="storage-result"></div>
+    </div>
+    
+    <div class="section">
+        <h2>Step 3: Simulate Component Load (DeliverySettings)</h2>
+        <button onclick="simulateDeliveryLoad()">Load Delivery Zones</button>
+        <div id="delivery-result"></div>
+    </div>
+    
+    <div class="section">
+        <h2>Step 4: Simulate Page Refresh Auth Check</h2>
+        <button onclick="simulateRefreshAuth()">Check Auth (Refresh Simulation)</button>
+        <div id="refresh-result"></div>
+    </div>
+    
+    <div class="section">
+        <h2>Step 5: Final Storage Check</h2>
+        <button onclick="checkStorageFinal()">Check localStorage After All Operations</button>
+        <div id="final-result"></div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:5001/api';
+        
+        async function doAdminLogin() {
+            try {
+                const response = await fetch(`${API_BASE}/auth/admin/login`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        username: 'admin@gmail.com',
+                        password: 'Admin@Redragon'
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    // Simulate what AdminAuthContext does
+                    localStorage.setItem('adminToken', data.token);
+                    localStorage.setItem('user', JSON.stringify(data.user));
+                    
+                    document.getElementById('login-result').innerHTML = `
+                        <div class="success">✅ Admin login successful!</div>
+                        <div class="info">Token: ${data.token.substring(0, 30)}...</div>
+                        <div class="info">User: ${JSON.stringify(data.user)}</div>
+                    `;
+                } else {
+                    document.getElementById('login-result').innerHTML = `
+                        <div class="error">❌ Login failed: ${data.message}</div>
+                    `;
+                }
+            } catch (error) {
+                document.getElementById('login-result').innerHTML = `
+                    <div class="error">❌ Network error: ${error.message}</div>
+                `;
+            }
+        }
+        
+        function checkStorage() {
+            const adminToken = localStorage.getItem('adminToken');
+            const user = localStorage.getItem('user');
+            const regularToken = localStorage.getItem('token');
+            
+            document.getElementById('storage-result').innerHTML = `
+                <div class="info">📦 Current localStorage:</div>
+                <pre>adminToken: ${adminToken ? adminToken.substring(0, 30) + '...' : 'NULL'}
+user: ${user ? JSON.stringify(JSON.parse(user), null, 2) : 'NULL'}
+token: ${regularToken ? regularToken.substring(0, 30) + '...' : 'NULL'}</pre>
+            `;
+        }
+        
+        async function simulateDeliveryLoad() {
+            try {
+                const adminToken = localStorage.getItem('adminToken');
+                
+                if (!adminToken) {
+                    document.getElementById('delivery-result').innerHTML = `
+                        <div class="error">❌ No admin token found!</div>
+                    `;
+                    return;
+                }
+                
+                // Simulate what adminApi.js does
+                const response = await fetch(`${API_BASE}/delivery/zones/admin`, {
+                    headers: {
+                        'Authorization': `Bearer ${adminToken}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                const data = await response.json();
+                
+                document.getElementById('delivery-result').innerHTML = `
+                    <div class="success">✅ Delivery API call successful!</div>
+                    <div class="info">Response status: ${response.status}</div>
+                    <div class="info">Data: ${JSON.stringify(data, null, 2).substring(0, 200)}...</div>
+                `;
+            } catch (error) {
+                document.getElementById('delivery-result').innerHTML = `
+                    <div class="error">❌ Delivery API error: ${error.message}</div>
+                `;
+            }
+        }
+        
+        async function simulateRefreshAuth() {
+            try {
+                const storedToken = localStorage.getItem('adminToken');
+                
+                if (!storedToken) {
+                    document.getElementById('refresh-result').innerHTML = `
+                        <div class="error">❌ No adminToken found for auth check!</div>
+                    `;
+                    return;
+                }
+                
+                // Simulate what AdminAuthContext does on refresh
+                const response = await fetch(`${API_BASE}/auth/me`, {
+                    headers: {
+                        'Authorization': `Bearer ${storedToken}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok && data.success && data.user && data.user.type === 'admin') {
+                    document.getElementById('refresh-result').innerHTML = `
+                        <div class="success">✅ Auth check successful!</div>
+                        <div class="info">User authenticated: ${JSON.stringify(data.user)}</div>
+                        <div class="info">Token should remain in localStorage</div>
+                    `;
+                } else {
+                    // This would cause token removal
+                    localStorage.removeItem('adminToken');
+                    localStorage.removeItem('user');
+                    
+                    document.getElementById('refresh-result').innerHTML = `
+                        <div class="error">❌ Auth check failed!</div>
+                        <div class="error">Tokens removed from localStorage</div>
+                        <div class="info">Response: ${JSON.stringify(data)}</div>
+                    `;
+                }
+            } catch (error) {
+                localStorage.removeItem('adminToken');
+                localStorage.removeItem('user');
+                
+                document.getElementById('refresh-result').innerHTML = `
+                    <div class="error">❌ Auth check network error: ${error.message}</div>
+                    <div class="error">Tokens removed from localStorage</div>
+                `;
+            }
+        }
+        
+        function checkStorageFinal() {
+            const adminToken = localStorage.getItem('adminToken');
+            const user = localStorage.getItem('user');
+            const regularToken = localStorage.getItem('token');
+            
+            const status = adminToken ? 'ADMIN STILL LOGGED IN' : 'ADMIN LOGGED OUT (TOKEN MISSING)';
+            const statusClass = adminToken ? 'success' : 'error';
+            
+            document.getElementById('final-result').innerHTML = `
+                <div class="${statusClass}">🎯 RESULT: ${status}</div>
+                <div class="info">📦 Final localStorage:</div>
+                <pre>adminToken: ${adminToken ? adminToken.substring(0, 30) + '...' : 'NULL'}
+user: ${user ? JSON.stringify(JSON.parse(user), null, 2) : 'NULL'}
+token: ${regularToken ? regularToken.substring(0, 30) + '...' : 'NULL'}</pre>
+            `;
+        }
+        
+        // Auto-check storage on load
+        window.addEventListener('load', checkStorage);
+    </script>
+</body>
+</html>
