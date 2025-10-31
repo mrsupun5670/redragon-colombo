@@ -177,7 +177,7 @@ const Footer = () => {
             &copy; 2025 Redragon Colombo - Authorized Redragon Dealer in Sri Lanka. All rights reserved.
           </p>
            <p className="text-sm text-gray-600">
-            &copy; Designed & Developed by <a href="https://www.zipzipy.com" target="_blank" rel="noopener noreferrer" className="text-blue-500 font-bold">ZipZipy</a>
+            &copy; Designed & Developed by <a href="https://www.zipzipy.com" target="_blank" rel="noopener noreferrer" >ZipZipy (Pvt) Ltd</a>
           </p>
         </div>
       </div>
