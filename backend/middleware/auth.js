@@ -36,7 +36,8 @@ const auth = (req, res, next) => {
     console.error('❌ Auth middleware error:', err.message);
     res.status(401).json({ 
       success: false,
-      message: 'Token is not valid' 
+      message: 'Token is not valid',
+      error: err.message
     });
   }
 };

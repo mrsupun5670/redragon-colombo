@@ -3,7 +3,7 @@ import { useAdminAuth } from '../../context/AdminAuthContext';
 import AdminLogin from './AdminLogin';
 
 const AdminProtectedRoute = ({ children }) => {
-  const { admin, loading } = useAdminAuth();
+  const { admin, loading, error } = useAdminAuth();
 
   if (loading) {
     return (
@@ -19,7 +19,7 @@ const AdminProtectedRoute = ({ children }) => {
   }
 
   if (!admin) {
-    return <AdminLogin />;
+    return <AdminLogin error={error} />;
   }
 
   return children;

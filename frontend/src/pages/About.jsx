@@ -106,10 +106,10 @@ const About = () => {
               <Award className="w-12 h-12 text-white" />
             </motion.div>
 
-            <h1 className="text-4xl md:text-6xl font-black text-white mb-6 uppercase tracking-tight">
+            <h1 className="text-2xl sm:text-4xl md:text-6xl font-black text-white mb-6 uppercase tracking-tight">
               About Redragon Colombo
             </h1>
-            <p className="text-xl text-white/90 font-semibold leading-relaxed">
+            <p className="text-base sm:text-lg md:text-xl text-white/90 font-semibold leading-relaxed px-4">
               Sri Lanka's premier destination for authentic Redragon gaming peripherals.
               We're passionate gamers serving gamers with genuine products and exceptional service.
             </p>
@@ -126,11 +126,11 @@ const About = () => {
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
           >
-            <h2 className="text-4xl md:text-5xl font-black text-gray-900 mb-6 uppercase">
+            <h2 className="text-2xl sm:text-3xl md:text-5xl font-black text-gray-900 mb-6 uppercase">
               <span className="text-red-600">Our</span> Story
             </h2>
             <div className="space-y-4 text-gray-700 leading-relaxed">
-              <p className="text-lg">
+              <p className="text-sm sm:text-base md:text-lg">
                 Founded with a vision to bring world-class gaming peripherals to Sri Lankan gamers,
                 <span className="font-bold text-red-600"> Redragon Colombo</span> has grown to become
                 the most trusted name in gaming gear.
@@ -168,7 +168,7 @@ const About = () => {
               whileInView={{ opacity: 1, scale: 1 }}
               viewport={{ once: true }}
               transition={{ delay: 0.3 }}
-              className="absolute -bottom-6 -right-6 bg-white rounded-2xl shadow-xl p-6 border-4 border-red-500"
+              className="hidden md:block absolute -bottom-6 -right-6 bg-white rounded-2xl shadow-xl p-6 border-4 border-red-500"
             >
               <div className="text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-red-600 to-orange-600">
                 5+ Years
@@ -217,15 +217,15 @@ const About = () => {
           viewport={{ once: true }}
           className="text-center mb-16"
         >
-          <h2 className="text-4xl md:text-6xl font-black text-gray-900 mb-4 uppercase tracking-tight">
+          <h2 className="text-2xl sm:text-3xl md:text-6xl font-black text-gray-900 mb-4 uppercase tracking-tight px-4">
             Why Choose <span className="text-transparent bg-clip-text bg-gradient-to-r from-red-600 to-orange-600">Us?</span>
           </h2>
-          <p className="text-gray-600 text-lg font-semibold max-w-2xl mx-auto">
+          <p className="text-gray-600 text-sm sm:text-base md:text-lg font-semibold max-w-2xl mx-auto px-4">
             We're not just a store—we're your gaming partner
           </p>
         </motion.div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-8 px-4 md:px-0">
           {features.map((feature, index) => (
             <motion.div
               key={index}
@@ -234,15 +234,15 @@ const About = () => {
               viewport={{ once: true }}
               transition={{ delay: index * 0.1 }}
               whileHover={{ y: -10 }}
-              className="bg-white rounded-2xl p-6 shadow-lg hover:shadow-2xl transition-all border-2 border-gray-100 hover:border-red-500/20"
+              className="bg-white rounded-2xl p-4 md:p-6 shadow-lg hover:shadow-2xl transition-all border-2 border-gray-100 hover:border-red-500/20"
             >
               <div className={`inline-flex w-16 h-16 bg-gradient-to-br ${feature.color} rounded-xl items-center justify-center mb-4 shadow-lg`}>
                 <feature.icon className="w-8 h-8 text-white" />
               </div>
-              <h3 className="text-xl font-black text-gray-900 mb-3 uppercase">
+              <h3 className="text-base md:text-xl font-black text-gray-900 mb-3 uppercase">
                 {feature.title}
               </h3>
-              <p className="text-gray-600 leading-relaxed">
+              <p className="text-sm md:text-base text-gray-600 leading-relaxed">
                 {feature.description}
               </p>
             </motion.div>
@@ -253,7 +253,7 @@ const About = () => {
       {/* Mission, Vision, Values */}
       <div className="bg-gradient-to-br from-red-50 via-white to-orange-50 py-20">
         <div className="container mx-auto px-4">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-8">
             {values.map((value, index) => (
               <motion.div
                 key={index}
@@ -261,15 +261,15 @@ const About = () => {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: index * 0.2 }}
-                className="bg-white rounded-2xl p-8 shadow-xl border-2 border-gray-100 hover:border-red-500/20 transition-all"
+                className="bg-white rounded-2xl p-4 md:p-8 shadow-xl border-2 border-gray-100 hover:border-red-500/20 transition-all"
               >
-                <div className="inline-flex w-20 h-20 bg-gradient-to-br from-red-500 to-orange-500 rounded-full items-center justify-center mb-6 shadow-lg">
-                  <value.icon className="w-10 h-10 text-white" />
+                <div className="inline-flex w-16 md:w-20 h-16 md:h-20 bg-gradient-to-br from-red-500 to-orange-500 rounded-full items-center justify-center mb-6 shadow-lg">
+                  <value.icon className="w-8 md:w-10 h-8 md:h-10 text-white" />
                 </div>
-                <h3 className="text-2xl font-black text-gray-900 mb-4 uppercase">
+                <h3 className="text-lg md:text-2xl font-black text-gray-900 mb-4 uppercase">
                   {value.title}
                 </h3>
-                <p className="text-gray-700 leading-relaxed text-lg">
+                <p className="text-gray-700 leading-relaxed text-sm md:text-lg">
                   {value.description}
                 </p>
               </motion.div>
@@ -286,15 +286,15 @@ const About = () => {
           viewport={{ once: true }}
           className="text-center mb-12"
         >
-          <h2 className="text-4xl md:text-6xl font-black text-gray-900 mb-4 uppercase tracking-tight">
+          <h2 className="text-2xl sm:text-3xl md:text-6xl font-black text-gray-900 mb-4 uppercase tracking-tight px-4">
             Get In <span className="text-red-600">Touch</span>
           </h2>
-          <p className="text-gray-600 text-lg font-semibold">
+          <p className="text-gray-600 text-sm sm:text-base md:text-lg font-semibold px-4">
             Visit us or reach out—we're always here to help!
           </p>
         </motion.div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-8 max-w-5xl mx-auto px-4 md:px-0">
           {[
             {
               icon: MapPin,
@@ -322,15 +322,15 @@ const About = () => {
               viewport={{ once: true }}
               transition={{ delay: index * 0.1 }}
               whileHover={{ y: -5 }}
-              className="bg-white rounded-2xl p-8 shadow-lg hover:shadow-2xl transition-all border-2 border-gray-100 hover:border-red-500/20 text-center"
+              className="bg-white rounded-2xl p-4 md:p-8 shadow-lg hover:shadow-2xl transition-all border-2 border-gray-100 hover:border-red-500/20 text-center"
             >
-              <div className={`inline-flex w-16 h-16 bg-gradient-to-br ${contact.color} rounded-xl items-center justify-center mb-4 shadow-lg`}>
-                <contact.icon className="w-8 h-8 text-white" />
+              <div className={`inline-flex w-14 md:w-16 h-14 md:h-16 bg-gradient-to-br ${contact.color} rounded-xl items-center justify-center mb-4 shadow-lg`}>
+                <contact.icon className="w-7 md:w-8 h-7 md:h-8 text-white" />
               </div>
-              <h3 className="text-xl font-black text-gray-900 mb-3 uppercase">
+              <h3 className="text-base md:text-xl font-black text-gray-900 mb-3 uppercase">
                 {contact.title}
               </h3>
-              <p className="text-gray-600 font-semibold">
+              <p className="text-gray-600 font-semibold text-sm md:text-base">
                 {contact.info}
               </p>
             </motion.div>
@@ -346,10 +346,10 @@ const About = () => {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
           >
-            <h2 className="text-3xl md:text-5xl font-black text-white mb-6 uppercase">
+            <h2 className="text-2xl sm:text-3xl md:text-5xl font-black text-white mb-6 uppercase px-4">
               Ready to Upgrade Your Gaming Setup?
             </h2>
-            <p className="text-xl text-white/90 mb-8 font-semibold">
+            <p className="text-base sm:text-lg md:text-xl text-white/90 mb-8 font-semibold px-4">
               Browse our collection of authentic Redragon products
             </p>
             <motion.a

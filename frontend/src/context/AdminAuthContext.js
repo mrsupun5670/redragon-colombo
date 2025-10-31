@@ -14,14 +14,16 @@ export const AdminAuthProvider = ({ children }) => {
   const [admin, setAdmin] = useState(null);
   const [token, setToken] = useState(localStorage.getItem('adminToken'));
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   // Check if admin is authenticated on mount
   useEffect(() => {
     const checkAuth = async () => {
       const storedToken = localStorage.getItem('adminToken');
+      
       if (storedToken) {
         try {
-          const response = await fetch('http://localhost:5001/api/auth/me', {
+          const response = await fetch(process.env.REACT_APP_API_URL + '/auth/me', {
             headers: {
               'Authorization': `Bearer ${storedToken}`,
               'Content-Type': 'application/json'
@@ -30,20 +32,25 @@ export const AdminAuthProvider = ({ children }) => {
 
           const data = await response.json();
           
-          if (data.success && data.user.type === 'admin') {
+          if (response.ok && data.success && data.user && data.user.type === 'admin') {
             setAdmin(data.user);
             setToken(storedToken);
+            setError(null);
           } else {
             // Invalid token or not an admin
             localStorage.removeItem('adminToken');
+            localStorage.removeItem('user'); // Also remove user data
             setAdmin(null);
             setToken(null);
+            setError(data.message || 'Authentication failed');
           }
         } catch (error) {
           console.error('Error checking admin auth:', error);
           localStorage.removeItem('adminToken');
+          localStorage.removeItem('user'); // Also remove user data
           setAdmin(null);
           setToken(null);
+          setError('An error occurred during authentication.');
         }
       }
       setLoading(false);
@@ -54,7 +61,7 @@ export const AdminAuthProvider = ({ children }) => {
 
   const login = async (username, password) => {
     try {
-      const response = await fetch('http://localhost:5001/api/auth/admin/login', {
+      const response = await fetch(process.env.REACT_APP_API_URL +'/auth/admin/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -66,8 +73,10 @@ export const AdminAuthProvider = ({ children }) => {
 
       if (data.success) {
         localStorage.setItem('adminToken', data.token);
+        localStorage.setItem('user', JSON.stringify(data.user)); // Also store user data for userUtils.isAdmin()
         setToken(data.token);
         setAdmin(data.user);
+        setError(null);
         return { success: true };
       } else {
         return { success: false, message: data.message };
@@ -80,8 +89,10 @@ export const AdminAuthProvider = ({ children }) => {
 
   const logout = () => {
     localStorage.removeItem('adminToken');
+    localStorage.removeItem('user'); // Also remove user data
     setAdmin(null);
     setToken(null);
+    setError(null);
   };
 
   const value = {
@@ -90,7 +101,8 @@ export const AdminAuthProvider = ({ children }) => {
     loading,
     login,
     logout,
-    isAuthenticated: !!admin
+    isAuthenticated: !!admin,
+    error
   };
 
   return (
