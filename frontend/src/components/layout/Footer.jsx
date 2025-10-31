@@ -227,7 +227,7 @@ const Footer = () => {
               rel="noopener noreferrer"
               className="text-blue-500 font-bold"
             >
-              ZipZipy PVT LTD
+              ZipZipy
             </a>
           </p>
         </div>
