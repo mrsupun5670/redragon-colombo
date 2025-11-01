@@ -2,7 +2,7 @@ import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const WhatsAppButton = () => {
-  const phoneNumber = "+94112345678"; // Replace with actual WhatsApp number
+  const phoneNumber = "+94777624028"; // Replace with actual WhatsApp number
   const message = "Hello! I'm interested in Redragon products.";
 
   const handleWhatsAppClick = () => {

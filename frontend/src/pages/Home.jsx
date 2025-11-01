@@ -2,12 +2,11 @@ import React, { useState, useEffect } from 'react';
 import Navbar from '../components/layout/Navbar';
 import Footer from '../components/layout/Footer';
 import WhatsAppButton from '../components/common/WhatsAppButton';
+import SEOHead from '../components/common/SEOHead';
 import FullScreenCarousel from '../components/features/home/FullScreenCarousel';
-import ProductCarousel from '../components/features/home/ProductCarousel';
 import AutoScrollCategories from '../components/features/home/AutoScrollCategories';
 import AutoScrollBrands from '../components/features/home/AutoScrollBrands';
 import AutoScrollProducts from '../components/features/home/AutoScrollProducts';
-import YouTubeEmbed from '../components/common/YouTubeEmbed';
 import GoogleReviewsWidget from '../components/common/GoogleReviewsWidget';
 import { productAPI, categoryAPI, brandAPI } from '../services/api';
 import { motion } from 'framer-motion';
@@ -68,7 +67,6 @@ const HomePage = () => {
     fetchData();
   }, []);
 
-  console.log('Navbar:', Navbar);
   
   if (loading) {
     return (
@@ -99,6 +97,46 @@ const HomePage = () => {
 
   return (
     <div className="bg-gray-900 text-white">
+      <SEOHead 
+        title="Redragon Colombo - Official Gaming Peripherals Store Sri Lanka | Keyboards, Mice, Headsets"
+        description="Shop authentic Redragon gaming gear in Sri Lanka. Mechanical keyboards, gaming mice, headsets & accessories with genuine warranty. Fast delivery across Colombo & island-wide."
+        keywords="redragon sri lanka, gaming keyboards, mechanical keyboards, gaming mice, gaming headsets, redragon colombo, gaming gear sri lanka, gaming peripherals"
+        url="/"
+        structuredData={{
+          "@context": "https://schema.org",
+          "@type": "Store",
+          "name": "Redragon Colombo",
+          "description": "Official Redragon gaming peripherals store in Sri Lanka",
+          "url": "https://www.redragoncolombo.lk",
+          "logo": "https://www.redragoncolombo.lk/images/logo/redragon_logo.png",
+          "telephone": "+94-11-1234567",
+          "email": "info@redragoncolombo.lk",
+          "address": {
+            "@type": "PostalAddress",
+            "addressLocality": "Colombo",
+            "addressCountry": "LK"
+          },
+          "hasOfferCatalog": {
+            "@type": "OfferCatalog",
+            "name": "Gaming Peripherals",
+            "itemListElement": [
+              {
+                "@type": "OfferCatalog",
+                "name": "Gaming Keyboards",
+                "itemListElement": featuredProducts.filter(p => p.category_name?.toLowerCase().includes('keyboard')).map(product => ({
+                  "@type": "Product",
+                  "name": product.name,
+                  "offers": {
+                    "@type": "Offer",
+                    "price": product.sale_price || product.price,
+                    "priceCurrency": "LKR"
+                  }
+                }))
+              }
+            ]
+          }
+        }}
+      />
       <Navbar />
       <WhatsAppButton />
       <FullScreenCarousel />
@@ -174,7 +212,6 @@ const HomePage = () => {
       {/* Featured Products Section */}
       <div className="py-16 bg-gray-900">
         <div className="container mx-auto px-4">
-          {console.log(featuredProducts) }
           <h2 className="text-3xl font-bold text-white text-center mb-8 uppercase">Featured Products</h2>
           {featuredProducts.length > 0 ? (
             <AutoScrollProducts products={featuredProducts} bg_color="from-gray-900" />

@@ -88,17 +88,14 @@ export const initializePayHere = (navigate, orderData) => {
 
   // PayHere callbacks
   payhere.onCompleted = function onCompleted(orderId) {
-    console.log("Payment completed. OrderID:" + orderId);
     handlePaymentSuccess(navigate, { orderId, ...orderData });
   };
 
   payhere.onDismissed = function onDismissed() {
-    console.log("Payment dismissed");
     handlePaymentCancel(navigate, { reason: "Payment dismissed by user" });
   };
 
   payhere.onError = function onError(error) {
-    console.log("Error:" + error);
     handlePaymentCancel(navigate, { reason: "Payment error: " + error });
   };
 

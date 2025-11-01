@@ -49,7 +49,6 @@ const Wishlist = () => {
           setWishlistItems(guestWishlist);
         }
       } catch (error) {
-        console.error('Error loading wishlist:', error);
         setError('Failed to load wishlist');
         setWishlistItems([]);
       } finally {
@@ -84,7 +83,6 @@ const Wishlist = () => {
       // Dispatch custom event to update navbar
       window.dispatchEvent(new Event('wishlistUpdated'));
     } catch (error) {
-      console.error('Error removing from wishlist:', error);
       setError('Failed to remove product from wishlist');
     }
   };
@@ -92,12 +90,9 @@ const Wishlist = () => {
   // Add to cart
   const addToCart = async (product) => {
     try {
-      console.log('Adding product to cart:', product);
       await addToCartContext(product, 1);
       setSuccess(`${product.name} added to cart!`);
-      console.log('Product added successfully');
     } catch (error) {
-      console.error('Error adding to cart:', error);
       setError(error.message || 'Failed to add product to cart');
     }
   };

@@ -15,6 +15,7 @@ import Navbar from "../components/layout/Navbar";
 import Footer from "../components/layout/Footer";
 import WhatsAppButton from "../components/common/WhatsAppButton";
 import ParticleEffect from "../components/common/ParticleEffect";
+import SEOHead from "../components/common/SEOHead";
 import { productAPI, categoryAPI, brandAPI } from "../services/api";
 
 const Products = () => {
@@ -267,6 +268,34 @@ const Products = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 via-white to-gray-100">
+      <SEOHead 
+        title="Gaming Products - Redragon Colombo | Keyboards, Mice, Headsets Sri Lanka"
+        description="Browse our complete collection of Redragon gaming peripherals in Sri Lanka. Gaming keyboards, mice, headsets & accessories with genuine warranty and fast delivery."
+        keywords="redragon products, gaming keyboards sri lanka, gaming mice, gaming headsets, mechanical keyboards, gaming accessories, redragon colombo"
+        url="/products"
+        structuredData={{
+          "@context": "https://schema.org",
+          "@type": "CollectionPage",
+          "name": "Gaming Products",
+          "description": "Complete collection of Redragon gaming peripherals",
+          "url": "https://www.redragoncolombo.lk/products",
+          "mainEntity": {
+            "@type": "ItemList",
+            "numberOfItems": filteredProducts.length,
+            "itemListElement": filteredProducts.slice(0, 10).map((product, index) => ({
+              "@type": "Product",
+              "position": index + 1,
+              "name": product.name,
+              "image": product.images?.[0] ? `https://www.redragoncolombo.lk/uploads/products/${product.images[0]}` : "",
+              "offers": {
+                "@type": "Offer",
+                "price": product.sale_price || product.price,
+                "priceCurrency": "LKR"
+              }
+            }))
+          }
+        }}
+      />
       <ParticleEffect />
       <Navbar />
 

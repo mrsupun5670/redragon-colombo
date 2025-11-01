@@ -14,42 +14,49 @@ const slides = [
     title: 'Ultimate Gaming Experience',
     subtitle: 'High-performance PCs for the dedicated gamer.',
     position: 'center',
+    alt: 'Redragon gaming setup with high-performance gaming PC and peripherals'
   },
   {
     image: '/images/slider_images/2.jpg',
     title: 'Precision Engineered Keyboards',
     subtitle: 'Mechanical keyboards for unmatched speed and accuracy.',
-    position: 'center', 
+    position: 'center',
+    alt: 'Redragon mechanical gaming keyboard with RGB lighting and precision keys'
   },
   {
     image: '/images/slider_images/3.jpg',
     title: 'Crystal Clear Audio',
     subtitle: 'Immersive headsets to hear every detail.',
     position: 'center',
+    alt: 'Redragon gaming headset with crystal clear audio and noise cancellation'
   },
   {
     image: '/images/slider_images/4.jpg',
     title: 'Next-Gen Graphics Cards',
     subtitle: 'Experience games in stunning 8K resolution.',
     position: 'center',
+    alt: 'High-end graphics cards for 8K gaming resolution and performance'
   },
   {
     image: '/images/slider_images/5.jpg',
     title: 'Ergonomic Gaming Mice',
     subtitle: 'Designed for comfort and precision in the heat of battle.',
     position: 'center',
+    alt: 'Redragon ergonomic gaming mouse with precision sensors and RGB lighting'
   },
   {
     image: '/images/slider_images/6.jpg',
     title: 'Custom PC Builds',
     subtitle: 'Tailor-made systems to match your gaming style.',
     position: 'center',
+    alt: 'Custom built gaming PC with high-performance components and RGB lighting'
   },
   {
     image: '/images/slider_images/7.jpg',
     title: 'Liquid Cooling Solutions',
     subtitle: 'Keep your system cool under pressure for maximum performance.',
     position: 'center',
+    alt: 'Advanced liquid cooling system for gaming PCs with optimal temperature control'
   },
 ];
 

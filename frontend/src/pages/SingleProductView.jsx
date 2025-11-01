@@ -26,6 +26,7 @@ import WhatsAppButton from "../components/common/WhatsAppButton";
 import ParticleEffect from "../components/common/ParticleEffect";
 import ErrorPopup from "../components/common/ErrorPopup";
 import SuccessPopup from "../components/common/SuccessPopup";
+import SEOHead from "../components/common/SEOHead";
 import { productAPI, wishlistAPI, reviewAPI } from "../services/api";
 import CartContext from "../context/CartContext";
 import { useAuth } from "../context/AuthContext";
@@ -305,8 +306,22 @@ const SingleProductView = () => {
     );
   }
 
+  const productTitle = product ? `${product.name} - ${product.brand_name || 'Redragon'} | Redragon Colombo` : 'Product - Redragon Colombo';
+  const productDescription = product ? `Buy ${product.name} in Sri Lanka. ${product.description || 'Genuine Redragon gaming gear with warranty.'} Price: Rs. ${product.sale_price || product.price}` : 'Gaming product at Redragon Colombo';
+  const productKeywords = product ? `${product.name}, ${product.brand_name || 'Redragon'}, ${product.category_name || 'gaming'}, sri lanka, buy online, gaming gear` : 'redragon, gaming, sri lanka';
+  const productImage = product?.images?.[0] ? `/uploads/products/${product.images[0]}` : '/images/logo/redragon_logo.png';
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 via-white to-gray-100">
+      <SEOHead 
+        title={productTitle}
+        description={productDescription}
+        keywords={productKeywords}
+        image={productImage}
+        url={`/product/${id}`}
+        type="product"
+        product={product}
+      />
       <ParticleEffect />
       <Navbar />
 

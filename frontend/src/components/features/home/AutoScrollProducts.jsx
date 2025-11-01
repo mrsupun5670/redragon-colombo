@@ -1,16 +1,18 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState, memo, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import useWindowDimensions from '../../../hooks/useWindowDimensions';
 import ProductCard from '../../common/ProductCard.jsx';
 
-const AutoScrollProducts = ({ products, bg_color }) => {
+const AutoScrollProducts = memo(({ products, bg_color }) => {
   const scrollRef = useRef(null);
   const [isPaused, setIsPaused] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
   const { width } = useWindowDimensions();
 
-  const cardWidth = width < 768 ? 250 : 300;
-  const gap = width < 768 ? 16 : 24;
+  const { cardWidth, gap } = useMemo(() => ({
+    cardWidth: width < 768 ? 250 : 300,
+    gap: width < 768 ? 16 : 24
+  }), [width]);
   
   useEffect(() => {
     if (isPaused || products.length === 0) return;
@@ -84,6 +86,8 @@ const AutoScrollProducts = ({ products, bg_color }) => {
       <div className={`absolute right-0 top-0 bottom-0 w-20 bg-gradient-to-l ${bg_color} to-transparent pointer-events-none z-10`} />
     </div>
   );
-};
+});
+
+AutoScrollProducts.displayName = 'AutoScrollProducts';
 
 export default AutoScrollProducts;

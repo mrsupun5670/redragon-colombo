@@ -1,0 +1,31 @@
+User-agent: *
+Allow: /
+
+# Disallow admin pages
+Disallow: /admin/
+Disallow: /admin/*
+
+# Disallow payment processing pages (private)
+Disallow: /payment/
+Disallow: /checkout/
+
+# Disallow user account pages (private)
+Disallow: /account/
+Disallow: /login/
+Disallow: /register/
+
+# Allow specific public pages
+Allow: /
+Allow: /products/
+Allow: /product/
+Allow: /categories/
+Allow: /about/
+Allow: /refund-policy/
+Allow: /privacy-policy/
+Allow: /terms-conditions/
+
+# Sitemap location
+Sitemap: https://www.redragoncolombo.lk/sitemap.xml
+
+# Crawl delay for better server performance
+Crawl-delay: 1

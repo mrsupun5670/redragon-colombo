@@ -1,10 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, memo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Star, Shield, ShoppingCart, Eye } from 'lucide-react';
+import { Star, Shield, Eye } from 'lucide-react';
 import { getOptimizedImageUrl, handleImageError, getAspectRatioStyle } from '../../utils/imageUtils';
 
-const FuturisticProductCard = ({ product, showCategory = false }) => {
+const FuturisticProductCard = memo(({ product, showCategory = false }) => {
   const navigate = useNavigate();
   const [isHovered, setIsHovered] = useState(false);
 
@@ -215,6 +215,8 @@ const FuturisticProductCard = ({ product, showCategory = false }) => {
       </motion.div>
     </motion.div>
   );
-};
+});
+
+FuturisticProductCard.displayName = 'FuturisticProductCard';
 
 export default FuturisticProductCard;

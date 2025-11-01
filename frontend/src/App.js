@@ -1,4 +1,4 @@
-import React from "react";
+import React, { Suspense, lazy } from "react";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext";
 import { CartProvider } from "./context/CartContext";
@@ -12,34 +12,45 @@ import PaymentRoute from "./components/common/PaymentRoute";
 import ForgotPasswordRoute from "./components/common/ForgotPasswordRoute";
 import CartSyncHandler from "./components/common/CartSyncHandler";
 
-import Home from "./pages/Home";
-import Products from "./pages/Products";
-import ProductDetail from "./pages/ProductDetail";
-import SingleProductView from "./pages/SingleProductView";
-import Cart from "./pages/Cart";
-import Checkout from "./pages/Checkout";
-import LoginPage from "./pages/Login.jsx";
-import RegisterPage from "./pages/Register.jsx";
-import ForgotPasswordPage from "./pages/ForgotPassword.jsx";
-import AdminDashboard from "./pages/AdminDashboard";
-import About from "./pages/About";
-import Wishlist from "./pages/Wishlist";
-import CategoriesPage from "./pages/Categories.jsx";
-import AdminLogin from "./pages/AdminLogin.jsx";
-import MyAccount from "./pages/MyAccount.jsx";
-import PaymentSuccess from "./pages/PaymentSuccess.jsx";
-import PaymentCancel from "./pages/PaymentCancel.jsx";
+// Lazy load components
+const Home = lazy(() => import("./pages/Home"));
+const Products = lazy(() => import("./pages/Products"));
+const ProductDetail = lazy(() => import("./pages/ProductDetail"));
+const SingleProductView = lazy(() => import("./pages/SingleProductView"));
+const Cart = lazy(() => import("./pages/Cart"));
+const Checkout = lazy(() => import("./pages/Checkout"));
+const LoginPage = lazy(() => import("./pages/Login.jsx"));
+const RegisterPage = lazy(() => import("./pages/Register.jsx"));
+const ForgotPasswordPage = lazy(() => import("./pages/ForgotPassword.jsx"));
+const AdminDashboard = lazy(() => import("./pages/AdminDashboard"));
+const About = lazy(() => import("./pages/About"));
+const Wishlist = lazy(() => import("./pages/Wishlist"));
+const CategoriesPage = lazy(() => import("./pages/Categories.jsx"));
+const AdminLogin = lazy(() => import("./pages/AdminLogin.jsx"));
+const MyAccount = lazy(() => import("./pages/MyAccount.jsx"));
+const PaymentSuccess = lazy(() => import("./pages/PaymentSuccess.jsx"));
+const PaymentCancel = lazy(() => import("./pages/PaymentCancel.jsx"));
 
 // Error Pages
-import NotFound404 from "./pages/NotFound404.jsx";
-import Forbidden403 from "./pages/Forbidden403.jsx";
-import ServerError500 from "./pages/ServerError500.jsx";
-import ErrorPage from "./pages/ErrorPage.jsx";
+const NotFound404 = lazy(() => import("./pages/NotFound404.jsx"));
+const Forbidden403 = lazy(() => import("./pages/Forbidden403.jsx"));
+const ServerError500 = lazy(() => import("./pages/ServerError500.jsx"));
+const ErrorPage = lazy(() => import("./pages/ErrorPage.jsx"));
 
 // Policy Pages
-import RefundPolicy from "./pages/RefundPolicy.jsx";
-import PrivacyPolicy from "./pages/PrivacyPolicy.jsx";
-import TermsConditions from "./pages/TermsConditions.jsx";
+const RefundPolicy = lazy(() => import("./pages/RefundPolicy.jsx"));
+const PrivacyPolicy = lazy(() => import("./pages/PrivacyPolicy.jsx"));
+const TermsConditions = lazy(() => import("./pages/TermsConditions.jsx"));
+
+// Loading component
+const LoadingSpinner = () => (
+  <div className="min-h-screen bg-gray-900 flex items-center justify-center">
+    <div className="text-center">
+      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-500 mx-auto mb-4"></div>
+      <p className="text-white font-semibold">Loading...</p>
+    </div>
+  </div>
+);
 
 function App() {
   return (
@@ -48,7 +59,8 @@ function App() {
         <CartSyncHandler />
         <AdminAuthProvider>
           <Router>
-            <Routes>
+            <Suspense fallback={<LoadingSpinner />}>
+              <Routes>
               {/* Main Pages - Protected from admin access */}
               <Route path="/" element={
                 <AdminRouteGuard>
@@ -165,7 +177,8 @@ function App() {
 
               {/* Catch-all 404 route */}
               <Route path="*" element={<NotFound404 />} />
-            </Routes>
+              </Routes>
+            </Suspense>
           </Router>
         </AdminAuthProvider>
       </CartProvider>
