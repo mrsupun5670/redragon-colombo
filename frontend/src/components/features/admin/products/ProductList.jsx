@@ -8,7 +8,6 @@ import SuccessPopup from '../../../common/SuccessPopup';
 const ProductList = () => {
   const [allProducts, setAllProducts] = useState([]);
   const [products, setProducts] = useState([]);
-  const [displayedProducts, setDisplayedProducts] = useState([]);
   const [brands, setBrands] = useState([]);
   const [mainCategories, setMainCategories] = useState([]);
   const [subCategories, setSubCategories] = useState([]);
@@ -16,13 +15,10 @@ const ProductList = () => {
   const [mainCategoryNames, setMainCategoryNames] = useState(['all']);
   const [subCategoryNames, setSubCategoryNames] = useState(['all']);
   const [loading, setLoading] = useState(true);
-  const [loadingMore, setLoadingMore] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
   const [editingProduct, setEditingProduct] = useState(null);
   const [activeTab, setActiveTab] = useState('details');
   const [searchQuery, setSearchQuery] = useState('');
-  const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage] = useState(20);
   const [filters, setFilters] = useState({
     stockStatus: 'all',
     status: 'all',
@@ -303,40 +299,11 @@ const ProductList = () => {
       subcategory: 'all'
     });
     setProducts(allProducts);
-    setCurrentPage(1);
   };
 
   useEffect(() => {
     applyFilters();
   }, [applyFilters]);
-
-  // Load more products on scroll
-  const handleScroll = useCallback((e) => {
-    const element = e.currentTarget;
-    const scrollPercentage = (element.scrollTop + element.clientHeight) / element.scrollHeight;
-    // Load more when user scrolls to 80% of the content
-    if (scrollPercentage > 0.8 && !loadingMore) {
-      loadMoreProducts();
-    }
-  }, [currentPage, products.length, itemsPerPage, loadingMore]);
-
-  const loadMoreProducts = useCallback(() => {
-    const totalPages = Math.ceil(products.length / itemsPerPage);
-    if (currentPage < totalPages && !loadingMore) {
-      setLoadingMore(true);
-      setTimeout(() => {
-        setCurrentPage(prev => prev + 1);
-        setLoadingMore(false);
-      }, 300);
-    }
-  }, [currentPage, products.length, itemsPerPage, loadingMore]);
-
-  // Update displayed products when products or currentPage changes
-  useEffect(() => {
-    const startIdx = 0;
-    const endIdx = currentPage * itemsPerPage;
-    setDisplayedProducts(products.slice(startIdx, endIdx));
-  }, [products, currentPage, itemsPerPage]);
 
   if (loading) {
     return (
@@ -353,7 +320,7 @@ const ProductList = () => {
       {/* Filter Bar */}
       <div className="mb-4 md:mb-6">
         <div className="flex flex-col lg:flex-row justify-between items-stretch lg:items-center mb-4 gap-3 md:gap-4">
-          <h3 className="text-base md:text-lg font-semibold text-gray-700">Product List ({displayedProducts.length}/{products.length})</h3>
+          <h3 className="text-base md:text-lg font-semibold text-gray-700">Product List ({products.length})</h3>
 
           {/* Search Bar */}
           <div className="flex-1 lg:max-w-md">
@@ -483,10 +450,10 @@ const ProductList = () => {
       </div>
 
       {/* Product Table */}
-      <div className="overflow-x-auto overflow-y-auto max-h-[600px] -mx-4 md:mx-0" onScroll={handleScroll}>
+      <div className="overflow-x-auto -mx-4 md:mx-0">
         <div className="inline-block min-w-full align-middle">
           <table className="min-w-full text-left">
-            <thead className="sticky top-0 bg-blue-50">
+            <thead>
               <tr className="border-b border-blue-200">
                 <th className="p-2 md:p-3 text-xs md:text-sm">ID</th>
                 <th className="p-2 md:p-3 text-xs md:text-sm">Name</th>
@@ -500,7 +467,7 @@ const ProductList = () => {
               </tr>
             </thead>
             <tbody>
-              {displayedProducts.map((product, index) => (
+              {products.map((product, index) => (
                 <motion.tr
                   key={product.id}
                   initial={{ opacity: 0, y: 20 }}
@@ -549,18 +516,7 @@ const ProductList = () => {
             </tbody>
           </table>
         </div>
-        {loadingMore && (
-          <div className="flex justify-center items-center p-4">
-            <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-red-600"></div>
-            <span className="ml-2 text-sm text-gray-600">Loading more products...</span>
-          </div>
-        )}
       </div>
-      {currentPage * itemsPerPage < products.length && (
-        <div className="mt-4 text-center text-sm text-gray-600">
-          Scroll down to load more products (showing {displayedProducts.length} of {products.length})
-        </div>
-      )}
 
       {/* Edit Product Modal */}
       <AnimatePresence>
