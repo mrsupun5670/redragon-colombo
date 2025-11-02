@@ -12,6 +12,7 @@ import RefundList from "../components/features/admin/refunds/RefundList";
 import DeliverySettings from "../components/features/admin/delivery/DeliverySettings";
 import SalesCharts from "../components/features/admin/sales/SalesCharts";
 import PromoList from "../components/features/admin/promotions/PromoList";
+import Settings from "../components/features/admin/Settings";
 
 const AdminDashboard = () => {
   const [activeTab, setActiveTab] = useState("dashboard");
@@ -128,6 +129,12 @@ const AdminDashboard = () => {
         return (
           <div>
             <SalesCharts />
+          </div>
+        );
+      case "settings":
+        return (
+          <div>
+            <Settings />
           </div>
         );
       default:

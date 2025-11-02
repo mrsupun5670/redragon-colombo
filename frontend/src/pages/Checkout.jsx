@@ -12,7 +12,7 @@ import ParticleEffect from "../components/common/ParticleEffect";
 import ErrorPopup from "../components/common/ErrorPopup";
 import SuccessPopup from "../components/common/SuccessPopup";
 import CartContext from "../context/CartContext";
-import api, { locationAPI, authAPI, addressAPI, payhereAPI, orderAPI } from "../services/api";
+import api, { locationAPI, authAPI, addressAPI, payhereAPI, kokoPaymentAPI, orderAPI } from "../services/api";
 
 const Checkout = () => {
   const navigate = useNavigate();
@@ -418,76 +418,29 @@ const Checkout = () => {
   const handleFinalSubmit = async () => {
     try {
       setLoading(true);
-      
+
+      // Generate unique order ID
+      const orderId = `ORD${Date.now()}`;
+      const totalAmount = (cartSubtotal + deliveryCharge + paymentFee).toFixed(2);
+
+      // Convert shipping info to correct format with names instead of IDs
+      const processedShippingInfo = {
+        firstName: shippingInfo.firstName,
+        lastName: shippingInfo.lastName,
+        email: shippingInfo.email,
+        phone: shippingInfo.phone,
+        addressLine1: shippingInfo.addressLine1,
+        addressLine2: shippingInfo.addressLine2,
+        city: cities.find(c => c.city_id == shippingInfo.city)?.city_name || '',
+        district: districts.find(d => d.id == shippingInfo.district)?.name || '',
+        province: provinces.find(p => p.id == shippingInfo.province)?.name || '',
+        postalCode: shippingInfo.postalCode,
+        country: shippingInfo.country
+      };
+
       // Check payment method type
       if (paymentMethod === 'bank_transfer') {
-        // For bank transfer, show bank details instead of processing payment
-        setStep(4); // Move to bank transfer details step
-        setLoading(false);
-        return;
-      }
-      
-      // For all payment methods, save order to database
-      // PayHere integration commented out for now
-      // if (paymentMethod === 'debit_card' || paymentMethod === 'credit_card') {
-        // Generate unique order ID
-        const orderId = `ORD${Date.now()}`;
-        const totalAmount = (cartSubtotal + deliveryCharge + paymentFee).toFixed(2);
-        
-        // TODO: PayHere integration (commented for now)
-        /*
-        // Generate PayHere hash
-        const hashResponse = await payhereAPI.generateHash(paymentData);
-        
-        if (hashResponse.data.success) {
-          const paymentConfig = hashResponse.data.data;
-          
-          // Check if PayHere is loaded
-          if (!window.payhere || !window.payhere.startPayment) {
-            throw new Error('PayHere SDK not loaded. Please refresh the page and try again.');
-          }
-          
-          // Configure PayHere payment
-          window.payhere.startPayment({
-            sandbox: true, // Set to false for production
-            merchant_id: paymentConfig.merchant_id,
-            return_url: paymentConfig.return_url,
-            cancel_url: paymentConfig.cancel_url,
-            notify_url: paymentConfig.notify_url,
-            order_id: paymentConfig.order_id,
-            items: cartItems.map(item => item.product_name).join(', '),
-            amount: paymentConfig.amount,
-            currency: paymentConfig.currency,
-            hash: paymentConfig.hash,
-            first_name: paymentConfig.first_name,
-            last_name: paymentConfig.last_name,
-            email: paymentConfig.email,
-            phone: paymentConfig.phone,
-            address: paymentConfig.address,
-            city: paymentConfig.city,
-            country: paymentConfig.country
-          });
-        } else {
-          throw new Error('Failed to generate payment hash');
-        }
-        */
-        
-        // Convert shipping info to correct format with names instead of IDs
-        const processedShippingInfo = {
-          firstName: shippingInfo.firstName,
-          lastName: shippingInfo.lastName,
-          email: shippingInfo.email,
-          phone: shippingInfo.phone,
-          addressLine1: shippingInfo.addressLine1,
-          addressLine2: shippingInfo.addressLine2,
-          city: cities.find(c => c.city_id == shippingInfo.city)?.city_name || '',
-          district: districts.find(d => d.id == shippingInfo.district)?.name || '',
-          province: provinces.find(p => p.id == shippingInfo.province)?.name || '',
-          postalCode: shippingInfo.postalCode,
-          country: shippingInfo.country
-        };
-
-        // Save order to database instead
+        // For bank transfer, create order and show bank details
         const orderData = {
           order_number: orderId,
           subtotal: cartSubtotal,
@@ -505,23 +458,114 @@ const Checkout = () => {
             subtotal: (item.sale_price || item.price) * item.quantity
           }))
         };
-        
+
         const orderResponse = await orderAPI.createOrder(orderData);
-        
+
         if (orderResponse.data.success) {
-          setSuccess("Order placed successfully! Thank you for your purchase.");
-          // Clear cart after successful order
-          await clearCart();
-          setTimeout(() => {
-            navigate('/account');
-          }, 3000);
+          setLoading(false);
+          setStep(4); // Move to bank transfer details step
+          return;
         } else {
           throw new Error('Failed to create order');
         }
-      // }
+      }
+
+      // Handle Koko Payment
+      if (paymentMethod === 'koko_payment') {
+        // First create the order
+        const orderData = {
+          order_number: orderId,
+          subtotal: cartSubtotal,
+          shipping_fee: deliveryCharge,
+          payment_fee: paymentFee,
+          total: totalAmount,
+          payment_method: paymentMethod,
+          shipping_info: processedShippingInfo,
+          items: cartItems.map(item => ({
+            product_id: item.id,
+            product_name: item.name,
+            product_image: item.primary_image,
+            price: item.sale_price || item.price,
+            quantity: item.quantity,
+            subtotal: (item.sale_price || item.price) * item.quantity
+          }))
+        };
+
+        const orderResponse = await orderAPI.createOrder(orderData);
+
+        if (!orderResponse.data.success) {
+          throw new Error('Failed to create order');
+        }
+
+        // Then initialize Koko Payment
+        const kokoPaymentData = {
+          order_number: orderId,
+          amount: totalAmount,
+          currency: 'LKR',
+          customer_name: `${shippingInfo.firstName} ${shippingInfo.lastName}`,
+          customer_email: shippingInfo.email,
+          customer_phone: shippingInfo.phone,
+          shipping_info: processedShippingInfo,
+          items: cartItems.map(item => ({
+            product_id: item.id,
+            product_name: item.name,
+            product_image: item.primary_image,
+            price: item.sale_price || item.price,
+            quantity: item.quantity,
+            subtotal: (item.sale_price || item.price) * item.quantity
+          }))
+        };
+
+        const kokoResponse = await kokoPaymentAPI.initializePayment(kokoPaymentData);
+
+        if (kokoResponse.data.success && kokoResponse.data.data.payment_url) {
+          // Store order and session details for verification on return
+          sessionStorage.setItem('koko_order_id', kokoResponse.data.data.order_id);
+          sessionStorage.setItem('koko_session_id', kokoResponse.data.data.session_id);
+
+          // Redirect to Koko Payment
+          setLoading(false);
+          window.location.href = kokoResponse.data.data.payment_url;
+          return;
+        } else {
+          throw new Error('Failed to initialize Koko Payment');
+        }
+      }
+
+      // Handle other payment methods (future extensions)
+      const orderData = {
+        order_number: orderId,
+        subtotal: cartSubtotal,
+        shipping_fee: deliveryCharge,
+        payment_fee: paymentFee,
+        total: totalAmount,
+        payment_method: paymentMethod,
+        shipping_info: processedShippingInfo,
+        items: cartItems.map(item => ({
+          product_id: item.id,
+          product_name: item.name,
+          product_image: item.primary_image,
+          price: item.sale_price || item.price,
+          quantity: item.quantity,
+          subtotal: (item.sale_price || item.price) * item.quantity
+        }))
+      };
+
+      const orderResponse = await orderAPI.createOrder(orderData);
+
+      if (orderResponse.data.success) {
+        setSuccess("Order placed successfully! Thank you for your purchase.");
+        // Clear cart after successful order
+        await clearCart();
+        setTimeout(() => {
+          navigate('/account');
+        }, 3000);
+      } else {
+        throw new Error('Failed to create order');
+      }
     } catch (error) {
       console.error('Payment initialization error:', error);
-      setError('Failed to initialize payment. Please try again.');
+      setError(error.response?.data?.message || 'Failed to process payment. Please try again.');
     } finally {
       setLoading(false);
     }

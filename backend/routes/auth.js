@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { login, register, getMe, logout, adminLogin, updateProfile, changePassword, forgetPassword, resetPassword, verifyResetCode } = require('../controllers/authController');
+const { login, register, getMe, logout, adminLogin, adminChangePassword, adminForgotPassword, adminVerifyResetCode, adminResetPassword, updateProfile, changePassword, forgetPassword, resetPassword, verifyResetCode } = require('../controllers/authController');
 const { registerValidation, loginValidation, adminLoginValidation, handleValidationErrors } = require('../middleware/validation');
 const { auth, adminAuth } = require('../middleware/auth');
 
@@ -38,6 +38,26 @@ router.post('/logout', auth, logout);
 // @desc    Login admin
 // @access  Public
 router.post('/admin/login', adminLoginValidation, handleValidationErrors, adminLogin);
+
+// @route   PUT /api/auth/admin/change-password
+// @desc    Change admin password
+// @access  Private (Admin only)
+router.put('/admin/change-password', auth, adminChangePassword);
+
+// @route   POST /api/auth/admin/forgot-password
+// @desc    Send admin password reset code via email
+// @access  Public
+router.post('/admin/forgot-password', adminForgotPassword);
+
+// @route   POST /api/auth/admin/verify-reset-code
+// @desc    Verify admin password reset code
+// @access  Public
+router.post('/admin/verify-reset-code', adminVerifyResetCode);
+
+// @route   POST /api/auth/admin/reset-password
+// @desc    Reset admin password using verified code
+// @access  Public
+router.post('/admin/reset-password', adminResetPassword);
 
 // @route   POST /api/auth/forget-password
 // @desc    Send password reset email

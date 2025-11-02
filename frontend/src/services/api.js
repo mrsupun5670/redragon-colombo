@@ -210,6 +210,15 @@ export const payhereAPI = {
   generateHash: (paymentData) => api.post('/payhere/generate-hash', paymentData),
 };
 
+// Koko Payment API functions
+export const kokoPaymentAPI = {
+  // Initialize Koko Payment
+  initializePayment: (paymentData) => api.post('/koko-payment/initialize', paymentData),
+
+  // Verify payment status
+  verifyPayment: (verifyData) => api.post('/koko-payment/verify', verifyData),
+};
+
 // Order API functions
 export const orderAPI = {
   // Create a new order
