@@ -2,13 +2,21 @@ const Cart = require('../models/Cart');
 
 exports.getCart = async (req, res) => {
   try {
+    // Block admin users from accessing cart
+    if (req.user && req.user.type === 'admin') {
+      return res.status(403).json({
+        success: false,
+        message: 'Admin users cannot access cart'
+      });
+    }
+
     let cart = await Cart.findByCustomerId(req.user.id);
     if (!cart) {
       cart = { id: await Cart.create(req.user.id) };
     }
-    
+
     const items = await Cart.getCartItems(cart.id);
-    
+
     const summary = {
       item_count: items.length,
       total_quantity: items.reduce((sum, item) => sum + item.quantity, 0),
@@ -21,21 +29,21 @@ exports.getCart = async (req, res) => {
         return sum + (weight * item.quantity);
       }, 0)
     };
-    
+
     summary.shipping = summary.subtotal >= 15000 ? 0 : 300;
     summary.total = summary.subtotal + summary.shipping;
-    
-    res.json({ 
+
+    res.json({
       success: true,
       message: 'Cart retrieved successfully',
       data: { items, summary }
     });
   } catch (error) {
     console.error('Get cart error:', error);
-    res.status(500).json({ 
+    res.status(500).json({
       success: false,
-      message: 'Server error', 
-      error: error.message 
+      message: 'Server error',
+      error: error.message
     });
   }
 };
@@ -43,6 +51,14 @@ exports.getCart = async (req, res) => {
 exports.addToCart = async (req, res) => {
   const { product_id, quantity = 1 } = req.body;
   try {
+    // Block admin users from accessing cart
+    if (req.user && req.user.type === 'admin') {
+      return res.status(403).json({
+        success: false,
+        message: 'Admin users cannot add to cart'
+      });
+    }
+
     // Validate input
     if (!product_id || quantity <= 0) {
       return res.status(400).json({ message: 'Invalid product ID or quantity' });
@@ -162,6 +178,14 @@ exports.clearCart = async (req, res) => {
 exports.syncCart = async (req, res) => {
   const { cart_items } = req.body;
   try {
+    // Block admin users from accessing cart
+    if (req.user && req.user.type === 'admin') {
+      return res.status(403).json({
+        success: false,
+        message: 'Admin users cannot sync cart'
+      });
+    }
+
     let cart = await Cart.findByCustomerId(req.user.id);
     if (!cart) {
       cart = { id: await Cart.create(req.user.id) };

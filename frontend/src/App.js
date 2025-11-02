@@ -24,6 +24,7 @@ const RegisterPage = lazy(() => import("./pages/Register.jsx"));
 const ForgotPasswordPage = lazy(() => import("./pages/ForgotPassword.jsx"));
 const AdminDashboard = lazy(() => import("./pages/AdminDashboard"));
 const About = lazy(() => import("./pages/About"));
+const Blog = lazy(() => import("./pages/Blog"));
 const Wishlist = lazy(() => import("./pages/Wishlist"));
 const CategoriesPage = lazy(() => import("./pages/Categories.jsx"));
 const AdminLogin = lazy(() => import("./pages/AdminLogin.jsx"));
@@ -132,6 +133,11 @@ function App() {
               <Route path="/about" element={
                 <AdminRouteGuard>
                   <About />
+                </AdminRouteGuard>
+              } />
+              <Route path="/blog" element={
+                <AdminRouteGuard>
+                  <Blog />
                 </AdminRouteGuard>
               } />
               <Route path="/wishlist" element={

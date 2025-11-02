@@ -109,8 +109,6 @@ const SalesCharts = () => {
         minimumFractionDigits: 0,
         maximumFractionDigits: 0,
       })}`,
-      change: "+0%",
-      trend: "up",
       icon: DollarSign,
       color: "from-green-500 to-emerald-600",
     },
@@ -120,16 +118,12 @@ const SalesCharts = () => {
         minimumFractionDigits: 0,
         maximumFractionDigits: 0,
       })}`,
-      change: "+0%",
-      trend: "up",
       icon: TrendingUp,
       color: "from-blue-500 to-cyan-600",
     },
     {
       title: "Total Orders",
       value: `${metricsData.totalOrders}`,
-      change: "+0%",
-      trend: "up",
       icon: ShoppingBag,
       color: "from-purple-500 to-pink-600",
     },
@@ -212,18 +206,6 @@ const SalesCharts = () => {
               <p className="text-2xl md:text-3xl font-bold text-gray-900 mb-1 md:mb-2">
                 {metric.value}
               </p>
-              <div
-                className={`flex items-center text-xs md:text-sm font-semibold ${
-                  metric.trend === "up" ? "text-green-600" : "text-red-600"
-                }`}
-              >
-                {metric.trend === "up" ? (
-                  <TrendingUp className="w-3 h-3 md:w-4 md:h-4 mr-1" />
-                ) : (
-                  <TrendingDown className="w-3 h-3 md:w-4 md:h-4 mr-1" />
-                )}
-                {metric.change} vs last period
-              </div>
             </div>
           </motion.div>
         ))}
@@ -368,7 +350,7 @@ const SalesCharts = () => {
                         {cat.name || `Category ${index + 1}`}
                       </span>
                       <span className="text-sm font-bold text-gray-900">
-                        {cat.percentage}%
+                        Rs. {parseFloat(cat.total_sales || 0).toLocaleString("en-LK", { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
                       </span>
                     </div>
                     <div className="w-full bg-gray-200 rounded-full h-3">

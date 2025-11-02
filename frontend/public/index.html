@@ -9,10 +9,14 @@
       name="description"
       content="Official Redragon gaming peripherals store in Sri Lanka. Mechanical keyboards, gaming mice, headsets & accessories with genuine warranty. Fast delivery across Colombo & island-wide. Shop authentic gaming gear now!"
     />
-    <meta name="keywords" content="redragon sri lanka, gaming keyboards, mechanical keyboards, gaming mice, gaming headsets, redragon colombo, gaming gear sri lanka, gaming peripherals, buy gaming accessories" />
-    <meta name="robots" content="index, follow" />
+    <meta name="keywords" content="redragon sri lanka, gaming keyboards, mechanical keyboards, gaming mice, gaming headsets, redragon colombo, gaming gear sri lanka, gaming peripherals, buy gaming accessories, redragon store colombo, redragon gaming gear, gaming peripherals colombo" />
+    <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1" />
+    <meta name="googlebot" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1" />
     <meta name="language" content="English" />
     <meta name="author" content="Redragon Colombo" />
+    <meta name="revisit-after" content="7 days" />
+    <meta name="rating" content="General" />
+    <meta name="distribution" content="Global" />
     
     <!-- Open Graph meta tags -->
     <meta property="og:title" content="Redragon Colombo - Official Gaming Peripherals Store Sri Lanka" />
@@ -29,6 +33,63 @@
     <meta name="twitter:description" content="Shop authentic Redragon gaming gear in Sri Lanka. Mechanical keyboards, gaming mice, headsets & accessories." />
     <meta name="twitter:image" content="%PUBLIC_URL%/images/logo/redragon_logo.png" />
     <link rel="apple-touch-icon" href="%PUBLIC_URL%/images/logo/dragon_logo.png" />
+
+    <!-- Schema.org Structured Data -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "LocalBusiness",
+      "name": "Redragon Colombo",
+      "alternateName": "Redragon - Colombo, Sri Lanka",
+      "description": "Official Redragon gaming peripherals store in Sri Lanka. Mechanical keyboards, gaming mice, headsets & accessories with genuine warranty.",
+      "url": "https://www.redragoncolombo.lk",
+      "logo": "https://www.redragoncolombo.lk/images/logo/redragon_logo.png",
+      "image": "https://www.redragoncolombo.lk/images/logo/redragon_logo.png",
+      "telephone": "+94777624028",
+      "email": "info@redragoncolombo.lk",
+      "address": {
+        "@type": "PostalAddress",
+        "streetAddress": "3F18, 3rd Floor, Unity Plaza, Bambalapitiya",
+        "addressLocality": "Colombo",
+        "postalCode": "04",
+        "addressCountry": "LK"
+      },
+      "geo": {
+        "@type": "GeoCoordinates",
+        "latitude": "6.8661",
+        "longitude": "80.7663"
+      },
+      "openingHoursSpecification": [
+        {
+          "@type": "OpeningHoursSpecification",
+          "dayOfWeek": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"],
+          "opens": "09:00",
+          "closes": "18:00"
+        },
+        {
+          "@type": "OpeningHoursSpecification",
+          "dayOfWeek": "Sunday",
+          "opens": "10:00",
+          "closes": "17:00"
+        }
+      ],
+      "priceRange": "LKR1000-LKR50000",
+      "currenciesAccepted": "LKR",
+      "paymentAccepted": ["Cash", "Credit Card", "Debit Card", "PayHere"],
+      "sameAs": [
+        "https://www.facebook.com/redragoncolombo",
+        "https://www.instagram.com/redragoncolombo",
+        "https://www.tiktok.com/@redragoncolombo"
+      ],
+      "contactPoint": {
+        "@type": "ContactPoint",
+        "contactType": "Customer Service",
+        "telephone": "+94777624028",
+        "email": "info@redragoncolombo.lk"
+      }
+    }
+    </script>
+
     <!--
       manifest.json provides metadata used when your web app is installed on a
       user's mobile device or desktop. See https://developers.google.com/web/fundamentals/web-app-manifest/
@@ -50,6 +111,22 @@
   <body>
     <noscript>You need to enable JavaScript to run this app.</noscript>
     <div id="root"></div>
+
+    <!-- Register Service Worker for caching and offline support -->
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/service-worker.js')
+            .then((registration) => {
+              console.log('Service Worker registered successfully:', registration);
+            })
+            .catch((error) => {
+              console.log('Service Worker registration failed:', error);
+            });
+        });
+      }
+    </script>
+
     <!--
       This HTML file is a template.
       If you open it directly in the browser, you will see an empty page.
