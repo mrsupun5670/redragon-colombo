@@ -77,7 +77,6 @@ const AddCategoryModal = ({ type = 'main', mainCategory, mainCategories, onClose
       }
       
       if (data.success) {
-        console.log("data " + data.data.data)
         setCategoryName('');
         setCategoryDescription('');
         setSelectedMainCategoryId(mainCategory?.id || '');

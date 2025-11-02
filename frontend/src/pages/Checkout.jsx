@@ -100,7 +100,6 @@ const Checkout = () => {
     const setupCallbacks = () => {
       if (window.payhere) {
         window.payhere.onCompleted = function onCompleted(orderId) {
-          console.log("Payment completed. OrderID:" + orderId);
           setSuccess("Payment successful! Your order has been placed.");
           // Clear cart after successful payment
           clearCart();
@@ -110,12 +109,10 @@ const Checkout = () => {
         };
 
         window.payhere.onDismissed = function onDismissed() {
-          console.log("Payment dismissed");
           setError("Payment was cancelled. Your order was not placed.");
         };
 
         window.payhere.onError = function onError(error) {
-          console.log("Error:" + error);
           setError("Payment failed. Please try again or use a different payment method.");
         };
       } else {
@@ -153,7 +150,6 @@ const Checkout = () => {
   const fetchProvinces = async () => {
     try {
       const response = await locationAPI.getProvinces();
-      console.log('Provinces response:', response.data);
       // Handle the response structure {success: true, data: [...]}
       const provincesData = response.data.data || response.data;
       setProvinces(Array.isArray(provincesData) ? provincesData : []);
@@ -166,7 +162,6 @@ const Checkout = () => {
   const fetchDistricts = async (provinceId) => {
     try {
       const response = await locationAPI.getDistrictsByProvince(provinceId);
-      console.log('Districts response:', response.data);
       // Handle the response structure {success: true, data: [...]}
       const districtsData = response.data.data || response.data;
       setDistricts(Array.isArray(districtsData) ? districtsData : []);
@@ -181,7 +176,6 @@ const Checkout = () => {
   const fetchCities = async (districtId) => {
     try {
       const response = await locationAPI.getCitiesByDistrict(districtId);
-      console.log('Cities response:', response.data);
       // Handle the response structure {success: true, data: [...]}
       const citiesData = response.data.data || response.data;
       setCities(Array.isArray(citiesData) ? citiesData : []);
@@ -211,7 +205,6 @@ const Checkout = () => {
         const addressResponse = await addressAPI.getDefaultAddress();
         addressData = addressResponse.data.data || addressResponse.data;
       } catch (addressError) {
-        console.log('No address found, starting with empty form');
       }
 
       // Populate shipping info with user data
@@ -248,43 +241,34 @@ const Checkout = () => {
       // Ensure provinces are loaded
       let provincesData = provinces;
       if (provincesData.length === 0) {
-        console.log('Fetching provinces...');
         const provincesResponse = await locationAPI.getProvinces();
         provincesData = provincesResponse.data.data || provincesResponse.data;
         setProvinces(provincesData);
       }
 
-      console.log('Available provinces:', provincesData);
 
       // Find and set province
       const foundProvince = provincesData.find(p => p.name === addressData.province_name);
-      console.log('Found province:', foundProvince);
       
       if (foundProvince) {
         // Fetch and set districts
-        console.log('Fetching districts for province:', foundProvince.id);
         const districtsResponse = await locationAPI.getDistrictsByProvince(foundProvince.id);
         const districtsData = districtsResponse.data.data || districtsResponse.data;
         setDistricts(districtsData);
-        console.log('Available districts:', districtsData);
 
         // Find and set district
         if (addressData.district_name) {
           const foundDistrict = districtsData.find(d => d.name === addressData.district_name);
-          console.log('Found district:', foundDistrict);
           
           if (foundDistrict) {
             // Fetch and set cities
-            console.log('Fetching cities for district:', foundDistrict.id);
             const citiesResponse = await locationAPI.getCitiesByDistrict(foundDistrict.id);
             const citiesData = citiesResponse.data.data || citiesResponse.data;
             setCities(citiesData);
-            console.log('Available cities:', citiesData);
 
             // Find and set city
             if (addressData.city_name) {
               const foundCity = citiesData.find(c => c.city_name === addressData.city_name);
-              console.log('Found city:', foundCity);
               
               if (foundCity) {
                 // Update all location selections at once
@@ -294,7 +278,6 @@ const Checkout = () => {
                   district: foundDistrict.id,
                   city: foundCity.city_id
                 }));
-                console.log('Location dropdowns populated successfully');
               }
             } else {
               // Set province and district only
@@ -396,7 +379,6 @@ const Checkout = () => {
       
       setStep(2);
     } catch (error) {
-      console.error('Error saving address:', error);
       // Continue to next step even if address save fails
       setStep(2);
     }
