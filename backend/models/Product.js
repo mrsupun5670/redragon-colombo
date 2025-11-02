@@ -168,9 +168,8 @@ class Product {
         LEFT JOIN product_image_uploads pi ON p.id = pi.product_id AND pi.is_primary = 1
         GROUP BY p.id
         ORDER BY p.created_at DESC
-        LIMIT ? OFFSET ?
       `;
-      const [rows] = await db.executeWithRetry(query, [limit, offset]);
+      const [rows] = await db.executeWithRetry(query);
       return rows;
     } catch (error) {
       throw error;
