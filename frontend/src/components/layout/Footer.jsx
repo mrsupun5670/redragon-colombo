@@ -165,7 +165,7 @@ const Footer = () => {
             </h3>
             <div className="flex items-center gap-3">
               <motion.a
-                target="_ "
+              target='_blank'
                 href="https://www.facebook.com/redragoncolombo"
                 whileHover={{ scale: 1.1, y: -2 }}
                 className="w-10 h-10 bg-white rounded-lg flex items-center justify-center text-gray-700 hover:text-white hover:bg-blue-600 border border-gray-300 transition-all shadow-sm"
@@ -173,6 +173,7 @@ const Footer = () => {
                 <Facebook className="w-5 h-5" />
               </motion.a>
               <motion.a
+              target='_blank'
                 href="https://www.instagram.com/redragoncolombo/"
                 whileHover={{ scale: 1.1, y: -2 }}
                 className="w-10 h-10 bg-white rounded-lg flex items-center justify-center text-gray-700 hover:text-white hover:bg-pink-600 border border-gray-300 transition-all shadow-sm"
@@ -180,6 +181,7 @@ const Footer = () => {
                 <Instagram className="w-5 h-5" />
               </motion.a>
               <motion.a
+              target='_blank'
                 href="https://www.tiktok.com/@redragoncolombo"
                 whileHover={{ scale: 1.1, y: -2 }}
                 className="w-10 h-10 bg-white rounded-lg flex items-center justify-center text-gray-700 hover:text-white hover:bg-black border border-gray-300 transition-all shadow-sm"

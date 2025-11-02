@@ -155,7 +155,7 @@ class Product {
     }
   }
 
-  // Admin version - gets all products regardless of is_active status
+  // Admin version - get all for admin
   static async getAllForAdmin(limit = 20, offset = 0) {
     try {
       const query = `

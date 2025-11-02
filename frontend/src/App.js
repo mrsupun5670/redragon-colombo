@@ -11,6 +11,7 @@ import GuestRoute from "./components/common/GuestRoute";
 import PaymentRoute from "./components/common/PaymentRoute";
 import ForgotPasswordRoute from "./components/common/ForgotPasswordRoute";
 import CartSyncHandler from "./components/common/CartSyncHandler";
+import UnderDevelopment from "./components/common/UnderDevelopment";
 
 // Lazy load components
 const Home = lazy(() => import("./pages/Home"));
@@ -54,6 +55,8 @@ const LoadingSpinner = () => (
 );
 
 function App() {
+  const isUnderDevelopment = process.env.REACT_APP_UNDER_DEVELOPMENT === 'true';
+
   return (
     <AuthProvider>
       <CartProvider>
@@ -64,61 +67,83 @@ function App() {
               <Routes>
               {/* Main Pages - Protected from admin access */}
               <Route path="/" element={
-                <AdminRouteGuard>
-                  <Home />
-                </AdminRouteGuard>
+                isUnderDevelopment ? <UnderDevelopment /> : (
+                  <AdminRouteGuard>
+                    <Home />
+                  </AdminRouteGuard>
+                )
               } />
               <Route path="/products" element={
-                <AdminRouteGuard>
-                  <Products />
-                </AdminRouteGuard>
+                isUnderDevelopment ? <UnderDevelopment /> : (
+                  <AdminRouteGuard>
+                    <Products />
+                  </AdminRouteGuard>
+                )
               } />
               <Route path="/products/:id" element={
-                <AdminRouteGuard>
-                  <ProductDetail />
-                </AdminRouteGuard>
+                isUnderDevelopment ? <UnderDevelopment /> : (
+                  <AdminRouteGuard>
+                    <ProductDetail />
+                  </AdminRouteGuard>
+                )
               } />
               <Route path="/product/:id" element={
-                <AdminRouteGuard>
-                  <SingleProductView />
-                </AdminRouteGuard>
+                isUnderDevelopment ? <UnderDevelopment /> : (
+                  <AdminRouteGuard>
+                    <SingleProductView />
+                  </AdminRouteGuard>
+                )
               } />
               <Route path="/cart" element={
-                <AdminRouteGuard>
-                  <Cart />
-                </AdminRouteGuard>
+                isUnderDevelopment ? <UnderDevelopment /> : (
+                  <AdminRouteGuard>
+                    <Cart />
+                  </AdminRouteGuard>
+                )
               } />
               <Route path="/checkout" element={
-                <AdminRouteGuard>
-                  <CustomerProtectedRoute>
-                    <Checkout />
-                  </CustomerProtectedRoute>
-                </AdminRouteGuard>
+                isUnderDevelopment ? <UnderDevelopment /> : (
+                  <AdminRouteGuard>
+                    <CustomerProtectedRoute>
+                      <Checkout />
+                    </CustomerProtectedRoute>
+                  </AdminRouteGuard>
+                )
               } />
               <Route path="/payment/success" element={
-                <PaymentRoute>
-                  <PaymentSuccess />
-                </PaymentRoute>
+                isUnderDevelopment ? <UnderDevelopment /> : (
+                  <PaymentRoute>
+                    <PaymentSuccess />
+                  </PaymentRoute>
+                )
               } />
               <Route path="/payment/cancel" element={
-                <PaymentRoute>
-                  <PaymentCancel />
-                </PaymentRoute>
+                isUnderDevelopment ? <UnderDevelopment /> : (
+                  <PaymentRoute>
+                    <PaymentCancel />
+                  </PaymentRoute>
+                )
               } />
               <Route path="/login" element={
-                <GuestRoute>
-                  <LoginPage />
-                </GuestRoute>
+                isUnderDevelopment ? <UnderDevelopment /> : (
+                  <GuestRoute>
+                    <LoginPage />
+                  </GuestRoute>
+                )
               } />
               <Route path="/register" element={
-                <GuestRoute>
-                  <RegisterPage />
-                </GuestRoute>
+                isUnderDevelopment ? <UnderDevelopment /> : (
+                  <GuestRoute>
+                    <RegisterPage />
+                  </GuestRoute>
+                )
               } />
               <Route path="/forgot-password" element={
-                <ForgotPasswordRoute>
-                  <ForgotPasswordPage />
-                </ForgotPasswordRoute>
+                isUnderDevelopment ? <UnderDevelopment /> : (
+                  <ForgotPasswordRoute>
+                    <ForgotPasswordPage />
+                  </ForgotPasswordRoute>
+                )
               } />
               <Route path="/admin" element={
                 <AdminProtectedRoute>
@@ -131,9 +156,11 @@ function App() {
                 </AdminGuestRoute>
               } />
               <Route path="/about" element={
-                <AdminRouteGuard>
-                  <About />
-                </AdminRouteGuard>
+                isUnderDevelopment ? <UnderDevelopment /> : (
+                  <AdminRouteGuard>
+                    <About />
+                  </AdminRouteGuard>
+                )
               } />
               <Route path="/blog" element={
                 <AdminRouteGuard>
@@ -141,38 +168,50 @@ function App() {
                 </AdminRouteGuard>
               } />
               <Route path="/wishlist" element={
-                <AdminRouteGuard>
-                  <Wishlist />
-                </AdminRouteGuard>
+                isUnderDevelopment ? <UnderDevelopment /> : (
+                  <AdminRouteGuard>
+                    <Wishlist />
+                  </AdminRouteGuard>
+                )
               } />
               <Route path="/categories" element={
-                <AdminRouteGuard>
-                  <CategoriesPage />
-                </AdminRouteGuard>
+                isUnderDevelopment ? <UnderDevelopment /> : (
+                  <AdminRouteGuard>
+                    <CategoriesPage />
+                  </AdminRouteGuard>
+                )
               } />
               <Route path="/account" element={
-                <AdminRouteGuard>
-                  <CustomerProtectedRoute>
-                    <MyAccount />
-                  </CustomerProtectedRoute>
-                </AdminRouteGuard>
+                isUnderDevelopment ? <UnderDevelopment /> : (
+                  <AdminRouteGuard>
+                    <CustomerProtectedRoute>
+                      <MyAccount />
+                    </CustomerProtectedRoute>
+                  </AdminRouteGuard>
+                )
               } />
 
               {/* Policy Pages - Protected from admin access */}
               <Route path="/refund-policy" element={
-                <AdminRouteGuard>
-                  <RefundPolicy />
-                </AdminRouteGuard>
+                isUnderDevelopment ? <UnderDevelopment /> : (
+                  <AdminRouteGuard>
+                    <RefundPolicy />
+                  </AdminRouteGuard>
+                )
               } />
               <Route path="/privacy-policy" element={
-                <AdminRouteGuard>
-                  <PrivacyPolicy />
-                </AdminRouteGuard>
+                isUnderDevelopment ? <UnderDevelopment /> : (
+                  <AdminRouteGuard>
+                    <PrivacyPolicy />
+                  </AdminRouteGuard>
+                )
               } />
               <Route path="/terms-conditions" element={
-                <AdminRouteGuard>
-                  <TermsConditions />
-                </AdminRouteGuard>
+                isUnderDevelopment ? <UnderDevelopment /> : (
+                  <AdminRouteGuard>
+                    <TermsConditions />
+                  </AdminRouteGuard>
+                )
               } />
 
               {/* Error Pages */}

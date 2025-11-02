@@ -33,63 +33,63 @@
     <meta name="twitter:description" content="Shop authentic Redragon gaming gear in Sri Lanka. Mechanical keyboards, gaming mice, headsets & accessories." />
     <meta name="twitter:image" content="%PUBLIC_URL%/images/logo/redragon_logo.png" />
     <link rel="apple-touch-icon" href="%PUBLIC_URL%/images/logo/dragon_logo.png" />
-
-    <!-- Schema.org Structured Data -->
+    
+    <!-- Structured Data for SEO -->
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
-      "@type": "LocalBusiness",
+      "@type": "Organization",
       "name": "Redragon Colombo",
-      "alternateName": "Redragon - Colombo, Sri Lanka",
-      "description": "Official Redragon gaming peripherals store in Sri Lanka. Mechanical keyboards, gaming mice, headsets & accessories with genuine warranty.",
+      "alternateName": "Redragon",
       "url": "https://www.redragoncolombo.lk",
-      "logo": "https://www.redragoncolombo.lk/images/logo/redragon_logo.png",
-      "image": "https://www.redragoncolombo.lk/images/logo/redragon_logo.png",
-      "telephone": "+94777624028",
-      "email": "info@redragoncolombo.lk",
+      "logo": {
+        "@type": "ImageObject",
+        "url": "https://www.redragoncolombo.lk/images/logo/redragon_logo.png",
+        "width": 300,
+        "height": 300
+      },
+      "description": "Official Redragon gaming peripherals store in Sri Lanka. Mechanical keyboards, gaming mice, headsets & accessories with genuine warranty.",
       "address": {
         "@type": "PostalAddress",
-        "streetAddress": "3F18, 3rd Floor, Unity Plaza, Bambalapitiya",
+        "addressCountry": "LK",
         "addressLocality": "Colombo",
-        "postalCode": "04",
-        "addressCountry": "LK"
+        "addressRegion": "Western Province"
       },
-      "geo": {
-        "@type": "GeoCoordinates",
-        "latitude": "6.8661",
-        "longitude": "80.7663"
-      },
-      "openingHoursSpecification": [
-        {
-          "@type": "OpeningHoursSpecification",
-          "dayOfWeek": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"],
-          "opens": "09:00",
-          "closes": "18:00"
-        },
-        {
-          "@type": "OpeningHoursSpecification",
-          "dayOfWeek": "Sunday",
-          "opens": "10:00",
-          "closes": "17:00"
-        }
-      ],
-      "priceRange": "LKR1000-LKR50000",
-      "currenciesAccepted": "LKR",
-      "paymentAccepted": ["Cash", "Credit Card", "Debit Card", "PayHere"],
-      "sameAs": [
-        "https://www.facebook.com/redragoncolombo",
-        "https://www.instagram.com/redragoncolombo",
-        "https://www.tiktok.com/@redragoncolombo"
-      ],
       "contactPoint": {
         "@type": "ContactPoint",
-        "contactType": "Customer Service",
-        "telephone": "+94777624028",
-        "email": "info@redragoncolombo.lk"
+        "contactType": "customer service",
+        "availableLanguage": ["English", "Sinhala"]
+      },
+      "sameAs": [
+        "https://www.facebook.com/redragoncolombo",
+        "https://www.instagram.com/redragoncolombo"
+      ]
+    }
+    </script>
+    
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "name": "Redragon Colombo",
+      "alternateName": "Redragon",
+      "url": "https://www.redragoncolombo.lk",
+      "description": "Official Redragon gaming peripherals store in Sri Lanka",
+      "publisher": {
+        "@type": "Organization",
+        "name": "Redragon Colombo",
+        "logo": {
+          "@type": "ImageObject",
+          "url": "https://www.redragoncolombo.lk/images/logo/redragon_logo.png"
+        }
+      },
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": "https://www.redragoncolombo.lk/products?search={search_term_string}",
+        "query-input": "required name=search_term_string"
       }
     }
     </script>
-
     <!--
       manifest.json provides metadata used when your web app is installed on a
       user's mobile device or desktop. See https://developers.google.com/web/fundamentals/web-app-manifest/
