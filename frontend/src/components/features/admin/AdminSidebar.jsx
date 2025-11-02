@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { LayoutDashboard, ShoppingCart, Users, BarChart2, Package, X, TruckIcon, LogOut, User, Tag } from 'lucide-react';
+import { LayoutDashboard, ShoppingCart, Users, BarChart2, Package, X, TruckIcon, LogOut, User, Tag, Settings } from 'lucide-react';
 import { useAdminAuth } from '../../../context/AdminAuthContext';
 
 const AdminSidebar = ({ activeTab, setActiveTab, isSidebarOpen, setIsSidebarOpen }) => {
@@ -13,6 +13,7 @@ const AdminSidebar = ({ activeTab, setActiveTab, isSidebarOpen, setIsSidebarOpen
     { name: 'Promotions', id: 'promotions', icon: Tag },
     { name: 'Delivery', id: 'delivery', icon: TruckIcon },
     { name: 'Sales', id: 'sales', icon: BarChart2 },
+    { name: 'Settings', id: 'settings', icon: Settings },
   ];
 
   const handleTabClick = (tabId) => {

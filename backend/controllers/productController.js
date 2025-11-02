@@ -61,27 +61,27 @@ exports.getRedragonProducts = async (req, res) => {
 // Get all products with pagination (smart routing - admin gets all, customers get active only)
 exports.getAllProducts = async (req, res) => {
   try {
-    const limit = parseInt(req.query.limit) || 20;
-    const page = parseInt(req.query.page) || 1;
-    const offset = (page - 1) * limit;
-    
     // Check if request has admin authentication
     const isAdmin = req.user && req.user.type === 'admin';
-    
-    // Admins get all products, customers get only active products
-    const products = isAdmin 
-      ? await Product.getAllForAdmin(limit, offset)
-      : await Product.getAll(limit, offset);
-    
+
+    let products;
+
+    // Admins get all products without pagination limit, customers get only active products with pagination
+    if (isAdmin) {
+      // For admins, get ALL products without any limit
+      products = await Product.getAllForAdmin();
+    } else {
+      // For customers, apply pagination
+      const limit = parseInt(req.query.limit) || 20;
+      const page = parseInt(req.query.page) || 1;
+      const offset = (page - 1) * limit;
+      products = await Product.getAll(limit, offset);
+    }
+
     res.json({
       success: true,
       message: 'Products retrieved successfully',
-      data: products,
-      pagination: {
-        page,
-        limit,
-        total: products.length
-      }
+      data: products
     });
   } catch (err) {
     console.error('Get all products error:', err);

@@ -74,39 +74,31 @@ const Dashboard = ({ setActiveTab }) => {
   const statsCards = [
     {
       name: 'Total Revenue',
-      value: `Rs. ${stats?.revenue?.current?.toLocaleString() || '0'}`,
-      change: `${stats?.revenue?.change >= 0 ? '+' : ''}${stats?.revenue?.change || 0}%`,
-      changeType: stats?.revenue?.changeType || 'increase',
+      value: `Rs. ${stats?.revenue?.total?.toLocaleString() || '0'}`,
       icon: DollarSign,
       color: 'from-green-500 to-emerald-600',
-      total: `Rs. ${stats?.revenue?.total?.toLocaleString() || '0'}`,
-      subtitle: 'This month vs last month'
+      total: `This month: Rs. ${stats?.revenue?.current?.toLocaleString() || '0'}`,
+      subtitle: 'All time revenue'
     },
     {
       name: 'Total Orders',
-      value: `${stats?.orders?.current?.toLocaleString() || '0'}`,
-      change: `${stats?.orders?.change >= 0 ? '+' : ''}${stats?.orders?.change || 0}%`,
-      changeType: stats?.orders?.changeType || 'increase',
+      value: `${stats?.orders?.total?.toLocaleString() || '0'}`,
       icon: ShoppingCart,
       color: 'from-blue-500 to-cyan-600',
-      total: `${stats?.orders?.total?.toLocaleString() || '0'} total`,
-      subtitle: 'This month vs last month'
+      total: `This month: ${stats?.orders?.current?.toLocaleString() || '0'}`,
+      subtitle: 'All time orders'
     },
     {
       name: 'Total Customers',
-      value: `${stats?.customers?.current?.toLocaleString() || '0'}`,
-      change: `${stats?.customers?.change >= 0 ? '+' : ''}${stats?.customers?.change || 0}%`,
-      changeType: stats?.customers?.changeType || 'increase',
+      value: `${stats?.customers?.total?.toLocaleString() || '0'}`,
       icon: Users,
       color: 'from-purple-500 to-pink-600',
-      total: `${stats?.customers?.total?.toLocaleString() || '0'} total`,
-      subtitle: 'New this month vs last month'
+      total: `New this month: ${stats?.customers?.current?.toLocaleString() || '0'}`,
+      subtitle: 'All time customers'
     },
     {
       name: 'Active Products',
       value: `${stats?.products?.active?.toLocaleString() || '0'}`,
-      change: `${stats?.products?.low_stock || 0} low stock`,
-      changeType: 'info',
       icon: Package,
       color: 'from-orange-500 to-red-600',
       total: `${stats?.products?.total?.toLocaleString() || '0'} total`,
@@ -236,22 +228,9 @@ const Dashboard = ({ setActiveTab }) => {
             <div className={`absolute top-0 right-0 w-24 h-24 md:w-32 md:h-32 bg-gradient-to-br ${stat.color} opacity-10 rounded-bl-full`}></div>
 
             <div className="relative p-4 md:p-6">
-              <div className="flex items-center justify-between mb-3 md:mb-4">
+              <div className="flex items-center mb-3 md:mb-4">
                 <div className={`p-2 md:p-3 bg-gradient-to-br ${stat.color} rounded-lg md:rounded-xl`}>
                   <stat.icon className="w-5 h-5 md:w-6 md:h-6 text-white" />
-                </div>
-                <div className={`flex items-center text-xs md:text-sm font-semibold ${
-                  stat.changeType === 'increase' ? 'text-green-600' : 
-                  stat.changeType === 'decrease' ? 'text-red-600' : 'text-yellow-600'
-                }`}>
-                  {stat.changeType === 'increase' ? (
-                    <ArrowUp className="w-3 h-3 md:w-4 md:h-4 mr-1" />
-                  ) : stat.changeType === 'decrease' ? (
-                    <ArrowDown className="w-3 h-3 md:w-4 md:h-4 mr-1" />
-                  ) : (
-                    <AlertTriangle className="w-3 h-3 md:w-4 md:h-4 mr-1" />
-                  )}
-                  {stat.change}
                 </div>
               </div>
               <p className="text-xs md:text-sm font-medium text-gray-500 mb-1">{stat.name}</p>
@@ -276,10 +255,6 @@ const Dashboard = ({ setActiveTab }) => {
             <div>
               <h3 className="text-lg md:text-xl font-bold text-gray-900">Orders Overview</h3>
               <p className="text-xs md:text-sm text-gray-500">Last 30 days performance</p>
-            </div>
-            <div className="flex items-center space-x-2">
-              <TrendingUp className="w-4 h-4 md:w-5 md:h-5 text-green-500" />
-              <span className="text-xs md:text-sm font-semibold text-green-600">+23.5%</span>
             </div>
           </div>
 

@@ -9,10 +9,14 @@
       name="description"
       content="Official Redragon gaming peripherals store in Sri Lanka. Mechanical keyboards, gaming mice, headsets & accessories with genuine warranty. Fast delivery across Colombo & island-wide. Shop authentic gaming gear now!"
     />
-    <meta name="keywords" content="redragon sri lanka, gaming keyboards, mechanical keyboards, gaming mice, gaming headsets, redragon colombo, gaming gear sri lanka, gaming peripherals, buy gaming accessories" />
-    <meta name="robots" content="index, follow" />
+    <meta name="keywords" content="redragon sri lanka, gaming keyboards, mechanical keyboards, gaming mice, gaming headsets, redragon colombo, gaming gear sri lanka, gaming peripherals, buy gaming accessories, redragon store colombo, redragon gaming gear, gaming peripherals colombo" />
+    <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1" />
+    <meta name="googlebot" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1" />
     <meta name="language" content="English" />
     <meta name="author" content="Redragon Colombo" />
+    <meta name="revisit-after" content="7 days" />
+    <meta name="rating" content="General" />
+    <meta name="distribution" content="Global" />
     
     <!-- Open Graph meta tags -->
     <meta property="og:title" content="Redragon Colombo - Official Gaming Peripherals Store Sri Lanka" />
@@ -107,6 +111,22 @@
   <body>
     <noscript>You need to enable JavaScript to run this app.</noscript>
     <div id="root"></div>
+
+    <!-- Register Service Worker for caching and offline support -->
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/service-worker.js')
+            .then((registration) => {
+              console.log('Service Worker registered successfully:', registration);
+            })
+            .catch((error) => {
+              console.log('Service Worker registration failed:', error);
+            });
+        });
+      }
+    </script>
+
     <!--
       This HTML file is a template.
       If you open it directly in the browser, you will see an empty page.

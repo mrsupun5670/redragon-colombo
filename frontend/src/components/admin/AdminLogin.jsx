@@ -1,3 +1,7 @@
+// This component is deprecated. Use AdminLoginForm from components/features/admin/AdminLoginForm instead.
+// Kept for reference only.
+
+/*
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Eye, EyeOff, Lock, User, Shield } from 'lucide-react';
@@ -149,3 +153,4 @@ const AdminLogin = () => {
 };
 
 export default AdminLogin;
+*/

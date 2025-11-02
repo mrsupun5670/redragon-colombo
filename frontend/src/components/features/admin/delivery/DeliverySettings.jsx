@@ -39,7 +39,6 @@ const DeliverySettings = () => {
         setDeliveryZones([]);
       }
     } catch (error) {
-      console.error("Error fetching delivery zones:", error.response || error);
       const errorMessage =
         error.response?.data?.msg ||
         error.response?.data?.message ||
@@ -65,7 +64,6 @@ const DeliverySettings = () => {
       });
       fetchDeliveryZones();
     } catch (error) {
-      console.error("Error adding zone:", error.response || error);
       const errorMessage =
         error.response?.data?.msg ||
         error.response?.data?.message ||
@@ -107,7 +105,6 @@ const DeliverySettings = () => {
       setSuccess("Delivery zone deleted successfully!");
       fetchDeliveryZones();
     } catch (error) {
-      console.error("Error deleting zone:", error.response || error);
       const errorMessage =
         error.response?.data?.msg ||
         error.response?.data?.message ||
