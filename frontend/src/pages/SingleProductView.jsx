@@ -630,18 +630,7 @@ const SingleProductView = () => {
 
             {/* Features/Benefits */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 pt-4 sm:pt-6">
-              <div className="flex items-center gap-3 p-3 sm:p-4 bg-white rounded-lg sm:rounded-xl border border-gray-200">
-                <div className="w-10 h-10 sm:w-12 sm:h-12 bg-red-50 rounded-lg sm:rounded-xl flex items-center justify-center flex-shrink-0">
-                  <Truck className="w-5 h-5 sm:w-6 sm:h-6 text-red-500" />
-                </div>
-                <div>
-                  <p className="text-xs sm:text-sm font-bold text-gray-900">
-                    Free Delivery
-                  </p>
-                  <p className="text-xs text-gray-600">Island-wide</p>
-                </div>
-              </div>
-
+            
               <div className="flex items-center gap-3 p-3 sm:p-4 bg-white rounded-lg sm:rounded-xl border border-gray-200">
                 <div className="w-10 h-10 sm:w-12 sm:h-12 bg-red-50 rounded-lg sm:rounded-xl flex items-center justify-center flex-shrink-0">
                   <RotateCcw className="w-5 h-5 sm:w-6 sm:h-6 text-red-500" />
