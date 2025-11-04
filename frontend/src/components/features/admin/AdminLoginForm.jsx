@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAdminAuth } from '../../../context/AdminAuthContext';
 import ErrorPopup from '../../common/ErrorPopup';
 import SuccessPopup from '../../common/SuccessPopup';
+import AdminForgotPassword from './AdminForgotPassword';
 
 const AdminLoginForm = ({ error: initialError }) => {
   const [formData, setFormData] = useState({
@@ -15,6 +16,7 @@ const AdminLoginForm = ({ error: initialError }) => {
   const [success, setSuccess] = useState(null);
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [isForgotPasswordOpen, setIsForgotPasswordOpen] = useState(false);
   const navigate = useNavigate();
   const { login } = useAdminAuth();
 
@@ -125,15 +127,25 @@ const AdminLoginForm = ({ error: initialError }) => {
             whileHover={{ scale: loading ? 1 : 1.05 }}
             whileTap={{ scale: loading ? 1 : 0.95 }}
             className={`w-full px-6 py-3 text-lg font-bold text-white ${
-              loading 
-                ? 'bg-gray-400 cursor-not-allowed' 
+              loading
+                ? 'bg-gray-400 cursor-not-allowed'
                 : 'bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800'
             } rounded-lg transition-all shadow-lg`}
           >
             {loading ? 'Logging in...' : 'Login'}
           </motion.button>
+
+          <div className="text-center pt-2">
+            <button
+              type="button"
+              onClick={() => setIsForgotPasswordOpen(true)}
+              className="text-sm font-medium text-gray-600 hover:text-red-600 transition-colors duration-200"
+            >
+              Forgot Password?
+            </button>
+          </div>
         </form>
-        
+
         <div className="text-center">
           <a
             href="/login"
@@ -143,6 +155,12 @@ const AdminLoginForm = ({ error: initialError }) => {
           </a>
         </div>
       </motion.div>
+
+      {/* Forgot Password Modal */}
+      <AdminForgotPassword
+        isOpen={isForgotPasswordOpen}
+        onClose={() => setIsForgotPasswordOpen(false)}
+      />
     </>
   );
 };

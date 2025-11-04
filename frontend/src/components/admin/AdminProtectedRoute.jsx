@@ -1,6 +1,6 @@
 import React from 'react';
 import { useAdminAuth } from '../../context/AdminAuthContext';
-import AdminLogin from './AdminLogin';
+import AdminLoginForm from '../features/admin/AdminLoginForm';
 
 const AdminProtectedRoute = ({ children }) => {
   const { admin, loading, error } = useAdminAuth();
@@ -19,7 +19,11 @@ const AdminProtectedRoute = ({ children }) => {
   }
 
   if (!admin) {
-    return <AdminLogin error={error} />;
+    return (
+      <div className="bg-gray-900 min-h-screen flex items-center justify-center">
+        <AdminLoginForm error={error} />
+      </div>
+    );
   }
 
   return children;

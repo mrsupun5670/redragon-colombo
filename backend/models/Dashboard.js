@@ -6,18 +6,17 @@ const Dashboard = {
     const now = new Date();
     const currentMonthStart = new Date(now.getFullYear(), now.getMonth(), 1);
     const lastMonthStart = new Date(now.getFullYear(), now.getMonth() - 1, 1);
-    
+
     const [rows] = await pool.queryWithRetry(`
-      SELECT 
+      SELECT
         COALESCE(SUM(CASE WHEN created_at >= ? THEN total END), 0) as current_revenue,
         COALESCE(SUM(CASE WHEN created_at >= ? AND created_at < ? THEN total END), 0) as last_month_revenue,
         COALESCE(SUM(total), 0) as total_revenue,
         COUNT(CASE WHEN created_at >= ? THEN 1 END) as current_month_orders,
         COUNT(CASE WHEN created_at >= ? AND created_at < ? THEN 1 END) as last_month_orders
-      FROM orders 
-      WHERE payment_status = 'paid'
+      FROM orders
     `, [currentMonthStart, lastMonthStart, currentMonthStart, currentMonthStart, lastMonthStart, currentMonthStart]);
-    
+
     return rows[0];
   },
 

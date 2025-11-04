@@ -1,85 +1,68 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 import useWindowDimensions from '../../../hooks/useWindowDimensions';
 
 const AutoScrollCategories = ({ categories }) => {
   const navigate = useNavigate();
   const scrollRef = useRef(null);
   const [isPaused, setIsPaused] = useState(false);
-  const [currentIndex, setCurrentIndex] = useState(0);
   const { width } = useWindowDimensions();
 
   const handleCategoryClick = (categoryName) => {
     navigate(`/products?category=${encodeURIComponent(categoryName)}`);
   };
 
+  // Manual scroll
+  const handleManualScroll = (direction) => {
+    const scrollContainer = scrollRef.current;
+    if (!scrollContainer) return;
+    setIsPaused(true);
+
+    const scrollAmount = 250;
+    if (direction === 'left') {
+      scrollContainer.scrollLeft -= scrollAmount;
+    } else {
+      scrollContainer.scrollLeft += scrollAmount;
+    }
+  };
+
+  // Continuous scrolling loop
   useEffect(() => {
     if (isPaused) return;
-
     const scrollContainer = scrollRef.current;
     if (!scrollContainer) return;
 
-    const cardWidth = 160; // Width of each card
-    const gap = 24; // Gap between cards (gap-6 = 24px)
-    const itemWidth = cardWidth + gap;
+    let animationFrame;
 
-    let timeout;
-    let scrollTimeout;
-
-    const scrollToNext = () => {
-      setCurrentIndex((prevIndex) => {
-        const nextIndex = prevIndex + 1;
-
-        // Reset to 0 when we reach the end of the first set of categories
-        if (nextIndex >= categories.length) {
-          // Jump instantly to the start without animation
-          setTimeout(() => {
-            if (scrollContainer) {
-              scrollContainer.style.scrollBehavior = 'auto';
-              scrollContainer.scrollLeft = 0;
-              setTimeout(() => {
-                scrollContainer.style.scrollBehavior = 'smooth';
-              }, 50);
-            }
-          }, 0);
-          return 0;
-        }
-
-        return nextIndex;
-      });
-    };
-
-    // Scroll to the current position
-    scrollTimeout = setTimeout(() => {
-      if (scrollContainer) {
-        scrollContainer.style.scrollBehavior = 'smooth';
-        scrollContainer.scrollLeft = currentIndex * itemWidth;
+    const autoScroll = () => {
+      scrollContainer.scrollLeft += 1.2; // speed
+      // If we reach the end of first list, snap back smoothly
+      if (scrollContainer.scrollLeft >= scrollContainer.scrollWidth / 2) {
+        scrollContainer.scrollLeft = 0;
       }
-
-      // Wait 2 seconds before scrolling to next item
-      timeout = setTimeout(scrollToNext, 2000);
-    }, 100);
-
-    return () => {
-      clearTimeout(timeout);
-      clearTimeout(scrollTimeout);
+      animationFrame = requestAnimationFrame(autoScroll);
     };
-  }, [currentIndex, isPaused, categories.length]);
 
-  // Duplicate categories for seamless loop
-  const duplicatedCategories = [...categories, ...categories];
+    animationFrame = requestAnimationFrame(autoScroll);
+    return () => cancelAnimationFrame(animationFrame);
+  }, [isPaused]);
 
   return (
     <div className="relative w-full overflow-hidden py-4">
+
       <div
         ref={scrollRef}
         className="flex gap-6 overflow-x-hidden scroll-smooth"
-        style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
         onMouseEnter={() => setIsPaused(true)}
         onMouseLeave={() => setIsPaused(false)}
+        onTouchStart={() => setIsPaused(true)}
+        onTouchEnd={() => setIsPaused(false)}
+        style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
       >
-        {duplicatedCategories.map((category, index) => (
+        {/* REAL CATEGORIES LIST */}
+        {categories.map((category, index) => (
           <motion.div
             key={`${category.name}-${index}`}
             className="flex-shrink-0 w-40 group cursor-pointer"
@@ -104,9 +87,28 @@ const AutoScrollCategories = ({ categories }) => {
             </div>
           </motion.div>
         ))}
+
+        {/* GHOST COPY (INVISIBLE) - For seamless scroll */}
+        {categories.map((category, index) => (
+          <div key={`ghost-${index}`} className="w-40 opacity-0 pointer-events-none" />
+        ))}
       </div>
 
-      {/* Gradient overlays for seamless edges */}
+      {/* Left / Right Manual Buttons */}
+      <button
+        onClick={() => handleManualScroll('left')}
+        className="absolute left-0 top-1/2 -translate-y-1/2 bg-gray-700 bg-opacity-50 hover:bg-opacity-75 text-white p-2 rounded-full z-20 shadow-lg focus:outline-none"
+      >
+        <ChevronLeft size={24} />
+      </button>
+      <button
+        onClick={() => handleManualScroll('right')}
+        className="absolute right-0 top-1/2 -translate-y-1/2 bg-gray-700 bg-opacity-50 hover:bg-opacity-75 text-white p-2 rounded-full z-20 shadow-lg focus:outline-none"
+      >
+        <ChevronRight size={24} />
+      </button>
+
+      {/* Fading edges */}
       <div className={`absolute left-0 top-0 bottom-0 w-20 bg-gradient-to-r from-gray-800 to-transparent pointer-events-none z-10 ${width < 768 ? 'hidden' : ''}`} />
       <div className="absolute right-0 top-0 bottom-0 w-20 bg-gradient-to-l from-gray-800 to-transparent pointer-events-none z-10" />
     </div>

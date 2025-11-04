@@ -15,31 +15,75 @@ const SEOHead = ({
   const fullImageUrl = image.startsWith('http') ? image : `${siteUrl}${image}`;
   const canonicalUrl = url.startsWith('http') ? url : `${siteUrl}${url}`;
 
-  // Default structured data for organization
+  // Default structured data for organization - Business/Local Business
   const defaultStructuredData = {
     "@context": "https://schema.org",
-    "@type": "Store",
+    "@type": "LocalBusiness",
+    "@id": siteUrl,
     "name": "Redragon Colombo",
+    "alternateName": "Redragon - Colombo, Sri Lanka",
     "description": description,
     "url": siteUrl,
-    "logo": `${siteUrl}/images/logo/redragon_logo.png`,
-    "image": fullImageUrl,
-    "telephone": "+94-11-1234567",
+    "logo": {
+      "@type": "ImageObject",
+      "url": `${siteUrl}/images/logo/redragon_logo.png`,
+      "width": 256,
+      "height": 256
+    },
+    "image": {
+      "@type": "ImageObject",
+      "url": fullImageUrl
+    },
+    "telephone": "+94777624028",
     "email": "info@redragoncolombo.lk",
     "address": {
       "@type": "PostalAddress",
-      "streetAddress": "Colombo",
+      "streetAddress": "3F18, 3rd Floor, Unity Plaza, Bambalapitiya",
       "addressLocality": "Colombo",
+      "postalCode": "04",
       "addressCountry": "LK"
     },
-    "openingHours": ["Mo-Sa 09:00-18:00"],
-    "priceRange": "$$",
-    "acceptsReservations": false,
+    "geo": {
+      "@type": "GeoCoordinates",
+      "latitude": "6.8661",
+      "longitude": "80.7663"
+    },
+    "openingHoursSpecification": [
+      {
+        "@type": "OpeningHoursSpecification",
+        "dayOfWeek": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"],
+        "opens": "09:00",
+        "closes": "18:00"
+      },
+      {
+        "@type": "OpeningHoursSpecification",
+        "dayOfWeek": "Sunday",
+        "opens": "10:00",
+        "closes": "17:00"
+      }
+    ],
+    "priceRange": "LKR1000-LKR50000",
     "currenciesAccepted": "LKR",
-    "paymentAccepted": "Cash, Credit Card, Debit Card",
+    "paymentAccepted": ["Cash", "Credit Card", "Debit Card", "PayHere"],
+    "founder": {
+      "@type": "Person",
+      "name": "Redragon Management Team"
+    },
+    "foundingDate": "2020",
+    "areaServed": {
+      "@type": "Country",
+      "name": "Sri Lanka"
+    },
+    "contactPoint": {
+      "@type": "ContactPoint",
+      "contactType": "Customer Service",
+      "telephone": "+94777624028",
+      "email": "info@redragoncolombo.lk"
+    },
     "sameAs": [
-      "https://facebook.com/redragoncolombo",
-      "https://instagram.com/redragoncolombo"
+      "https://www.facebook.com/redragoncolombo",
+      "https://www.instagram.com/redragoncolombo",
+      "https://www.tiktok.com/@redragoncolombo"
     ]
   };
 

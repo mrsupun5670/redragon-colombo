@@ -4,7 +4,7 @@ const crypto = require('crypto');
 const Customer = require('../models/Customer');
 const Admin = require('../models/Admin');
 const { hashPassword, comparePassword, generateToken } = require('../utils/auth');
-const { sendPasswordResetEmail } = require('../config/email');
+const { sendPasswordResetEmail, sendEmail } = require('../config/email');
 
 exports.getMe = async (req, res) => {
   try {
@@ -459,9 +459,93 @@ exports.adminLogin = async (req, res) => {
 
   } catch (err) {
     console.error('Admin login error:', err);
-    res.status(500).json({ 
+    res.status(500).json({
       success: false,
-      message: 'Server error. Please try again later.' 
+      message: 'Server error. Please try again later.'
+    });
+  }
+};
+
+// Admin Change Password
+exports.adminChangePassword = async (req, res) => {
+  try {
+    const adminId = req.user.id;
+    const userType = req.user.type;
+    const { currentPassword, newPassword, confirmPassword } = req.body;
+
+    // Validate admin type
+    if (userType !== 'admin') {
+      return res.status(403).json({
+        success: false,
+        message: 'Only admins can use this endpoint'
+      });
+    }
+
+    // Validate input
+    if (!currentPassword || !newPassword || !confirmPassword) {
+      return res.status(400).json({
+        success: false,
+        message: 'All fields are required'
+      });
+    }
+
+    // Check if new passwords match
+    if (newPassword !== confirmPassword) {
+      return res.status(400).json({
+        success: false,
+        message: 'New password and confirm password do not match'
+      });
+    }
+
+    // Validate password strength
+    if (newPassword.length < 6) {
+      return res.status(400).json({
+        success: false,
+        message: 'New password must be at least 6 characters long'
+      });
+    }
+
+    // Check if new password is different from current password
+    if (currentPassword === newPassword) {
+      return res.status(400).json({
+        success: false,
+        message: 'New password must be different from current password'
+      });
+    }
+
+    // Get current admin data
+    const admin = await Admin.findById(adminId);
+    if (!admin) {
+      return res.status(404).json({
+        success: false,
+        message: 'Admin not found'
+      });
+    }
+
+    // Verify current password
+    const isCurrentPasswordValid = await comparePassword(currentPassword, admin.password_hash);
+    if (!isCurrentPasswordValid) {
+      return res.status(400).json({
+        success: false,
+        message: 'Current password is incorrect'
+      });
+    }
+
+    // Hash new password
+    const newPasswordHash = await hashPassword(newPassword);
+
+    // Update password in database
+    await Admin.updatePassword(adminId, newPasswordHash);
+
+    res.json({
+      success: true,
+      message: 'Password changed successfully'
+    });
+  } catch (err) {
+    console.error('Admin change password error:', err);
+    res.status(500).json({
+      success: false,
+      message: 'Server error'
     });
   }
 };
@@ -641,6 +725,184 @@ exports.verifyResetCode = async (req, res) => {
 
   } catch (err) {
     console.error('Verify reset code error:', err);
+    res.status(500).json({
+      success: false,
+      message: 'Server error. Please try again later.'
+    });
+  }
+};
+
+// Admin Forgot Password - Request Code
+exports.adminForgotPassword = async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    // Validate input
+    if (!email) {
+      return res.status(400).json({
+        success: false,
+        message: 'Email is required'
+      });
+    }
+
+    // Find admin by email
+    const admin = await Admin.findByEmail(email.toLowerCase());
+    if (!admin) {
+      return res.status(404).json({
+        success: false,
+        message: 'No admin account found with this email address'
+      });
+    }
+
+    // Check if account is active
+    if (!admin.is_active) {
+      return res.status(403).json({
+        success: false,
+        message: 'Account is deactivated. Please contact support.'
+      });
+    }
+
+    // Generate 6-digit reset code
+    const resetCode = Math.floor(100000 + Math.random() * 900000); // 6-digit code
+    const resetCodeExpiry = new Date(Date.now() + 5 * 60 * 1000); // 5 minutes from now
+
+    // Save reset code to database
+    await Admin.setPasswordResetCode(email.toLowerCase(), resetCode, resetCodeExpiry);
+
+    // Send password reset email
+    try {
+      await sendPasswordResetEmail(
+        email.toLowerCase(),
+        resetCode.toString(),
+        admin.username
+      );
+    } catch (emailError) {
+      console.error('Email sending failed:', emailError.message);
+      // Still return success since code is saved to database
+    }
+
+    res.json({
+      success: true,
+      message: 'Password reset code has been sent to your email address'
+    });
+
+  } catch (err) {
+    console.error('Admin forgot password error:', err);
+    res.status(500).json({
+      success: false,
+      message: 'Server error. Please try again later.'
+    });
+  }
+};
+
+// Admin Verify Reset Code
+exports.adminVerifyResetCode = async (req, res) => {
+  try {
+    const { code } = req.body;
+
+    if (!code) {
+      return res.status(400).json({
+        success: false,
+        message: 'Reset code is required'
+      });
+    }
+
+    // Validate code format (6 digits) and convert to integer
+    if (!/^\d{6}$/.test(code)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid code format. Code must be 6 digits.'
+      });
+    }
+
+    const resetCodeInt = parseInt(code, 10);
+
+    // Find admin by reset code
+    const admin = await Admin.findByResetCode(resetCodeInt);
+    if (!admin) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid or expired reset code'
+      });
+    }
+
+    res.json({
+      success: true,
+      message: 'Reset code is valid',
+      adminId: admin.id
+    });
+
+  } catch (err) {
+    console.error('Admin verify reset code error:', err);
+    res.status(500).json({
+      success: false,
+      message: 'Server error. Please try again later.'
+    });
+  }
+};
+
+// Admin Reset Password
+exports.adminResetPassword = async (req, res) => {
+  try {
+    const { code, newPassword, confirmPassword } = req.body;
+
+    // Validate input
+    if (!code || !newPassword || !confirmPassword) {
+      return res.status(400).json({
+        success: false,
+        message: 'All fields are required'
+      });
+    }
+
+    // Check if passwords match
+    if (newPassword !== confirmPassword) {
+      return res.status(400).json({
+        success: false,
+        message: 'Passwords do not match'
+      });
+    }
+
+    // Validate password strength
+    if (newPassword.length < 6) {
+      return res.status(400).json({
+        success: false,
+        message: 'Password must be at least 6 characters long'
+      });
+    }
+
+    // Validate code format (6 digits) and convert to integer
+    if (!/^\d{6}$/.test(code)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid code format. Code must be 6 digits.'
+      });
+    }
+
+    const resetCodeInt = parseInt(code, 10);
+
+    // Find admin by reset code
+    const admin = await Admin.findByResetCode(resetCodeInt);
+    if (!admin) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid or expired reset code'
+      });
+    }
+
+    // Hash new password
+    const newPasswordHash = await hashPassword(newPassword);
+
+    // Update password and clear reset code
+    await Admin.updatePassword(admin.id, newPasswordHash);
+    await Admin.clearPasswordResetCode(admin.id);
+
+    res.json({
+      success: true,
+      message: 'Password has been reset successfully. You can now login with your new password.'
+    });
+
+  } catch (err) {
+    console.error('Admin reset password error:', err);
     res.status(500).json({
       success: false,
       message: 'Server error. Please try again later.'

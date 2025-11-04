@@ -251,8 +251,22 @@ const HomePage = () => {
       {/* Community Reviews Section */}
       <div className="py-16 bg-gray-900">
         <div className="container mx-auto px-4">
-          <h2 className="text-3xl font-bold text-white text-center mb-8 uppercase">Community Reviews</h2>
-          <div className="flex justify-center">
+          <motion.h2
+            className="text-3xl font-bold text-center mb-8 uppercase tracking-wider"
+            initial={{ opacity: 0, y: -20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+            style={{
+              background: "linear-gradient(to right, #3b82f6, #8b5cf6, #3b82f6)",
+              backgroundSize: "200% 200%",
+              WebkitBackgroundClip: "text",
+              WebkitTextFillColor: "transparent",
+            }}
+          >
+            Community Reviews
+          </motion.h2>
+          <div className="flex justify-center max-w-4xl mx-auto bg-gray-800 p-8 rounded-lg shadow-xl">
             <GoogleReviewsWidget />
           </div>
         </div>

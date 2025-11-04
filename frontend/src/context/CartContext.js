@@ -16,6 +16,11 @@ export const CartProvider = ({ children }) => {
     return userUtils.isAuthenticated();
   }, []);
 
+  // Check if user is admin
+  const isAdmin = useCallback(() => {
+    return userUtils.isAdmin();
+  }, []);
+
   // Save guest cart to localStorage
   const saveGuestCart = useCallback((items) => {
     try {
@@ -45,10 +50,10 @@ export const CartProvider = ({ children }) => {
     }
   }, []);
 
-  // Load cart from database (authenticated users)
+  // Load cart from database (authenticated users - not admins)
   const loadDatabaseCart = useCallback(async () => {
-    if (!isAuthenticated()) return;
-    
+    if (!isAuthenticated() || isAdmin()) return;
+
     try {
       setLoading(true);
       setError(null);
@@ -63,16 +68,15 @@ export const CartProvider = ({ children }) => {
     } finally {
       setLoading(false);
     }
-  }, [isAuthenticated, loadGuestCart]);
+  }, [isAuthenticated, isAdmin, loadGuestCart]);
 
   // Add item to cart
   const addToCart = useCallback(async (product, quantity = 1) => {
     try {
       setError(null);
-      
-      if (isAuthenticated()) {
-       
-        // Add to database cart
+
+      if (isAuthenticated() && !isAdmin()) {
+        // Add to database cart (only for customers, not admins)
         const response = await cartAPI.addToCart({ product_id: product.id, quantity });
         
         // Update cart items from response if available
@@ -192,8 +196,8 @@ export const CartProvider = ({ children }) => {
 
   // Sync cart on user authentication status change
   const syncCart = useCallback(async () => {
-    if (isAuthenticated()) {
-      // User logged in - sync guest cart to database
+    if (isAuthenticated() && !isAdmin()) {
+      // Customer user logged in - sync guest cart to database (skip for admins)
       const guestItems = loadGuestCart();
       if (guestItems.length > 0) {
         try {
@@ -229,16 +233,18 @@ export const CartProvider = ({ children }) => {
   // Load cart on component mount and auth status change
   useEffect(() => {
     const initCart = async () => {
-      if (isAuthenticated()) {
+      if (isAuthenticated() && !isAdmin()) {
+        // Load database cart for customers only
         await loadDatabaseCart();
       } else {
+        // Guest users and admins use guest cart
         const guestItems = loadGuestCart();
         setCartItems(guestItems);
       }
     };
-    
+
     initCart();
-  }, [isAuthenticated, loadDatabaseCart, loadGuestCart]);
+  }, [isAuthenticated, isAdmin, loadDatabaseCart, loadGuestCart]);
 
   // Calculate cart subtotal (using sale price if available)
   const cartSubtotal = useMemo(() => {

@@ -16,7 +16,6 @@ exports.getDeliveryZones = async (req, res) => {
 exports.getAllDeliveryZones = async (req, res) => {
   try {
     const zones = await DeliveryZone.findAllForAdmin();
-    console.log('📦 Fetched delivery zones for admin:', zones);
     res.json({
       success: true,
       data: zones || []
