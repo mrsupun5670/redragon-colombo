@@ -320,7 +320,7 @@ const ProductList = () => {
       {/* Filter Bar */}
       <div className="mb-4 md:mb-6">
         <div className="flex flex-col lg:flex-row justify-between items-stretch lg:items-center mb-4 gap-3 md:gap-4">
-          <h3 className="text-base md:text-lg font-semibold text-gray-700">Product List ({products.length})</h3>
+          <h3 className="text-base md:text-lg font-semibold text-gray-700">Product List ({allProducts.length})</h3>
 
           {/* Search Bar */}
           <div className="flex-1 lg:max-w-md">

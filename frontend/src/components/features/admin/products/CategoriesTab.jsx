@@ -173,7 +173,7 @@ const CategoriesTab = () => {
       }
     } catch (error) {
       console.error('Error deleting category:', error);
-      setError('Failed to delete category');
+      setError("Failed to delete category, it has products or sub categories associated with it.");
     }
   };
 
@@ -193,7 +193,7 @@ const CategoriesTab = () => {
       }
     } catch (error) {
       console.error('Error deleting sub category:', error);
-      setError('Failed to delete sub category');
+      setError('Failed to delete sub category , it has products associated with it.');
     }
   };
 
