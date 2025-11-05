@@ -59,7 +59,7 @@ const SingleProductView = () => {
         setLoading(true);
         setError(null);
         const response = await productAPI.getById(id);
-        
+
         if (response.data.success) {
           setProduct(response.data.data);
           // Set default color if available
@@ -68,11 +68,11 @@ const SingleProductView = () => {
             setSelectedColor(colors[0]);
           }
         } else {
-          setError('Product not found');
+          setError("Product not found");
         }
       } catch (err) {
-        console.error('Error fetching product:', err);
-        setError('Failed to load product. Please try again.');
+        console.error("Error fetching product:", err);
+        setError("Failed to load product. Please try again.");
       } finally {
         setLoading(false);
       }
@@ -96,12 +96,15 @@ const SingleProductView = () => {
             setIsWishlisted(response.data.data.isInWishlist);
           }
         } catch (error) {
-          console.error('Error checking wishlist status:', error);
+          console.error("Error checking wishlist status:", error);
         }
       } else {
         // Guest user - check localStorage
-        const guestWishlist = JSON.parse(localStorage.getItem('guest_wishlist')) || [];
-        const isInWishlist = guestWishlist.some(item => item.id === product.id);
+        const guestWishlist =
+          JSON.parse(localStorage.getItem("guest_wishlist")) || [];
+        const isInWishlist = guestWishlist.some(
+          (item) => item.id === product.id
+        );
         setIsWishlisted(isInWishlist);
       }
     };
@@ -121,7 +124,7 @@ const SingleProductView = () => {
           setReviews(response.data.data || []);
         }
       } catch (error) {
-        console.error('Error fetching reviews:', error);
+        console.error("Error fetching reviews:", error);
         setReviews([]);
       } finally {
         setReviewsLoading(false);
@@ -132,11 +135,12 @@ const SingleProductView = () => {
   }, [product]);
 
   // Product images from the API data (primary image and additional images)
-  const productImages = product && product.images && product.images.length > 0
-    ? product.images.map(img => img.image_path)
-    : product && product.primary_image 
+  const productImages =
+    product && product.images && product.images.length > 0
+      ? product.images.map((img) => img.image_path)
+      : product && product.primary_image
       ? [product.primary_image]
-      : ['/image_not_there.avif'];
+      : ["/image_not_there.avif"];
 
   // Similar products (for now we'll skip this, but could fetch from category)
   const similarProducts = [];
@@ -154,7 +158,8 @@ const SingleProductView = () => {
 
   // Handle quantity
   const increaseQuantity = () => setQuantity((prev) => prev + 1);
-  const decreaseQuantity = () => setQuantity((prev) => (prev > 1 ? prev - 1 : 1));
+  const decreaseQuantity = () =>
+    setQuantity((prev) => (prev > 1 ? prev - 1 : 1));
 
   // Handle add to cart
   const handleAddToCart = async () => {
@@ -164,8 +169,8 @@ const SingleProductView = () => {
         // Show success notification (you can add a toast here)
         setSuccess(`Added ${quantity} ${product.name} to cart!`);
       } catch (error) {
-        console.error('Error adding to cart:', error);
-        setPopupError('Failed to add item to cart. Please try again.');
+        console.error("Error adding to cart:", error);
+        setPopupError("Failed to add item to cart. Please try again.");
       }
     }
   };
@@ -175,18 +180,18 @@ const SingleProductView = () => {
     if (product && product.stock_quantity > 0) {
       try {
         // Check if product is already in cart
-        const existingItem = cartItems.find(item => item.id === product.id);
-        
+        const existingItem = cartItems.find((item) => item.id === product.id);
+
         if (!existingItem) {
           // Only add to cart if not already present
           await addToCart(product, quantity);
         }
-        
+
         // Always navigate to cart regardless
         navigate("/cart");
       } catch (error) {
-        console.error('Error adding to cart:', error);
-        setPopupError('Failed to add item to cart. Please try again.');
+        console.error("Error adding to cart:", error);
+        setPopupError("Failed to add item to cart. Please try again.");
       }
     }
   };
@@ -210,27 +215,32 @@ const SingleProductView = () => {
   const handleAddToWishlist = async () => {
     if (!isAuthenticated) {
       // Guest user - save to localStorage
-      const guestWishlist = JSON.parse(localStorage.getItem('guest_wishlist')) || [];
-      
+      const guestWishlist =
+        JSON.parse(localStorage.getItem("guest_wishlist")) || [];
+
       // Check if product already in wishlist
-      const isAlreadyInWishlist = guestWishlist.some(item => item.id === product.id);
-      
+      const isAlreadyInWishlist = guestWishlist.some(
+        (item) => item.id === product.id
+      );
+
       if (isAlreadyInWishlist) {
         // Remove from wishlist
-        const updatedWishlist = guestWishlist.filter(item => item.id !== product.id);
-        localStorage.setItem('guest_wishlist', JSON.stringify(updatedWishlist));
+        const updatedWishlist = guestWishlist.filter(
+          (item) => item.id !== product.id
+        );
+        localStorage.setItem("guest_wishlist", JSON.stringify(updatedWishlist));
         setIsWishlisted(false);
         setSuccess("Removed from wishlist!");
       } else {
         // Add to wishlist
         guestWishlist.push(product);
-        localStorage.setItem('guest_wishlist', JSON.stringify(guestWishlist));
+        localStorage.setItem("guest_wishlist", JSON.stringify(guestWishlist));
         setIsWishlisted(true);
         setSuccess("Added to wishlist!");
       }
-      
+
       // Dispatch custom event to update navbar
-      window.dispatchEvent(new Event('wishlistUpdated'));
+      window.dispatchEvent(new Event("wishlistUpdated"));
     } else {
       // Authenticated user - use database
       try {
@@ -253,11 +263,11 @@ const SingleProductView = () => {
             setPopupError(response.data.message || "Failed to add to wishlist");
           }
         }
-        
+
         // Dispatch custom event to update navbar
-        window.dispatchEvent(new Event('wishlistUpdated'));
+        window.dispatchEvent(new Event("wishlistUpdated"));
       } catch (error) {
-        console.error('Error updating wishlist:', error);
+        console.error("Error updating wishlist:", error);
         setPopupError("Failed to update wishlist. Please try again.");
       }
     }
@@ -293,7 +303,7 @@ const SingleProductView = () => {
         <Navbar />
         <div className="text-center py-20">
           <h2 className="text-3xl font-black text-red-500 mb-4">
-            {error || 'Product Not Found'}
+            {error || "Product Not Found"}
           </h2>
           <button
             onClick={() => navigate("/products")}
@@ -306,14 +316,26 @@ const SingleProductView = () => {
     );
   }
 
-  const productTitle = product ? `${product.name} - ${product.brand_name || 'Redragon'} | Redragon Colombo` : 'Product - Redragon Colombo';
-  const productDescription = product ? `Buy ${product.name} in Sri Lanka. ${product.description || 'Genuine Redragon gaming gear with warranty.'} Price: Rs. ${product.sale_price || product.price}` : 'Gaming product at Redragon Colombo';
-  const productKeywords = product ? `${product.name}, ${product.brand_name || 'Redragon'}, ${product.category_name || 'gaming'}, sri lanka, buy online, gaming gear` : 'redragon, gaming, sri lanka';
-  const productImage = product?.images?.[0] ? `/uploads/products/${product.images[0]}` : '/images/logo/redragon_logo.png';
+  const productTitle = product
+    ? `${product.name} - ${product.brand_name || "Redragon"} | Redragon Colombo`
+    : "Product - Redragon Colombo";
+  const productDescription = product
+    ? `Buy ${product.name} in Sri Lanka. ${
+        product.description || "Genuine Redragon gaming gear with warranty."
+      } Price: Rs. ${product.sale_price || product.price}`
+    : "Gaming product at Redragon Colombo";
+  const productKeywords = product
+    ? `${product.name}, ${product.brand_name || "Redragon"}, ${
+        product.category_name || "gaming"
+      }, sri lanka, buy online, gaming gear`
+    : "redragon, gaming, sri lanka";
+  const productImage = product?.images?.[0]
+    ? `/uploads/products/${product.images[0]}`
+    : "/images/logo/redragon_logo.png";
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 via-white to-gray-100">
-      <SEOHead 
+      <SEOHead
         title={productTitle}
         description={productDescription}
         keywords={productKeywords}
@@ -345,7 +367,9 @@ const SingleProductView = () => {
             </button>
             <BreadcrumbArrow className="w-3 h-3 sm:w-4 sm:h-4 text-gray-400 flex-shrink-0" />
             <button
-              onClick={() => navigate(`/products?category=${product.main_category_name}`)}
+              onClick={() =>
+                navigate(`/products?category=${product.main_category_name}`)
+              }
               className="text-gray-600 hover:text-red-500 transition-colors font-semibold whitespace-nowrap"
             >
               {product.main_category_name}
@@ -377,11 +401,12 @@ const SingleProductView = () => {
               )}
 
               {/* Discount Badge */}
-              {product.sale_price && parseFloat(product.sale_price) < parseFloat(product.price) && (
-                <div className="absolute top-3 sm:top-4 right-3 sm:right-4 z-10 bg-gradient-to-r from-yellow-400 to-orange-500 text-gray-900 px-3 sm:px-4 py-1 sm:py-2 rounded-full text-xs sm:text-sm font-black shadow-lg">
-                  SALE
-                </div>
-              )}
+              {product.sale_price &&
+                parseFloat(product.sale_price) < parseFloat(product.price) && (
+                  <div className="absolute top-3 sm:top-4 right-3 sm:right-4 z-10 bg-gradient-to-r from-yellow-400 to-orange-500 text-gray-900 px-3 sm:px-4 py-1 sm:py-2 rounded-full text-xs sm:text-sm font-black shadow-lg">
+                    SALE
+                  </div>
+                )}
 
               {/* Main Image Slider */}
               <div className="relative w-full h-full">
@@ -461,8 +486,7 @@ const SingleProductView = () => {
                 {product.brand_name || product.brand}
               </span>
               <span className="text-xs sm:text-sm font-semibold text-gray-600 flex items-center gap-1">
-                <Shield className="w-3 h-3 sm:w-4 sm:h-4" />
-                1 Year Warranty
+                <Shield className="w-3 h-3 sm:w-4 sm:h-4" />1 Year Warranty
               </span>
             </div>
 
@@ -497,13 +521,18 @@ const SingleProductView = () => {
             <div className="bg-gradient-to-r from-red-50 to-orange-50 p-4 sm:p-6 rounded-xl sm:rounded-2xl border-2 border-red-200">
               <div className="flex items-baseline gap-3 sm:gap-4 mb-2">
                 <span className="text-3xl sm:text-4xl md:text-5xl font-black text-red-600">
-                  Rs. {parseFloat(product.sale_price || product.price).toLocaleString()}
+                  Rs.{" "}
+                  {parseFloat(
+                    product.sale_price || product.price
+                  ).toLocaleString()}
                 </span>
-                {product.sale_price && parseFloat(product.sale_price) < parseFloat(product.price) && (
-                  <span className="text-lg sm:text-xl text-gray-500 line-through">
-                    Rs. {parseFloat(product.price).toLocaleString()}
-                  </span>
-                )}
+                {product.sale_price &&
+                  parseFloat(product.sale_price) <
+                    parseFloat(product.price) && (
+                    <span className="text-lg sm:text-xl text-gray-500 line-through">
+                      Rs. {parseFloat(product.price).toLocaleString()}
+                    </span>
+                  )}
               </div>
               <p className="text-xs sm:text-sm text-gray-600 font-semibold">
                 Inclusive of all taxes • Free Shipping
@@ -636,9 +665,8 @@ const SingleProductView = () => {
                 </div>
                 <div>
                   <p className="text-xs sm:text-sm font-bold text-gray-900">
-                    Free Delivery
+                    Island-wide Delivery
                   </p>
-                  <p className="text-xs text-gray-600">Island-wide</p>
                 </div>
               </div>
 
@@ -648,9 +676,8 @@ const SingleProductView = () => {
                 </div>
                 <div>
                   <p className="text-xs sm:text-sm font-bold text-gray-900">
-                    7 Day Return
+                    Easy returns
                   </p>
-                  <p className="text-xs text-gray-600">Easy returns</p>
                 </div>
               </div>
 
@@ -662,7 +689,6 @@ const SingleProductView = () => {
                   <p className="text-xs sm:text-sm font-bold text-gray-900">
                     Warranty
                   </p>
-                  <p className="text-xs text-gray-600">1 Year</p>
                 </div>
               </div>
             </div>
@@ -743,10 +769,22 @@ const SingleProductView = () => {
                     {[
                       { label: "Brand", value: product.brand_name },
                       { label: "Category", value: product.main_category_name },
-                      { label: "Sub-Category", value: product.sub_category_name },
+                      {
+                        label: "Sub-Category",
+                        value: product.sub_category_name,
+                      },
                       { label: "SKU", value: product.sku },
-                      { label: "Weight", value: product.weight ? `${product.weight}g` : "N/A" },
-                      { label: "Stock Status", value: product.stock_quantity > 0 ? `In Stock (${product.stock_quantity})` : "Out of Stock" },
+                      {
+                        label: "Weight",
+                        value: product.weight ? `${product.weight}g` : "N/A",
+                      },
+                      {
+                        label: "Stock Status",
+                        value:
+                          product.stock_quantity > 0
+                            ? `In Stock (${product.stock_quantity})`
+                            : "Out of Stock",
+                      },
                     ].map((spec, idx) => (
                       <div
                         key={idx}
@@ -775,9 +813,14 @@ const SingleProductView = () => {
                         <div className="flex">
                           {[...Array(5)].map((_, idx) => {
                             // Calculate average rating from reviews
-                            const averageRating = reviews.length > 0
-                              ? (reviews.reduce((sum, review) => sum + parseInt(review.rating), 0) / reviews.length)
-                              : 0;
+                            const averageRating =
+                              reviews.length > 0
+                                ? reviews.reduce(
+                                    (sum, review) =>
+                                      sum + parseInt(review.rating),
+                                    0
+                                  ) / reviews.length
+                                : 0;
 
                             return (
                               <Star
@@ -793,11 +836,19 @@ const SingleProductView = () => {
                         </div>
                         <span className="text-base sm:text-lg font-bold text-gray-900">
                           {reviews.length > 0
-                            ? (reviews.reduce((sum, review) => sum + parseInt(review.rating), 0) / reviews.length).toFixed(1)
-                            : "0.0"} out of 5
+                            ? (
+                                reviews.reduce(
+                                  (sum, review) =>
+                                    sum + parseInt(review.rating),
+                                  0
+                                ) / reviews.length
+                              ).toFixed(1)
+                            : "0.0"}{" "}
+                          out of 5
                         </span>
                         <span className="text-sm text-gray-500">
-                          ({reviews.length} {reviews.length === 1 ? "review" : "reviews"})
+                          ({reviews.length}{" "}
+                          {reviews.length === 1 ? "review" : "reviews"})
                         </span>
                       </div>
                     </div>
@@ -810,23 +861,33 @@ const SingleProductView = () => {
                     </div>
                   ) : reviews.length === 0 ? (
                     <div className="text-center py-8">
-                      <p className="text-gray-500 text-base mb-4">No reviews yet</p>
-                      <p className="text-gray-400 text-sm">Be the first to review this product!</p>
+                      <p className="text-gray-500 text-base mb-4">
+                        No reviews yet
+                      </p>
+                      <p className="text-gray-400 text-sm">
+                        Be the first to review this product!
+                      </p>
                     </div>
                   ) : (
                     <div className="space-y-3 sm:space-y-4">
                       {reviews.map((review) => {
                         // Format the date
                         const reviewDate = new Date(review.created_at);
-                        const formattedDate = reviewDate.toLocaleDateString('en-US', {
-                          year: 'numeric',
-                          month: 'short',
-                          day: 'numeric',
-                        });
-                        const formattedTime = reviewDate.toLocaleTimeString('en-US', {
-                          hour: '2-digit',
-                          minute: '2-digit',
-                        });
+                        const formattedDate = reviewDate.toLocaleDateString(
+                          "en-US",
+                          {
+                            year: "numeric",
+                            month: "short",
+                            day: "numeric",
+                          }
+                        );
+                        const formattedTime = reviewDate.toLocaleTimeString(
+                          "en-US",
+                          {
+                            hour: "2-digit",
+                            minute: "2-digit",
+                          }
+                        );
 
                         return (
                           <div
@@ -838,7 +899,9 @@ const SingleProductView = () => {
                                 <p className="font-bold text-sm sm:text-base text-gray-900">
                                   {review.customer_name || "Anonymous Customer"}
                                 </p>
-                                <p className="text-xs sm:text-sm text-gray-500">Verified Purchase</p>
+                                <p className="text-xs sm:text-sm text-gray-500">
+                                  Verified Purchase
+                                </p>
                               </div>
                               <div className="flex gap-1">
                                 {[...Array(5)].map((_, idx) => (
@@ -923,7 +986,9 @@ const SingleProductView = () => {
                         Rs. {similar.price.toLocaleString()}
                       </span>
                       <div className="flex items-center gap-1">
-                        <span className="text-yellow-500 text-xs sm:text-sm">★</span>
+                        <span className="text-yellow-500 text-xs sm:text-sm">
+                          ★
+                        </span>
                         <span className="text-xs font-semibold text-gray-600">
                           {similar.rating}
                         </span>
