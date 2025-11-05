@@ -17,6 +17,14 @@ const TikTokIcon = ({ className }) => (
   </svg>
 );
 
+// Payment methods data
+const paymentMethods = [
+  { name: 'Visa', logo: '/images/payment_methods/visa.png' },
+  { name: 'Mastercard', logo: '/images/payment_methods/master.png' },
+  { name: 'American Express', logo: '/images/payment_methods/american x.png' },
+  { name: 'KOKO', logo: '/images/payment_methods/koko.png' }
+];
+
 const Footer = () => {
   const navigate = useNavigate();
 
@@ -133,30 +141,20 @@ const Footer = () => {
 
           {/* Payment & Social */}
           <div>
-            <h3 className="font-black mb-4 text-gray-900 uppercase text-sm">
+            <h3 className="font-black mb-3 text-gray-900 uppercase text-sm">
               WE ACCEPT
             </h3>
-            <div className="flex items-center gap-3 mb-4">
-              {/* Visa */}
-              <div className="w-14 h-10 bg-white rounded-lg flex items-center justify-center border border-gray-300 shadow-sm hover:shadow-md transition-shadow">
-                <svg viewBox="0 0 48 32" className="w-12 h-6">
-                  <path
-                    fill="#1434CB"
-                    d="M20.176 11.512l-2.294 9.975h-3.009l2.294-9.975h3.009zm13.038 6.461l1.585-4.373.907 4.373h-2.492zm3.373 3.514h2.779l-2.426-9.975h-2.557c-.577 0-1.062.334-1.277.85l-4.501 9.125h3.162l.628-1.74h3.862l.33 1.74zm-7.373-3.273c.013-2.632-3.641-2.779-3.617-3.956.008-.357.349-.739 1.094-.836.369-.048 1.387-.085 2.542.446l.453-2.113c-.62-.226-1.418-.443-2.411-.443-3.337 0-5.686 1.775-5.704 4.318-.02 1.879 1.677 2.927 2.957 3.552 1.315.641 1.757 1.052 1.751 1.625-.01.877-1.052 1.271-2.025 1.286-1.701.027-2.688-.459-3.475-.826l-.613 2.865c.79.364 2.248.681 3.762.697 3.551 0 5.873-1.753 5.886-4.47l-.6-.145zm-13.438-6.702l-4.917 9.975h-3.186l-2.421-9.373c-.146-.573-.273-.784-.719-.999-1.165-.56-2.989-1.156-4.626-1.501l.074-.351h7.975c1.016 0 1.931.677 2.162 1.85l1.977 10.505 4.885-12.106h3.162l-4.366 12.001z"
-                  />
-                </svg>
-              </div>
-              {/* Mastercard */}
-              <div className="w-14 h-10 bg-white rounded-lg flex items-center justify-center border border-gray-300 shadow-sm hover:shadow-md transition-shadow">
-                <svg viewBox="0 0 48 32" className="w-12 h-6">
-                  <circle cx="18" cy="16" r="10" fill="#EB001B" />
-                  <circle cx="30" cy="16" r="10" fill="#F79E1B" />
-                  <path
-                    fill="#FF5F00"
-                    d="M24 8.8c-2.264 1.888-3.7 4.742-3.7 7.95s1.436 6.062 3.7 7.95c2.264-1.888 3.7-4.742 3.7-7.95s-1.436-6.062-3.7-7.95z"
-                  />
-                </svg>
-              </div>
+            <div className="flex flex-wrap gap-3">
+              {paymentMethods.map((method) => (
+                <motion.img
+                  key={method.name}
+                  src={method.logo}
+                  alt={method.name}
+                  title={method.name}
+                  whileHover={{ scale: 1.1, y: -2 }}
+                  className="h-12 w-auto object-contain cursor-pointer transition-transform"
+                />
+              ))}
             </div>
 
             {/* Social Media */}
