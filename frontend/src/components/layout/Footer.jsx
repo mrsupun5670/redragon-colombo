@@ -223,7 +223,7 @@ const Footer = () => {
             Lanka. All rights reserved.
           </p>
           <p className="text-sm text-gray-600">
-            &copy; Designed & Developed by{" "}
+            &copy; Designed & Developed by
             <a
               href="https://www.zipzipy.com"
               target="_blank"
