@@ -93,9 +93,9 @@ const CategoriesPage = () => {
               >
                 <div className="relative h-48 overflow-hidden">
                   <img
-                    src={category.image || 'https://images.unsplash.com/photo-1587829741301-dc798b83add3?w=800&q=80'}
+                    src={category.icon || 'https://images.unsplash.com/photo-1587829741301-dc798b83add3?w=800&q=80'}
                     alt={category.name}
-                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                    className="w-full h-full object-contain group-hover:scale-110 transition-transform duration-500"
                   />
                   <div className={`absolute inset-0 bg-gradient-to-t ${visuals.color} opacity-70 group-hover:opacity-80 transition-opacity`} />
                   <div className="absolute inset-0 flex items-center justify-center">

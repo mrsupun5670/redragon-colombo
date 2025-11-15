@@ -197,17 +197,44 @@ const SingleProductView = () => {
   };
 
   // Handle share
-  const handleShare = () => {
+  const handleShare = async () => {
+    const shareUrl = `${window.location.origin}/product/${product.id}-${product.name.replace(/\s+/g, "-").toLowerCase()}`;
+    const shareTitle = `${product.name} - ${product.brand_name || 'Redragon'}`;
+    const shareText = `Check out ${product.name} at Redragon Colombo! Rs. ${(product.sale_price || product.price).toLocaleString()}`;
+    
     if (navigator.share) {
-      navigator.share({
-        title: product?.name,
-        text: `Check out ${product?.name}`,
-        url: window.location.href,
-      });
+      try {
+        await navigator.share({
+          title: shareTitle,
+          text: shareText,
+          url: shareUrl,
+        });
+      } catch (error) {
+        // User cancelled sharing or error occurred, fallback to clipboard
+        if (error.name !== 'AbortError') {
+          handleCopyToClipboard(shareUrl, shareTitle);
+        }
+      }
     } else {
       // Fallback: copy to clipboard
-      navigator.clipboard.writeText(window.location.href);
-      setSuccess("Link copied to clipboard!");
+      handleCopyToClipboard(shareUrl, shareTitle);
+    }
+  };
+
+  // Handle copy to clipboard
+  const handleCopyToClipboard = async (url, title) => {
+    try {
+      await navigator.clipboard.writeText(url);
+      setSuccess("Product link copied to clipboard!");
+    } catch (error) {
+      // Fallback for older browsers
+      const textArea = document.createElement('textarea');
+      textArea.value = url;
+      document.body.appendChild(textArea);
+      textArea.select();
+      document.execCommand('copy');
+      document.body.removeChild(textArea);
+      setSuccess("Product link copied to clipboard!");
     }
   };
 

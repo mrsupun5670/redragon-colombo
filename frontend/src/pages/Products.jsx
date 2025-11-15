@@ -143,7 +143,7 @@ const Products = () => {
       const matchesStock = !inStockOnly || product.stock_quantity > 0;
 
       const matchesRedragon =
-        !redragonOnly || product.brand_name === "Redragon";
+        !redragonOnly || product.brand_name?.toLowerCase() === "redragon";
 
       return (
         matchesSearch &&
