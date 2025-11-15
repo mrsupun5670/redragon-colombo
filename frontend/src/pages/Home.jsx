@@ -10,6 +10,7 @@ import AutoScrollProducts from '../components/features/home/AutoScrollProducts';
 import GoogleReviewsWidget from '../components/common/GoogleReviewsWidget';
 import { productAPI, categoryAPI, brandAPI } from '../services/api';
 import { motion } from 'framer-motion';
+import useWindowDimensions from '../hooks/useWindowDimensions';
 
 // These will be fetched from the database
 
@@ -21,6 +22,7 @@ const HomePage = () => {
   const [brands, setBrands] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const { width } = useWindowDimensions();
 
   useEffect(() => {
     const fetchData = async () => {
@@ -66,6 +68,8 @@ const HomePage = () => {
 
     fetchData();
   }, []);
+
+  const displayedRedragonProducts = width < 768 ? redragonProducts.slice(0, 4) : redragonProducts;
 
   
   if (loading) {
