@@ -70,7 +70,7 @@ const HomePage = () => {
   
   if (loading) {
     return (
-      <div className="bg-gray-900 text-white min-h-screen flex items-center justify-center">
+      <div className="bg-black text-white min-h-screen flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-red-500 mx-auto"></div>
           <p className="mt-4 text-xl">Loading content...</p>
@@ -81,7 +81,7 @@ const HomePage = () => {
 
   if (error) {
     return (
-      <div className="bg-gray-900 text-white min-h-screen flex items-center justify-center">
+      <div className="bg-black text-white min-h-screen flex items-center justify-center">
         <div className="text-center">
           <p className="text-red-500 text-xl">{error}</p>
           <button 
@@ -96,7 +96,7 @@ const HomePage = () => {
   }
 
   return (
-    <div className="bg-gray-900 text-white">
+    <div className="bg-black text-white">
       <SEOHead 
         title="Redragon Colombo - Official Gaming Peripherals Store Sri Lanka | Keyboards, Mice, Headsets"
         description="Shop authentic Redragon gaming gear in Sri Lanka. Mechanical keyboards, gaming mice, headsets & accessories with genuine warranty. Fast delivery across Colombo & island-wide."
@@ -142,7 +142,7 @@ const HomePage = () => {
       <FullScreenCarousel />
 
       {/* Shop by Category Section - Auto Scrolling */}
-      <div className="py-16 bg-gray-800">
+      <div className="py-16 bg-black">
         <div className="container mx-auto px-4">
           <motion.h2
             className="text-3xl font-bold text-center mb-8 uppercase tracking-wider"
@@ -151,10 +151,7 @@ const HomePage = () => {
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
             style={{
-              background: "linear-gradient(to right, #ef4444, #f97316, #ef4444)",
-              backgroundSize: "200% 200%",
-              WebkitBackgroundClip: "text",
-              WebkitTextFillColor: "transparent",
+              color: "#ef4444",
             }}
           >
             Shop by Category
@@ -168,11 +165,11 @@ const HomePage = () => {
       </div>
 
       {/* New Arrivals Section */}
-      <div className="py-16 bg-gray-900">
+      <div className="py-16 bg-black">
         <div className="container mx-auto px-4">
           <h2 className="text-3xl font-bold text-white text-center mb-8 uppercase">New Arrivals</h2>
           {newArrivals.length > 0 ? (
-            <AutoScrollProducts products={newArrivals} bg_color="from-gray-900" />
+            <AutoScrollProducts products={newArrivals} bg_color="from-black" />
           ) : (
             <p className="text-center text-gray-400">No new arrivals available at the moment.</p>
           )}
@@ -180,29 +177,18 @@ const HomePage = () => {
       </div>
 
       {/* Exclusive Redragon Section */}
-      <div className="py-16 bg-gray-800">
+      <div className="py-16 bg-black">
         <div className="container mx-auto px-4">
                     <motion.h2
             className="text-3xl font-bold text-center mb-8 uppercase"
-            animate={{
-              backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"],
-            }}
-            transition={{
-              duration: 3,
-              repeat: Infinity,
-              ease: "easeInOut",
-            }}
             style={{
-              background: "linear-gradient(to right, #ef4444, #f97316, #facc15)",
-              backgroundSize: "200% 200%",
-              WebkitBackgroundClip: "text",
-              WebkitTextFillColor: "transparent",
+                color: "#ef4444",
             }}
           >
             Exclusive Redragon
           </motion.h2>
           {redragonProducts.length > 0 ? (
-            <AutoScrollProducts products={redragonProducts} bg_color="from-gray-800" />
+            <AutoScrollProducts products={redragonProducts} bg_color="from-black" />
           ) : (
             <p className="text-center text-gray-400">No Redragon products available at the moment.</p>
           )}
@@ -210,11 +196,11 @@ const HomePage = () => {
       </div>
 
       {/* Featured Products Section */}
-      <div className="py-16 bg-gray-900">
+      <div className="py-16 bg-black">
         <div className="container mx-auto px-4">
           <h2 className="text-3xl font-bold text-white text-center mb-8 uppercase">Featured Products</h2>
           {featuredProducts.length > 0 ? (
-            <AutoScrollProducts products={featuredProducts} bg_color="from-gray-900" />
+            <AutoScrollProducts products={featuredProducts} bg_color="from-black" />
             
           ) : (
             <p className="text-center text-gray-400">No featured products available at the moment.</p>
@@ -223,7 +209,7 @@ const HomePage = () => {
       </div>
 
       {/* Shop by Brand Section - Auto Scrolling */}
-      <div className="py-16 bg-gray-900">
+      <div className="py-16 bg-black">
         <div className="container mx-auto px-4">
           <motion.h2
             className="text-3xl font-bold text-center mb-8 uppercase tracking-wider"
@@ -232,10 +218,7 @@ const HomePage = () => {
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
             style={{
-              background: "linear-gradient(to right, #3b82f6, #8b5cf6, #3b82f6)",
-              backgroundSize: "200% 200%",
-              WebkitBackgroundClip: "text",
-              WebkitTextFillColor: "transparent",
+                color: "#3b82f6",
             }}
           >
             Shop by Brand
@@ -249,7 +232,7 @@ const HomePage = () => {
       </div>
 
       {/* Community Reviews Section */}
-      <div className="py-16 bg-gray-900">
+      <div className="py-16 bg-black">
         <div className="container mx-auto px-4">
           <motion.h2
             className="text-3xl font-bold text-center mb-8 uppercase tracking-wider"
@@ -258,15 +241,12 @@ const HomePage = () => {
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
             style={{
-              background: "linear-gradient(to right, #3b82f6, #8b5cf6, #3b82f6)",
-              backgroundSize: "200% 200%",
-              WebkitBackgroundClip: "text",
-              WebkitTextFillColor: "transparent",
+                color: "#3b82f6",
             }}
           >
             Community Reviews
           </motion.h2>
-          <div className="flex justify-center max-w-4xl mx-auto bg-gray-800 p-8 rounded-lg shadow-xl">
+          <div className="flex justify-center max-w-4xl mx-auto shadow-xl">
             <GoogleReviewsWidget />
           </div>
         </div>

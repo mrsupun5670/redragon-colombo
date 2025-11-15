@@ -109,8 +109,6 @@ const AutoScrollCategories = ({ categories }) => {
       </button>
 
       {/* Fading edges */}
-      <div className={`absolute left-0 top-0 bottom-0 w-20 bg-gradient-to-r from-gray-800 to-transparent pointer-events-none z-10 ${width < 768 ? 'hidden' : ''}`} />
-      <div className="absolute right-0 top-0 bottom-0 w-20 bg-gradient-to-l from-gray-800 to-transparent pointer-events-none z-10" />
     </div>
   );
 };
