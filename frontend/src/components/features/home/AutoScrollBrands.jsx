@@ -57,23 +57,35 @@ const AutoScrollBrands = ({ brands }) => {
         onMouseLeave={() => setIsPaused(false)}
       >
         {brands.map((brand, index) => (
-          <motion.div
-            key={`${brand.name}-${index}`}
-            className="flex-shrink-0 w-45 group cursor-pointer"
-            whileHover={{ y: -8, scale: 1.05 }}
-            transition={{ duration: 0.3 }}
-            onClick={() => handleBrandClick(brand.name)}
-          >
-            <div className="bg-white rounded-2xl overflow-hidden hover:shadow-2xl hover:shadow-red-500/20 transition-all duration-300 border-2 border-gray-200 hover:border-red-500 p-6 h-32 flex items-center justify-center">
-              <img
-                src={brand.logo}
-                alt={brand.name}
-                className="max-w-full max-h-full object-contain opacity-70 group-hover:opacity-100 transition-all duration-300"
-                style={{ maxHeight: '80px' }}
-              />
-            </div>
-          </motion.div>
-        ))}
+  <motion.div
+    key={`${brand.name}-${index}`}
+    className="flex-shrink-0 w-45 group cursor-pointer"
+    whileHover={{ scale: 1.15 }}
+    transition={{ type: "spring", stiffness: 300, damping: 20 }}
+    onClick={() => handleBrandClick(brand.name)}
+  >
+    <div className="bg-white rounded-2xl overflow-hidden transition-all duration-300 
+      border border-gray-200 group-hover:border-red-500
+      shadow-md group-hover:shadow-xl group-hover:shadow-red-500/20
+      p-6 h-32 flex items-center justify-center relative"
+    >
+      <img
+        src={brand.logo}
+        alt={brand.name}
+        className="object-contain transition-all duration-300 
+          group-hover:scale-125 group-hover:object-cover"
+        style={{ maxHeight: '80px' }}
+      />
+      
+      {/* Optional subtle gradient highlight */}
+      <div className="absolute inset-0 pointer-events-none opacity-0 
+        group-hover:opacity-20 transition-all duration-300
+        bg-gradient-to-br from-white via-transparent to-transparent"
+      />
+    </div>
+  </motion.div>
+))}
+
       </div>
 
       {/* Buttons */}

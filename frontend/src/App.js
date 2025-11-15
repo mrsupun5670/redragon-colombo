@@ -55,38 +55,38 @@ const LoadingSpinner = () => (
 );
 
 function App() {
-  const isUnderDevelopment = process.env.REACT_APP_UNDER_DEVELOPMENT === 'true';
+  // const isUnderDevelopment = process.env.REACT_APP_UNDER_DEVELOPMENT === 'true';
   
-  // Function to check if current path should bypass under development
-  const shouldBypassUnderDevelopment = () => {
-    const currentPath = window.location.pathname;
+  // // Function to check if current path should bypass under development
+  // const shouldBypassUnderDevelopment = () => {
+  //   const currentPath = window.location.pathname;
     
-    // Admin routes always bypass
-    if (currentPath.startsWith('/admin')) {
-      return true;
-    }
+  //   // Admin routes always bypass
+  //   if (currentPath.startsWith('/admin')) {
+  //     return true;
+  //   }
     
-    // Error pages always bypass
-    if (['/error', '/404', '/403', '/500'].includes(currentPath)) {
-      return true;
-    }
+  //   // Error pages always bypass
+  //   if (['/error', '/404', '/403', '/500'].includes(currentPath)) {
+  //     return true;
+  //   }
     
     // Custom user paths bypass under development
     // These are paths that don't match standard routes
-    const standardRoutes = [
-      '/', '/products', '/cart', '/checkout', '/login', '/register', 
-      '/forgot-password', '/about', '/wishlist', '/categories', '/account',
-      '/refund-policy', '/privacy-policy', '/terms-conditions'
-    ];
+    // const standardRoutes = [
+    //   '/', '/products', '/cart', '/checkout', '/login', '/register', 
+    //   '/forgot-password', '/about', '/wishlist', '/categories', '/account',
+    //   '/refund-policy', '/privacy-policy', '/terms-conditions'
+    // ];
     
     // Check if it's a product detail route
-    const isProductRoute = /^\/products?\/\d+$/.test(currentPath);
+    // const isProductRoute = /^\/products?\/\d+$/.test(currentPath);
     
     // If it's not a standard route and not a product route, it's a custom path
-    return !standardRoutes.includes(currentPath) && !isProductRoute;
-  };
+  //   return !standardRoutes.includes(currentPath) && !isProductRoute;
+  // };
 
-  const shouldShowUnderDevelopment = isUnderDevelopment && !shouldBypassUnderDevelopment();
+  // const shouldShowUnderDevelopment = isUnderDevelopment && !shouldBypassUnderDevelopment();
 
   return (
     <AuthProvider>
@@ -98,83 +98,83 @@ function App() {
               <Routes>
               {/* Main Pages - Protected from admin access */}
               <Route path="/" element={
-                shouldShowUnderDevelopment ? <UnderDevelopment /> : (
+                
                   <AdminRouteGuard>
                     <Home />
                   </AdminRouteGuard>
-                )
+                // )
               } />
               <Route path="/products" element={
-                shouldShowUnderDevelopment ? <UnderDevelopment /> : (
+                
                   <AdminRouteGuard>
                     <Products />
                   </AdminRouteGuard>
-                )
+                
               } />
               <Route path="/products/:id" element={
-                shouldShowUnderDevelopment ? <UnderDevelopment /> : (
+                
                   <AdminRouteGuard>
                     <ProductDetail />
                   </AdminRouteGuard>
-                )
+                
               } />
               <Route path="/product/:id" element={
-                shouldShowUnderDevelopment ? <UnderDevelopment /> : (
+                
                   <AdminRouteGuard>
                     <SingleProductView />
                   </AdminRouteGuard>
-                )
+                
               } />
               <Route path="/cart" element={
-                shouldShowUnderDevelopment ? <UnderDevelopment /> : (
+                
                   <AdminRouteGuard>
                     <Cart />
                   </AdminRouteGuard>
-                )
+                
               } />
               <Route path="/checkout" element={
-                shouldShowUnderDevelopment ? <UnderDevelopment /> : (
+                
                   <AdminRouteGuard>
                     <CustomerProtectedRoute>
                       <Checkout />
                     </CustomerProtectedRoute>
                   </AdminRouteGuard>
-                )
+                
               } />
               <Route path="/payment/success" element={
-                shouldShowUnderDevelopment ? <UnderDevelopment /> : (
+                
                   <PaymentRoute>
                     <PaymentSuccess />
                   </PaymentRoute>
-                )
+                
               } />
               <Route path="/payment/cancel" element={
-                shouldShowUnderDevelopment ? <UnderDevelopment /> : (
+                
                   <PaymentRoute>
                     <PaymentCancel />
                   </PaymentRoute>
-                )
+                
               } />
               <Route path="/login" element={
-                shouldShowUnderDevelopment ? <UnderDevelopment /> : (
+                
                   <GuestRoute>
                     <LoginPage />
                   </GuestRoute>
-                )
+                
               } />
               <Route path="/register" element={
-                shouldShowUnderDevelopment ? <UnderDevelopment /> : (
+                
                   <GuestRoute>
                     <RegisterPage />
                   </GuestRoute>
-                )
+                
               } />
               <Route path="/forgot-password" element={
-                shouldShowUnderDevelopment ? <UnderDevelopment /> : (
+                
                   <ForgotPasswordRoute>
                     <ForgotPasswordPage />
                   </ForgotPasswordRoute>
-                )
+                
               } />
               <Route path="/admin" element={
                 <AdminProtectedRoute>
@@ -187,11 +187,11 @@ function App() {
                 </AdminGuestRoute>
               } />
               <Route path="/about" element={
-                shouldShowUnderDevelopment ? <UnderDevelopment /> : (
+                
                   <AdminRouteGuard>
                     <About />
                   </AdminRouteGuard>
-                )
+                
               } />
               <Route path="/blog" element={
                 <AdminRouteGuard>
@@ -199,50 +199,50 @@ function App() {
                 </AdminRouteGuard>
               } />
               <Route path="/wishlist" element={
-                shouldShowUnderDevelopment ? <UnderDevelopment /> : (
+                
                   <AdminRouteGuard>
                     <Wishlist />
                   </AdminRouteGuard>
-                )
+                
               } />
               <Route path="/categories" element={
-                shouldShowUnderDevelopment ? <UnderDevelopment /> : (
+                
                   <AdminRouteGuard>
                     <CategoriesPage />
                   </AdminRouteGuard>
-                )
+                
               } />
               <Route path="/account" element={
-                shouldShowUnderDevelopment ? <UnderDevelopment /> : (
+                
                   <AdminRouteGuard>
                     <CustomerProtectedRoute>
                       <MyAccount />
                     </CustomerProtectedRoute>
                   </AdminRouteGuard>
-                )
+                
               } />
 
               {/* Policy Pages - Protected from admin access */}
               <Route path="/refund-policy" element={
-                shouldShowUnderDevelopment ? <UnderDevelopment /> : (
+                
                   <AdminRouteGuard>
                     <RefundPolicy />
                   </AdminRouteGuard>
-                )
+                
               } />
               <Route path="/privacy-policy" element={
-                shouldShowUnderDevelopment ? <UnderDevelopment /> : (
+                
                   <AdminRouteGuard>
                     <PrivacyPolicy />
                   </AdminRouteGuard>
-                )
+                
               } />
               <Route path="/terms-conditions" element={
-                shouldShowUnderDevelopment ? <UnderDevelopment /> : (
+                
                   <AdminRouteGuard>
                     <TermsConditions />
                   </AdminRouteGuard>
-                )
+                
               } />
 
               {/* Error Pages */}
