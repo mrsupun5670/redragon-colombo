@@ -10,20 +10,65 @@ const db = require("./config/db");
 const app = express();
 
 const corsOptions = {
-  origin: [
-    "http://localhost:3000",
-    "http://localhost:3001", 
-    "http://localhost:5173",
-    "https://redragoncolombo.lk",
-    "https://www.redragoncolombo.lk"
-  ],
+  origin: function (origin, callback) {
+    const allowedOrigins = [
+      "http://localhost:3000",
+      "http://localhost:3001", 
+      "http://localhost:5173",
+      "https://redragoncolombo.lk",
+      "https://www.redragoncolombo.lk",
+      process.env.FRONTEND_URL
+    ].filter(Boolean);
+    
+    // Allow requests with no origin (mobile apps, curl, etc.)
+    if (!origin) return callback(null, true);
+    
+    if (allowedOrigins.indexOf(origin) !== -1) {
+      callback(null, true);
+    } else {
+      console.log(`❌ CORS blocked origin: ${origin}`);
+      console.log(`📋 Allowed origins:`, allowedOrigins);
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   credentials: true,
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
-  allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"],
+  allowedHeaders: [
+    "Content-Type", 
+    "Authorization", 
+    "X-Requested-With",
+    "Accept",
+    "Origin",
+    "Access-Control-Request-Method",
+    "Access-Control-Request-Headers",
+    "Cache-Control",
+    "Pragma"
+  ],
+  exposedHeaders: ["Set-Cookie"],
   optionsSuccessStatus: 200,
+  maxAge: 86400
 };
 
 app.use(cors(corsOptions));
+app.options('*', cors(corsOptions));
+
+// CORS debug logging
+app.use((req, res, next) => {
+  console.log(`🌐 ${req.method} ${req.path}`);
+  console.log(`📍 Origin: ${req.get('origin') || 'undefined'}`);
+  console.log(`🔑 Referer: ${req.get('referer') || 'undefined'}`);
+  next();
+});
+
+// Cache headers only for non-API routes
+app.use((req, res, next) => {
+  if (!req.path.startsWith('/api/')) {
+    res.header('Cache-Control', 'no-cache, no-store, must-revalidate');
+    res.header('Pragma', 'no-cache');
+    res.header('Expires', '0');
+  }
+  next();
+});
 
 app.use(
   helmet({
