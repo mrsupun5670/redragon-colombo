@@ -4,9 +4,9 @@ const api = axios.create({
   baseURL: process.env.REACT_APP_API_URL || 'http://localhost:5001/api',
   headers: {
     'Content-Type': 'application/json',
-    'Cache-Control': 'no-cache, no-store, must-revalidate',
-    'Pragma': 'no-cache'
+    'Accept': 'application/json'
   },
+  withCredentials: true,
   timeout: 10000, // 10 second timeout
 });
 
