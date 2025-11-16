@@ -19,21 +19,13 @@ const allowedOrigins = [
 ].filter(Boolean);
 
 const corsOptions = {
-  origin: function (origin, callback) {
-    console.log("🔍 CORS Check - Incoming origin:", origin);
-    console.log("📋 Allowed origins:", allowedOrigins);
-    console.log("🌍 FRONTEND_URL env:", process.env.FRONTEND_URL);
-    
-    // Allow requests with no origin (like mobile apps or curl requests)
-    if (!origin || allowedOrigins.indexOf(origin) !== -1) {
-      console.log("✅ CORS allowed for origin:", origin);
-      callback(null, true);
-    } else {
-      console.log("❌ CORS blocked origin:", origin);
-      console.log("📋 Allowed origins:", allowedOrigins);
-      callback(new Error("Not allowed by CORS"));
-    }
-  },
+  origin: [
+    "http://localhost:3000",
+    "http://localhost:3001", 
+    "http://localhost:5173",
+    "https://redragoncolombo.lk",
+    "https://www.redragoncolombo.lk"
+  ],
   credentials: true,
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
   allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"],
