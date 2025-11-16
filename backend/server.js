@@ -12,18 +12,22 @@ const app = express();
 const corsOptions = {
   origin: function (origin, callback) {
     const allowedOrigins = [
-      "http://localhost:3000",
-      "http://localhost:3001", 
-      "http://localhost:5173",
+      "http://localhost:3001",
       "https://redragoncolombo.lk",
       "https://www.redragoncolombo.lk",
-      process.env.FRONTEND_URL
     ].filter(Boolean);
     
+    console.log(`🔍 CORS Check - Incoming origin: ${origin}`);
+    console.log(`📋 Allowed origins:`, allowedOrigins);
+    
     // Allow requests with no origin (mobile apps, curl, etc.)
-    if (!origin) return callback(null, true);
+    if (!origin) {
+      console.log(`✅ CORS allowed for undefined origin`);
+      return callback(null, true);
+    }
     
     if (allowedOrigins.indexOf(origin) !== -1) {
+      console.log(`✅ CORS allowed for origin: ${origin}`);
       callback(null, true);
     } else {
       console.log(`❌ CORS blocked origin: ${origin}`);
