@@ -19,10 +19,10 @@ const TikTokIcon = ({ className }) => (
 
 // Payment methods data
 const paymentMethods = [
-  { name: 'Visa', logo: '/images/payment_methods/visa.png' },
-  { name: 'Mastercard', logo: '/images/payment_methods/master.png' },
-  { name: 'American Express', logo: '/images/payment_methods/american x.png' },
-  { name: 'KOKO', logo: '/images/payment_methods/koko.png' }
+  { name: "Visa", logo: "/images/payment_methods/visa.png" },
+  { name: "Mastercard", logo: "/images/payment_methods/master.png" },
+  { name: "American Express", logo: "/images/payment_methods/american x.png" },
+  { name: "KOKO", logo: "/images/payment_methods/koko.png" },
 ];
 
 const Footer = () => {
@@ -163,7 +163,7 @@ const Footer = () => {
             </h3>
             <div className="flex items-center gap-3">
               <motion.a
-              target='_blank'
+                target="_blank"
                 href="https://www.facebook.com/redragoncolombo"
                 whileHover={{ scale: 1.1, y: -2 }}
                 className="w-10 h-10 bg-white rounded-lg flex items-center justify-center text-gray-700 hover:text-white hover:bg-blue-600 border border-gray-300 transition-all shadow-sm"
@@ -171,7 +171,7 @@ const Footer = () => {
                 <Facebook className="w-5 h-5" />
               </motion.a>
               <motion.a
-              target='_blank'
+                target="_blank"
                 href="https://www.instagram.com/redragoncolombo/"
                 whileHover={{ scale: 1.1, y: -2 }}
                 className="w-10 h-10 bg-white rounded-lg flex items-center justify-center text-gray-700 hover:text-white hover:bg-pink-600 border border-gray-300 transition-all shadow-sm"
@@ -179,7 +179,7 @@ const Footer = () => {
                 <Instagram className="w-5 h-5" />
               </motion.a>
               <motion.a
-              target='_blank'
+                target="_blank"
                 href="https://www.tiktok.com/@redragoncolombo"
                 whileHover={{ scale: 1.1, y: -2 }}
                 className="w-10 h-10 bg-white rounded-lg flex items-center justify-center text-gray-700 hover:text-white hover:bg-black border border-gray-300 transition-all shadow-sm"
@@ -223,14 +223,14 @@ const Footer = () => {
             Lanka. All rights reserved.
           </p>
           <p className="text-sm text-gray-600">
-            &copy; Designed & Developed by{" "}
+            &copy; Designed & Developed by
             <a
               href="https://www.zipzipy.com"
               target="_blank"
               rel="noopener noreferrer"
               className="text-blue-500 font-bold"
             >
-              ZipZipy
+              ZipZipy Pvt Ltd
             </a>
           </p>
         </div>
